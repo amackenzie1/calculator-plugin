@@ -41,7 +41,7 @@ function react_calculator_enqueue_scripts() {
 
     wp_enqueue_style(
     'my-react-app-styles',
-    plugins_url( 'js/assets/index-CcVlcW2y.css', __FILE__ ), // Update path if necessary
+    plugins_url( 'js/assets/index-Cd6UTSEb.css', __FILE__ ), // Update path if necessary
     array(),
     '1.0'
 );
