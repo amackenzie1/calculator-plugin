@@ -1,189 +1,137 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
-import { useState } from 'react'
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+"use client";
+
+import { useState, useEffect } from "react";
+import GeneralInformationCard from "./Form-Sections/GeneralInformation";
+import IncomeCard from "./Form-Sections/Income";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import CalculatorSchema from "./Schema";
 
 const Calculator = () => {
-  const [income, setIncome] = useState<number>(50000)
-  const [deductions, setDeductions] = useState<number>(5000)
-  const [taxRate, setTaxRate] = useState<number>(25)
+  const form = useForm<z.infer<typeof CalculatorSchema>>({
+    resolver: zodResolver(CalculatorSchema),
+    defaultValues: {
+      calculateForSpouse: false, // Only this is needed as default value
+    },
+  });
 
-  // Mock data for the chart
-  const chartData = [
-    { month: 'Jan', tax: 2100 },
-    { month: 'Feb', tax: 2300 },
-    { month: 'Mar', tax: 2000 },
-    { month: 'Apr', tax: 2780 },
-    { month: 'May', tax: 1890 },
-    { month: 'Jun', tax: 2390 },
-  ]
+  // Load state from local storage on component mount
+  useEffect(() => {
+    const storedData = localStorage.getItem("calculatorState");
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
 
-  // Additional mock data for the bar chart
-  const barChartData = [
-    { month: 'Jan', savings: 400 },
-    { month: 'Feb', savings: 300 },
-    { month: 'Mar', savings: 500 },
-    { month: 'Apr', savings: 200 },
-    { month: 'May', savings: 700 },
-    { month: 'Jun', savings: 600 },
-  ]
+      // Convert date strings to Date objects
+      if (parsedData.birthDateSelf) {
+        parsedData.birthDateSelf = new Date(parsedData.birthDateSelf);
+      }
+      if (parsedData.birthDateSpouse) {
+        parsedData.birthDateSpouse = new Date(parsedData.birthDateSpouse);
+      }
+      if (parsedData.incomeDateRangeSelf) {
+        parsedData.incomeDateRangeSelf.from = new Date(
+          parsedData.incomeDateRangeSelf.from
+        );
+        parsedData.incomeDateRangeSelf.to = new Date(
+          parsedData.incomeDateRangeSelf.to
+        );
+      }
+      if (parsedData.incomeDateRangeSpouse) {
+        parsedData.incomeDateRangeSpouse.from = new Date(
+          parsedData.incomeDateRangeSpouse.from
+        );
+        parsedData.incomeDateRangeSpouse.to = new Date(
+          parsedData.incomeDateRangeSpouse.to
+        );
+      }
+      if (parsedData.otherIncomes) {
+        parsedData.otherIncomes = parsedData.otherIncomes.map(
+          (income: any) => ({
+            ...income,
+            startDate: income.startDate
+              ? new Date(income.startDate)
+              : undefined,
+            endDate: income.endDate ? new Date(income.endDate) : undefined,
+          })
+        );
+      }
+
+      form.reset(parsedData); // Reset the form with data from local storage
+    }
+  }, []);
+
+  // Save state to local storage whenever form values change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      // Convert Date objects to strings for local storage
+      const valueToStore = {
+        ...value,
+        birthDateSelf: value.birthDateSelf
+          ? format(value.birthDateSelf, "yyyy-MM-dd")
+          : undefined,
+        birthDateSpouse: value.birthDateSpouse
+          ? format(value.birthDateSpouse, "yyyy-MM-dd")
+          : undefined,
+        incomeDateRangeSelf: value.incomeDateRangeSelf
+          ? {
+              from: value.incomeDateRangeSelf.from
+                ? format(value.incomeDateRangeSelf.from, "yyyy-MM-dd")
+                : undefined,
+              to: value.incomeDateRangeSelf.to
+                ? format(value.incomeDateRangeSelf.to, "yyyy-MM-dd")
+                : undefined,
+            }
+          : undefined,
+        incomeDateRangeSpouse: value.incomeDateRangeSpouse
+          ? {
+              from: value.incomeDateRangeSpouse.from
+                ? format(value.incomeDateRangeSpouse.from, "yyyy-MM-dd")
+                : undefined,
+              to: value.incomeDateRangeSpouse.to
+                ? format(value.incomeDateRangeSpouse.to, "yyyy-MM-dd")
+                : undefined,
+            }
+          : undefined,
+        otherIncomes: value.otherIncomes.map((income) => ({
+          ...income,
+          startDate: income.startDate
+            ? format(income.startDate, "yyyy-MM-dd")
+            : undefined,
+          endDate: income.endDate
+            ? format(income.endDate, "yyyy-MM-dd")
+            : undefined,
+        })),
+      };
+
+      localStorage.setItem("calculatorState", JSON.stringify(valueToStore));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // --- Placeholder for future API call ---
+  const onSubmit = (data: z.infer<typeof CalculatorSchema>) => {
+    // In the future, this function will send data to the backend
+    console.log("Data to be sent to backend:", data);
+
+    // Backend Endpoint Strategy (Reasoning):
+    // I'd recommend a single calculation endpoint for now (e.g., /api/calculate).
+    // This endpoint can handle both cases (with and without a spouse) based on the `calculateForSpouse` flag.
+    // Using a single endpoint simplifies the frontend logic and reduces the number of API routes to manage.
+    // We can always add more specific endpoints later if needed for optimization or different calculation types.
+  };
 
   return (
-    <div className="[&_*]:!rounded-[var(--radius)]">
-      <div className="w-full max-w-6xl mx-auto p-6 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Income Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="income">Annual Income</Label>
-                <Input
-                  id="income"
-                  type="number"
-                  value={income}
-                  onChange={(e) => setIncome(Number(e.target.value))}
-                  className="text-right !rounded-[var(--radius)] [&]:rounded-[var(--radius)]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tax Rate</Label>
-                <Slider
-                  value={[taxRate]}
-                  onValueChange={(value) => setTaxRate(value[0])}
-                  max={100}
-                  step={1}
-                />
-                <div className="text-right text-sm text-muted-foreground">
-                  {taxRate}%
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="taxYear">Tax Year</Label>
-                <Select defaultValue="2024">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                    <SelectItem value="2022">2022</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Deductions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="deductions">Total Deductions</Label>
-                <Input
-                  id="deductions"
-                  type="number"
-                  value={deductions}
-                  onChange={(e) => setDeductions(Number(e.target.value))}
-                  className="text-right"
-                />
-              </div>
-
-              <Card className="bg-black/5">
-                <CardContent className="p-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Taxable Income:</span>
-                      <span className="font-semibold">
-                        ${(income - deductions).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Estimated Tax:</span>
-                      <span className="font-semibold text-primary">
-                        $
-                        {(
-                          ((income - deductions) * taxRate) /
-                          100
-                        ).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tax Trends</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="tax"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Savings Trends</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
-                  <YAxis stroke="hsl(var(--foreground))" />
-                  <Tooltip />
-                  <Bar dataKey="savings" fill="hsl(var(--primary))" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+    <div className="p-6 space-y-8">
+      {/* Pass the form object down to child components */}
+      <GeneralInformationCard form={form} />
+      <IncomeCard form={form} />
+      <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button>
     </div>
-  )
-}
+  );
+};
 
-export default Calculator
+export default Calculator;
