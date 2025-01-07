@@ -44,9 +44,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
   const [charitableDonationIdCounter, setCharitableDonationIdCounter] =
     useState(0);
 
-  const expensesChangeForEachStage = form.watch(
-    "expensesChangeForEachStage"
-  );
+  const expensesChangeForEachStage = form.watch("expensesChangeForEachStage");
   const expensesChangeForEachStageSpouse = form.watch(
     "expensesChangeForEachStageSpouse"
   );
@@ -68,8 +66,8 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
       id: charitableDonationIdCounter,
       personType: "self",
       amount: undefined,
-      startDate: undefined,
-      endDate: undefined,
+      Year: undefined,
+      Year: undefined,
     });
   };
 
@@ -278,9 +276,10 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                     <p>
                                       Your spending priorities will likely
                                       change with each decade in retirement.
-                                      Selecting yes will help you break down your
-                                      expenses and health care for each decade
-                                      giving you a more accurate estimate.
+                                      Selecting yes will help you break down
+                                      your expenses and health care for each
+                                      decade giving you a more accurate
+                                      estimate.
                                     </p>
                                   </TooltipContent>
                                 </Tooltip>
@@ -538,7 +537,8 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                   render={({ field }) => (
                                     <FormItem className="flex-1">
                                       <FormLabel>
-                                        Spouse annual expenses from age 76 to 85:
+                                        Spouse annual expenses from age 76 to
+                                        85:
                                       </FormLabel>
                                       <FormControl>
                                         <Input
@@ -817,9 +817,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                           name={`oneOffExpenses.${index}.amount`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
-                              <FormLabel>
-                                One-off expense amount:
-                              </FormLabel>
+                              <FormLabel>One-off expense amount:</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -982,7 +980,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <div className="flex items-center space-x-4">
                         <FormField
                           control={form.control}
-                          name={`charitableDonations.${index}.startDate`}
+                          name={`charitableDonations.${index}.Year`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>Start Year:</FormLabel>
@@ -994,7 +992,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                   onBlur={(e) => {
                                     field.onBlur();
                                     form.setValue(
-                                      `charitableDonations.${index}.startDate`,
+                                      `charitableDonations.${index}.Year`,
                                       Number(e.target.value)
                                     );
                                   }}
@@ -1006,7 +1004,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                         />
                         <FormField
                           control={form.control}
-                          name={`charitableDonations.${index}.endDate`}
+                          name={`charitableDonations.${index}.Year`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>End Year:</FormLabel>
@@ -1018,7 +1016,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                   onBlur={(e) => {
                                     field.onBlur();
                                     form.setValue(
-                                      `charitableDonations.${index}.endDate`,
+                                      `charitableDonations.${index}.Year`,
                                       Number(e.target.value)
                                     );
                                   }}
@@ -1036,7 +1034,8 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                     variant="outline"
                     onClick={handleAddCharitableDonation}
                   >
-                    <PlusIcon className="mr-2 h-4 w-4" /> Add Charitable Donation
+                    <PlusIcon className="mr-2 h-4 w-4" /> Add Charitable
+                    Donation
                   </Button>
                 </div>
               </CardContent>
@@ -1097,50 +1096,26 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
-                                  There are 3 possible answers to consider:
+                                  Enter the minimum amount you'd like to leave
+                                  to your heirs, or leave blank to see how much
+                                  might be left over based on your current plan.
                                   <br />
                                   <br />
-                                  1. The minimum - You know your heirs the best,
-                                  so you should decide on the minimum amount you
-                                  consider to be an appropriate inheritance. If
-                                  you are conservative in your assumptions,
-                                  i.e., planning to live to age 100, planning
-                                  for higher than expected living expenses, and
-                                  lower than expected revenues, then the estate
-                                  will probably be higher than the minimum
-                                  amount considered to be appropriate. But by
-                                  entering the minimum acceptable amount it is
-                                  possible to determine if you have a surplus –
-                                  even if you spend more than expected and live
-                                  to age 100.
+                                  <b>Minimum Amount:</b> This helps determine if
+                                  you have a surplus, even if you spend more
+                                  than expected.
                                   <br />
                                   <br />
-                                  2. Whatever is left over - If you are not
-                                  concerned about leaving an estate then you
-                                  should enter a nominal amount to cover funeral
-                                  and estate costs. By entering this amount you
-                                  will be able to determine if you currently
+                                  <b>Leave Blank:</b> This helps you see if you
                                   have a surplus that could be used for a better
-                                  lifestyle, to help heirs now, or to support
-                                  some cause that is important to you.
+                                  lifestyle, helping heirs now, or supporting a
+                                  cause.
                                   <br />
                                   <br />
-                                  3. Leaving as much as possible it will not be
-                                  possible to calculate a ‘surplus’ because all
-                                  of your capital is necessary to achieve the
-                                  ‘as much as possible’ goal. We suggest
-                                  spending less and purchasing whole life
-                                  insurance to achieve the ‘as much as possible’
-                                  goal. The calculator will still be useful in
-                                  that it will show you how large the estate is
-                                  likely to be based on current spending and how
-                                  much larger it could be if you reduce
-                                  spending.
-                                  <br />
-                                  <br />
-                                  Note: If you’re a Surplus member, you can
-                                  access the desired estate worksheet to help
-                                  you calculate this.
+                                  <b>Note:</b> If you aim to leave as much as
+                                  possible, a 'surplus' can't be calculated, as
+                                  all capital is needed for that goal. Consider
+                                  whole life insurance to maximize your estate.
                                 </p>
                               </TooltipContent>
                             </Tooltip>

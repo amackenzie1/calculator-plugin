@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,16 +15,33 @@ import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { Switch } from "@/components/ui/switch";
 import React from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CalculatorSchema } from "../Schema";
 
 // Receive the form object as a prop
 interface IncomeCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
   calculateForSpouse: boolean;
+  birthYearSelf: number | undefined;
+  birthYearSpouse: number | undefined;
+  yearFromBirthYearAndTargetAge: (
+    birthYear: number,
+    targetAge: number
+  ) => number;
 }
 
-const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
+const IncomeCard = ({
+  form,
+  calculateForSpouse,
+  birthYearSelf,
+  birthYearSpouse,
+  yearFromBirthYearAndTargetAge,
+}: IncomeCardProps) => {
   // --- Helper Functions ---
 
   const handleAddOtherIncome = (personType: "self" | "spouse") => {
@@ -31,11 +50,9 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
       id: Date.now(),
       personType: personType,
       description: "",
-      isAnnuity: false,
       amount: undefined,
-      year: undefined,
-      startDate: undefined,
-      endDate: undefined,
+      Year: undefined,
+      Year: undefined,
     };
 
     form.setValue("otherIncomes", [...currentOtherIncomes, newOtherIncome]);
@@ -48,13 +65,59 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
     form.setValue("otherIncomes", updatedOtherIncomes);
   };
 
+  const handlePrimaryIncomeAgeBlur = (personType: "self" | "spouse") => {
+    const startAge = form.getValues(
+      `persons.${personType === "spouse" ? 1 : 0}.incomeStartAge`
+    );
+    const endAge = form.getValues(
+      `persons.${personType === "spouse" ? 1 : 0}.incomeEndAge`
+    );
+    const birthYear = personType === "self" ? birthYearSelf : birthYearSpouse;
+
+    if (startAge && birthYear) {
+      const startYear = yearFromBirthYearAndTargetAge(birthYear, startAge);
+      form.setValue(
+        `persons.${personType === "spouse" ? 1 : 0}.incomeYearStart`,
+        startYear
+      );
+    }
+
+    if (endAge && birthYear) {
+      const endYear = yearFromBirthYearAndTargetAge(birthYear, endAge);
+      form.setValue(
+        `persons.${personType === "spouse" ? 1 : 0}.incomeYearEnd`,
+        endYear
+      );
+    }
+  };
+
+  const handlePensionAgeBlur = (
+    personType: "self" | "spouse",
+    fieldPrefix: string
+  ) => {
+    const age = form.getValues(
+      `persons.${personType === "spouse" ? 1 : 0}.${fieldPrefix}StartAge`
+    );
+    const birthYear = personType === "self" ? birthYearSelf : birthYearSpouse;
+
+    if (age && birthYear) {
+      const year = yearFromBirthYearAndTargetAge(birthYear, age);
+      form.setValue(
+        `persons.${personType === "spouse" ? 1 : 0}.${fieldPrefix}StartYear`,
+        year
+      );
+    }
+  };
+
   return (
     <Card className="mx-auto w-full max-w-3xl border-blue-500">
-      <CardHeader>
-        <CardTitle className="text-blue-500 underline">Income</CardTitle>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+      <CardHeader className="text-center">
+        <CardTitle className="text-blue-500 text-3xl underline">
+          # Income
+        </CardTitle>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           Provide your income details below.
-        </p>
+        </span>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -62,13 +125,15 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
             <div className="relative overflow-x-auto">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <tbody>
+                  <tr>
+                    <td colSpan={calculateForSpouse ? 3 : 2}>
+                      <h2 className="text-xl font-semibold mb-2 underline">
+                        ## Primary Yearly Income
+                      </h2>
+                    </td>
+                  </tr>
                   <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium"
-                      rowSpan={2}
-                    >
-                      Primary Yearly Income
+                    <th scope="row" className="px-6 py-4 font-medium">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -89,21 +154,27 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       </TooltipProvider>
                     </th>
                     <td className="px-6 py-4">
+                      <span className="font-semibold">You</span>
+                    </td>
+                    {calculateForSpouse && (
+                      <td className="px-6 py-4">
+                        <span className="font-semibold">Spouse</span>
+                      </td>
+                    )}
+                  </tr>
+                  <tr className="bg-gray-100 dark:bg-gray-900">
+                    <th scope="row" className="px-6 py-4 font-medium">
+                      Annual income (before tax)
+                    </th>
+                    <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="primaryYearlyIncomeSelf"
+                        name={`persons.0.primaryYearlyIncome`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="primaryYearlyIncomeSelf"
-                              className="text-gray-500 dark:text-gray-400"
-                            >
-                              Annual income (before tax)
-                            </FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
-                                id="primaryYearlyIncomeSelf"
                                 placeholder="Enter income"
                                 {...field}
                                 onChange={(e) => {
@@ -124,19 +195,12 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="primaryYearlyIncomeSpouse"
+                          name={`persons.1.primaryYearlyIncome`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="primaryYearlyIncomeSpouse"
-                                className="text-gray-500 dark:text-gray-400"
-                              >
-                                Annual income (before tax)
-                              </FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="primaryYearlyIncomeSpouse"
                                   placeholder="Enter income"
                                   {...field}
                                   onChange={(e) => {
@@ -156,25 +220,31 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     )}
                   </tr>
                   <tr className="bg-gray-100 dark:bg-gray-900">
+                    <th scope="row" className="px-6 py-4 font-medium">
+                      Between what ages will you receive this income?
+                    </th>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
                         <FormField
                           control={form.control}
-                          name="incomeDateRangeSelf.from"
+                          name={`persons.0.incomeStartAge`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
-                                htmlFor="incomeYearStartSelf"
+                                htmlFor="incomeStartAgeSelf"
                                 className="text-gray-500 dark:text-gray-400"
                               >
-                                Start Year
+                                Start Age
                               </FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="incomeYearStartSelf"
-                                  placeholder="Year"
+                                  id="incomeStartAgeSelf"
+                                  placeholder="Age"
                                   {...field}
+                                  onBlur={() =>
+                                    handlePrimaryIncomeAgeBlur("self")
+                                  }
                                   onChange={(e) =>
                                     field.onChange(
                                       e.target.value
@@ -191,21 +261,24 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                         <span>-</span>
                         <FormField
                           control={form.control}
-                          name="incomeDateRangeSelf.to"
+                          name={`persons.0.incomeEndAge`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
-                                htmlFor="incomeYearEndSelf"
+                                htmlFor="incomeEndAgeSelf"
                                 className="text-gray-500 dark:text-gray-400"
                               >
-                                End Year
+                                End Age
                               </FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="incomeYearEndSelf"
-                                  placeholder="Year"
+                                  id="incomeEndAgeSelf"
+                                  placeholder="Age"
                                   {...field}
+                                  onBlur={() =>
+                                    handlePrimaryIncomeAgeBlur("self")
+                                  }
                                   onChange={(e) =>
                                     field.onChange(
                                       e.target.value
@@ -226,21 +299,24 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                         <div className="flex items-center space-x-2">
                           <FormField
                             control={form.control}
-                            name="incomeDateRangeSpouse.from"
+                            name={`persons.1.incomeStartAge`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel
-                                  htmlFor="incomeYearStartSpouse"
+                                  htmlFor="incomeStartAgeSpouse"
                                   className="text-gray-500 dark:text-gray-400"
                                 >
-                                  Start Year
+                                  Start Age
                                 </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    id="incomeYearStartSpouse"
-                                    placeholder="Year"
+                                    id="incomeStartAgeSpouse"
+                                    placeholder="Age"
                                     {...field}
+                                    onBlur={() =>
+                                      handlePrimaryIncomeAgeBlur("spouse")
+                                    }
                                     onChange={(e) =>
                                       field.onChange(
                                         e.target.value
@@ -257,21 +333,24 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                           <span>-</span>
                           <FormField
                             control={form.control}
-                            name="incomeDateRangeSpouse.to"
+                            name={`persons.1.incomeEndAge`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel
-                                  htmlFor="incomeYearEndSpouse"
+                                  htmlFor="incomeEndAgeSpouse"
                                   className="text-gray-500 dark:text-gray-400"
                                 >
-                                  End Year
+                                  End Age
                                 </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    id="incomeYearEndSpouse"
-                                    placeholder="Year"
+                                    id="incomeEndAgeSpouse"
+                                    placeholder="Age"
                                     {...field}
+                                    onBlur={() =>
+                                      handlePrimaryIncomeAgeBlur("spouse")
+                                    }
                                     onChange={(e) =>
                                       field.onChange(
                                         e.target.value
@@ -289,13 +368,19 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       </td>
                     )}
                   </tr>
+                  <tr>
+                    <td colSpan={calculateForSpouse ? 3 : 2}>
+                      <h2 className="text-xl font-semibold mb-2 underline">
+                        ## Pension Income
+                      </h2>
+                    </td>
+                  </tr>
                   <tr className="bg-white dark:bg-gray-800">
                     <th
                       scope="row"
                       className="px-6 py-4 font-medium"
                       rowSpan={3}
                     >
-                      Pension Income
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -340,11 +425,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="cppStartDateSelf"
+                        name={`persons.0.cppStartAge`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
-                              htmlFor="cppStartDateSelf"
+                              htmlFor="cppStartAgeSelf"
                               className="text-gray-500 dark:text-gray-400"
                             >
                               At what age have you/will you receive these
@@ -353,9 +438,12 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                             <FormControl>
                               <Input
                                 type="number"
-                                id="cppStartDateSelf"
+                                id="cppStartAgeSelf"
                                 placeholder="Enter age"
                                 {...field}
+                                onBlur={() =>
+                                  handlePensionAgeBlur("self", "cpp")
+                                }
                                 onChange={(e) =>
                                   field.onChange(
                                     e.target.value
@@ -374,11 +462,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="cppStartDateSpouse"
+                          name={`persons.1.cppStartAge`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
-                                htmlFor="cppStartDateSpouse"
+                                htmlFor="cppStartAgeSpouse"
                                 className="text-gray-500 dark:text-gray-400"
                               >
                                 At what age have you/will you receive these
@@ -387,9 +475,12 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="cppStartDateSpouse"
+                                  id="cppStartAgeSpouse"
                                   placeholder="Enter age"
                                   {...field}
+                                  onBlur={() =>
+                                    handlePensionAgeBlur("spouse", "cpp")
+                                  }
                                   onChange={(e) =>
                                     field.onChange(
                                       e.target.value
@@ -410,7 +501,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="cppAmountSelf"
+                        name={`persons.0.cppAmount`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
@@ -443,7 +534,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="cppAmountSpouse"
+                          name={`persons.1.cppAmount`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
@@ -500,11 +591,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="oasStartDateSelf"
+                        name={`persons.0.oasStartAge`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
-                              htmlFor="oasStartDateSelf"
+                              htmlFor="oasStartAgeSelf"
                               className="text-gray-500 dark:text-gray-400"
                             >
                               At what age have you/will you receive these
@@ -513,9 +604,12 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                             <FormControl>
                               <Input
                                 type="number"
-                                id="oasStartDateSelf"
+                                id="oasStartAgeSelf"
                                 placeholder="Enter age"
                                 {...field}
+                                onBlur={() =>
+                                  handlePensionAgeBlur("self", "oas")
+                                }
                                 onChange={(e) =>
                                   field.onChange(
                                     e.target.value
@@ -534,11 +628,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="oasStartDateSpouse"
+                          name={`persons.1.oasStartAge`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
-                                htmlFor="oasStartDateSpouse"
+                                htmlFor="oasStartAgeSpouse"
                                 className="text-gray-500 dark:text-gray-400"
                               >
                                 At what age have you/will you receive these
@@ -547,9 +641,12 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="oasStartDateSpouse"
+                                  id="oasStartAgeSpouse"
                                   placeholder="Enter age"
                                   {...field}
+                                  onBlur={() =>
+                                    handlePensionAgeBlur("spouse", "oas")
+                                  }
                                   onChange={(e) =>
                                     field.onChange(
                                       e.target.value
@@ -570,7 +667,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="oasAmountSelf"
+                        name={`persons.0.oasAmount`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
@@ -603,7 +700,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="oasAmountSpouse"
+                          name={`persons.1.oasAmount`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
@@ -659,11 +756,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="definedBenefitPensionStartDateSelf"
+                        name={`persons.0.definedBenefitPensionStartAge`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
-                              htmlFor="definedBenefitPensionStartDateSelf"
+                              htmlFor="definedBenefitPensionStartAgeSelf"
                               className="text-gray-500 dark:text-gray-400"
                             >
                               At what age have you/will you receive these
@@ -672,9 +769,15 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                             <FormControl>
                               <Input
                                 type="number"
-                                id="definedBenefitPensionStartDateSelf"
+                                id="definedBenefitPensionStartAgeSelf"
                                 placeholder="Enter age"
                                 {...field}
+                                onBlur={() =>
+                                  handlePensionAgeBlur(
+                                    "self",
+                                    "definedBenefitPension"
+                                  )
+                                }
                                 onChange={(e) =>
                                   field.onChange(
                                     e.target.value
@@ -693,11 +796,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="definedBenefitPensionStartDateSpouse"
+                          name={`persons.1.definedBenefitPensionStartAge`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
-                                htmlFor="definedBenefitPensionStartDateSpouse"
+                                htmlFor="definedBenefitPensionStartAgeSpouse"
                                 className="text-gray-500 dark:text-gray-400"
                               >
                                 At what age have you/will you receive these
@@ -706,9 +809,15 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                               <FormControl>
                                 <Input
                                   type="number"
-                                  id="definedBenefitPensionStartDateSpouse"
+                                  id="definedBenefitPensionStartAgeSpouse"
                                   placeholder="Enter age"
                                   {...field}
+                                  onBlur={() =>
+                                    handlePensionAgeBlur(
+                                      "spouse",
+                                      "definedBenefitPension"
+                                    )
+                                  }
                                   onChange={(e) =>
                                     field.onChange(
                                       e.target.value
@@ -729,7 +838,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="definedBenefitPensionAmountSelf"
+                        name={`persons.0.definedBenefitPensionAmount`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel
@@ -762,7 +871,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="definedBenefitPensionAmountSpouse"
+                          name={`persons.1.definedBenefitPensionAmount`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel
@@ -797,7 +906,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
-                        name="definedBenefitPensionIndexedToInflationSelf"
+                        name={`persons.0.definedBenefitPensionIndexedToInflation`}
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                             <div className="space-y-0.5">
@@ -820,7 +929,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       <td className="px-6 py-4">
                         <FormField
                           control={form.control}
-                          name="definedBenefitPensionIndexedToInflationSpouse"
+                          name={`persons.1.definedBenefitPensionIndexedToInflation`}
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                               <div className="space-y-0.5">
@@ -841,9 +950,15 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                       </td>
                     )}
                   </tr>
+                  <tr>
+                    <td colSpan={calculateForSpouse ? 3 : 2}>
+                      <h2 className="text-xl font-semibold mb-2 underline">
+                        ## Other Incomes
+                      </h2>
+                    </td>
+                  </tr>
                   <tr className="bg-white dark:bg-gray-800">
                     <th scope="row" className="px-6 py-4 font-medium">
-                      Other Incomes
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -896,35 +1011,6 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                         <td className="px-6 py-4">
                           <FormField
                             control={form.control}
-                            name={`otherIncomes.${index}.isAnnuity`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                <div className="space-y-0.5">
-                                  <FormLabel className="text-gray-500 dark:text-gray-400">
-                                    Is this an annuity?
-                                  </FormLabel>
-                                </div>
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    aria-label="Toggle if income is an annuity"
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {calculateForSpouse && (
-                          <td className="px-6 py-4">
-                            {/* Placeholder for alignment */}
-                          </td>
-                        )}
-                      </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
                             name={`otherIncomes.${index}.amount`}
                             render={({ field }) => (
                               <FormItem>
@@ -954,54 +1040,22 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name={`otherIncomes.${index}.year`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel
-                                  htmlFor={`otherIncomes.${index}.year`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Year
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id={`otherIncomes.${index}.year`}
-                                    placeholder="Enter year"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
                         {calculateForSpouse && (
                           <td className="px-6 py-4">
                             {/* Placeholder for alignment */}
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
+                      <tr className="bg-gray-100 dark:bg-gray-900">
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
                             <FormField
                               control={form.control}
-                              name={`otherIncomes.${index}.startDate`}
+                              name={`otherIncomes.${index}.Year`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel
-                                    htmlFor={`otherIncomes.${index}.startDate`}
+                                    htmlFor={`otherIncomes.${index}.Year`}
                                     className="text-gray-500 dark:text-gray-400"
                                   >
                                     Start Year
@@ -1009,7 +1063,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                                   <FormControl>
                                     <Input
                                       type="number"
-                                      id={`otherIncomes.${index}.startDate`}
+                                      id={`otherIncomes.${index}.Year`}
                                       placeholder="Year"
                                       {...field}
                                       onChange={(e) =>
@@ -1028,11 +1082,11 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                             <span>-</span>
                             <FormField
                               control={form.control}
-                              name={`otherIncomes.${index}.endDate`}
+                              name={`otherIncomes.${index}.Year`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel
-                                    htmlFor={`otherIncomes.${index}.endDate`}
+                                    htmlFor={`otherIncomes.${index}.Year`}
                                     className="text-gray-500 dark:text-gray-400"
                                   >
                                     End Year
@@ -1040,7 +1094,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                                   <FormControl>
                                     <Input
                                       type="number"
-                                      id={`otherIncomes.${index}.endDate`}
+                                      id={`otherIncomes.${index}.Year`}
                                       placeholder="Year"
                                       {...field}
                                       onChange={(e) =>
@@ -1064,7 +1118,7 @@ const IncomeCard = ({ form, calculateForSpouse }: IncomeCardProps) => {
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
+                      <tr className="bg-white dark:bg-gray-800">
                         <td colSpan={calculateForSpouse ? 3 : 2}>
                           <div className="flex justify-end">
                             <Button

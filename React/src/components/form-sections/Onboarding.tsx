@@ -29,11 +29,11 @@ import {
 import { useEffect } from "react";
 import { CalculatorSchema } from "../Schema";
 
-interface GeneralInformationCardProps {
+interface OnboardingCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
 }
 
-const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
+const OnboardingCard = ({ form }: OnboardingCardProps) => {
   // --- Canadian Provinces ---
   const canadianProvinces = [
     "Alberta",
@@ -88,19 +88,17 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
         if (!value.persons.some((p) => p.personType === "spouse")) {
           form.setValue("persons.1", {
             personType: "spouse",
-            age: undefined,
+            // age: undefined, // Removed age field
             birthYear: undefined,
             lifeExpectancy: 100,
             primaryYearlyIncome: undefined,
-            incomeDateRange: {
-              from: undefined,
-              to: undefined,
-            },
-            cppStartDate: undefined,
+            incomeYearStart: undefined, // Changed to year
+            incomeYearEnd: undefined, // Changed to year
+            cppStartYear: undefined, // Changed to year
             cppAmount: undefined,
-            oasStartDate: undefined,
+            oasStartYear: undefined, // Changed to year
             oasAmount: undefined,
-            definedBenefitPensionStartDate: undefined,
+            definedBenefitPensionStartYear: undefined, // Changed to year
             definedBenefitPensionAmount: undefined,
             definedBenefitPensionIndexedToInflation: undefined,
             registeredInvestments: [],
@@ -127,19 +125,19 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
   return (
     <TooltipProvider>
       <Card className="mx-auto w-full max-w-3xl border-purple-500">
-        <CardHeader>
-          <CardTitle className="text-purple-500 underline">
-            General Information
+        <CardHeader className="flex flex-row items-center justify-center">
+          <CardTitle className="text-purple-500 underline text-center text-3xl">
+            Onboarding
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form className="space-y-6">
-              {/* --- Onboarding Subsection --- */}
+              {/* --- General Information Subsection --- */}
               <div className="mb-4">
-                <h3 className="text-lg font-medium mb-2">
-                  Onboarding: General Information
-                </h3>
+                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
+                  General Information
+                </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   To discover your Essential and Surplus Capital, let’s start
                   with some general questions.
@@ -217,12 +215,12 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
                             name="persons[0].birthYear"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
+                                {/* <FormLabel
                                   htmlFor="birthYearSelf"
                                   className="text-gray-500 dark:text-gray-400"
                                 >
                                   Your Birth Year
-                                </FormLabel>
+                                </FormLabel> */}
                                 <FormControl>
                                   <Input
                                     type="number"
@@ -250,12 +248,12 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
                               name="persons[1].birthYear"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel
+                                  {/* <FormLabel
                                     htmlFor="birthYearSpouse"
                                     className="text-gray-500 dark:text-gray-400"
                                   >
                                     Spouse's Birth Year
-                                  </FormLabel>
+                                  </FormLabel> */}
                                   <FormControl>
                                     <Input
                                       type="number"
@@ -308,12 +306,12 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
                             name="persons[0].lifeExpectancy"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
+                                {/* <FormLabel
                                   htmlFor="lifeExpectancySelf"
                                   className="text-gray-500 dark:text-gray-400"
                                 >
                                   Your Life Expectancy
-                                </FormLabel>
+                                </FormLabel> */}
                                 <FormControl>
                                   <Input
                                     type="number"
@@ -341,12 +339,12 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
                               name="persons[1].lifeExpectancy"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel
+                                  {/* <FormLabel
                                     htmlFor="lifeExpectancySpouse"
                                     className="text-gray-500 dark:text-gray-400"
                                   >
                                     Spouse's Life Expectancy
-                                  </FormLabel>
+                                  </FormLabel> */}
                                   <FormControl>
                                     <Input
                                       type="number"
@@ -391,12 +389,12 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
                             name="province"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
+                                {/* <FormLabel
                                   htmlFor="province"
                                   className="text-gray-500 dark:text-gray-400"
                                 >
                                   Select Province
-                                </FormLabel>
+                                </FormLabel> */}
                                 <Select
                                   onValueChange={field.onChange}
                                   value={field.value}
@@ -433,7 +431,9 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
 
               {/* --- Investor Profile Subsection --- */}
               <div className="mb-4">
-                <h3 className="text-lg font-medium mb-2">Investor Profile</h3>
+                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
+                  Investor Profile
+                </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   This determines the rate at which your wealth grows throughout
                   your life. This section assumes you and your spouse are the
@@ -720,4 +720,4 @@ const GeneralInformationCard = ({ form }: GeneralInformationCardProps) => {
   );
 };
 
-export default GeneralInformationCard;
+export default OnboardingCard;

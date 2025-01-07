@@ -11,6 +11,17 @@ import GeneralInformationCard from "./form-sections/GeneralInformation";
 import IncomeCard from "./form-sections/Income";
 import { CalculatorSchema } from "./Schema";
 
+// Helper Functions (in Calculator.tsx)
+const currentYear = new Date().getFullYear();
+
+// Calculates the year in which a person will reach a certain age, based on their birth year
+const yearFromBirthYearAndTargetAge = (
+  birthYear: number,
+  targetAge: number
+): number => {
+  return birthYear + targetAge;
+};
+
 const Calculator = () => {
   const form = useForm<z.infer<typeof CalculatorSchema>>({
     resolver: zodResolver(CalculatorSchema),
@@ -19,19 +30,16 @@ const Calculator = () => {
       persons: [
         {
           personType: "self",
-          age: undefined,
           birthYear: undefined,
           lifeExpectancy: 100,
           primaryYearlyIncome: undefined,
-          incomeDateRange: {
-            from: undefined,
-            to: undefined,
-          },
-          cppStartDate: undefined,
+          incomeYearStart: undefined, // Only years in the state
+          incomeYearEnd: undefined, // Only years in the state
+          cppStartYear: undefined, // Only years in the state
           cppAmount: undefined,
-          oasStartDate: undefined,
+          oasStartYear: undefined, // Only years in the state
           oasAmount: undefined,
-          definedBenefitPensionStartDate: undefined,
+          definedBenefitPensionStartYear: undefined, // Only years in the state
           definedBenefitPensionAmount: undefined,
           definedBenefitPensionIndexedToInflation: undefined,
           registeredInvestments: [],
@@ -92,20 +100,25 @@ const Calculator = () => {
       // Map the persons array:
       persons: data.persons.map((person) => ({
         personType: person.personType,
-        age: person.age,
         birthYear: person.birthYear,
         lifeExpectancy: person.lifeExpectancy,
         primaryYearlyIncome: person.primaryYearlyIncome,
-        incomeDateRange: person.incomeDateRange,
-        cppStartDate: person.cppStartDate,
+        incomeYearStart: person.incomeYearStart,
+        incomeYearEnd: person.incomeYearEnd,
+        cppStartYear: person.cppStartYear,
         cppAmount: person.cppAmount,
-        oasStartDate: person.oasStartDate,
+        oasStartYear: person.oasStartYear,
         oasAmount: person.oasAmount,
-        definedBenefitPensionStartDate: person.definedBenefitPensionStartDate,
+        definedBenefitPensionStartYear: person.definedBenefitPensionStartYear,
         definedBenefitPensionAmount: person.definedBenefitPensionAmount,
         definedBenefitPensionIndexedToInflation:
           person.definedBenefitPensionIndexedToInflation,
-        registeredInvestments: person.registeredInvestments,
+        registeredInvestments: person.registeredInvestments.map(
+          (investment) => ({
+            accountType: investment.accountType,
+            currentValue: investment.currentValue,
+          })
+        ),
         nonRegisteredInvestmentValue: person.nonRegisteredInvestmentValue,
         nonRegisteredInvestmentOpeningYear:
           person.nonRegisteredInvestmentOpeningYear,
@@ -122,24 +135,19 @@ const Calculator = () => {
 
       // Map otherIncomes, charitableDonations, oneOffExpenses (similar to persons mapping)
       otherIncomes: data.otherIncomes.map((income) => ({
-        id: income.id,
         personType: income.personType,
         description: income.description,
-        isAnnuity: income.isAnnuity,
         amount: income.amount,
-        year: income.year,
         startDate: income.startDate,
         endDate: income.endDate,
       })),
       charitableDonations: data.charitableDonations.map((donation) => ({
-        id: donation.id,
         personType: donation.personType,
         amount: donation.amount,
         startDate: donation.startDate,
         endDate: donation.endDate,
       })),
       oneOffExpenses: data.oneOffExpenses.map((expense) => ({
-        id: expense.id,
         personType: expense.personType,
         description: expense.description,
         amount: expense.amount,
@@ -149,6 +157,11 @@ const Calculator = () => {
 
     console.log("Data to be sent to backend:", apiRequestBody);
   };
+
+  const birthYearSelf = form.watch("persons.0.birthYear");
+  const birthYearSpouse = calculateForSpouse
+    ? form.watch("persons.1.birthYear")
+    : undefined;
 
   return (
     <div className="p-6 space-y-8">
@@ -163,7 +176,13 @@ const Calculator = () => {
           <GeneralInformationCard form={form} />
         </TabsContent>
         <TabsContent value="income">
-          <IncomeCard form={form} calculateForSpouse={calculateForSpouse} />
+          <IncomeCard
+            form={form}
+            calculateForSpouse={calculateForSpouse}
+            birthYearSelf={birthYearSelf}
+            birthYearSpouse={birthYearSpouse}
+            yearFromBirthYearAndTargetAge={yearFromBirthYearAndTargetAge}
+          />
         </TabsContent>
         <TabsContent value="assets">
           <AssetsCard form={form} />
