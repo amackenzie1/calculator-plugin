@@ -1,0 +1,290 @@
+Array
+(
+    [parameters] => Array
+        (
+            [growth_rate] => 0.015
+            [income_rate] => 0.015
+            [inflation] => 0.0122
+            [interest_rate] => 0
+            [start_year] => 2024
+            [client_age] => 16
+            [client_life_expectancy] => 12333
+            [spouse] => 1
+            [spouse_age] => 18
+            [spouse_life_expectancy] => 718
+            [end_year] => 14341
+            [end_balance] => 100000
+            [sell_home] => 2044
+            [oas_clawback] => Array
+                (
+                    [base] => 72000
+                    [index] => 0.02
+                )
+
+            [personal_exemption] => Array
+                (
+                    [base] => 12896
+                    [index] => 0.02
+                )
+
+            [tax_rate] => Array
+                (
+                    [marginal] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [0] => 12070
+                                    [1] => 0
+                                )
+
+                            [1] => Array
+                                (
+                                    [0] => 50000
+                                    [1] => 0.25
+                                )
+
+                            [2] => Array
+                                (
+                                    [0] => 90000
+                                    [1] => 0.35
+                                )
+
+                            [3] => Array
+                                (
+                                    [0] => 200000
+                                    [1] => 0.45
+                                )
+
+                        )
+
+                    [top] => 0.54
+                )
+
+            [province] => Ontario
+            [pensions] => Array
+                (
+                    [0] => Array
+                        (
+                            [person] => client
+                            [name] => CPP
+                            [start_year] => 2024
+                            [end_year] => 14341
+                            [amount] => 2333
+                            [index_rate] => 0.0122
+                        )
+
+                    [1] => Array
+                        (
+                            [person] => client
+                            [name] => OAS
+                            [start_year] => 2024
+                            [end_year] => 14341
+                            [amount] => 123
+                            [index_rate] => 0.0122
+                        )
+
+                    [2] => Array
+                        (
+                            [person] => client
+                            [name] => OTHER_PENSION
+                            [start_year] => 2024
+                            [end_year] => 14341
+                            [amount] => 123
+                            [index_rate] => 0
+                        )
+
+                    [3] => Array
+                        (
+                            [person] => spouse
+                            [name] => CPP
+                            [start_year] => 2024
+                            [end_year] => 2724
+                            [amount] => 3233
+                            [index_rate] => 0.0122
+                        )
+
+                    [4] => Array
+                        (
+                            [person] => spouse
+                            [name] => OTHER_PENSION
+                            [start_year] => 2024
+                            [end_year] => 2724
+                            [amount] => 123
+                            [index_rate] => 0
+                        )
+
+                    [5] => Array
+                        (
+                            [person] => spouse
+                            [name] => OAS
+                            [start_year] => 2024
+                            [end_year] => 2724
+                            [amount] => 123
+                            [index_rate] => 0.0122
+                        )
+
+                )
+
+            [incomes] => Array
+                (
+                    [0] => Array
+                        (
+                            [person] => client
+                            [start_year] => 2030
+                            [end_year] => 2040
+                            [amount] => 0
+                            [index_rate] => 0.0122
+                        )
+
+                    [1] => Array
+                        (
+                            [person] => spouse
+                            [start_year] => 2030
+                            [end_year] => 2050
+                            [amount] => 100000
+                            [index_rate] => 0.0122
+                        )
+
+                )
+
+            [pli] => Array
+                (
+                    [0] => Array
+                        (
+                            [person] => client
+                            [amount] => 0
+                        )
+
+                    [1] => Array
+                        (
+                            [person] => spouse
+                            [amount] => 0
+                        )
+
+                )
+
+            [income_requirements] => Array
+                (
+                    [0] => Array
+                        (
+                            [person] => client
+                            [type] => ANNUAL_RETIREMENT_EXPENSES
+                            [start_year] => 2024
+                            [end_year] => 14341
+                            [amount] => 50000
+                            [index_rate] => 0.0122
+                        )
+
+                    [1] => Array
+                        (
+                            [person] => client
+                            [type] => HEALTH_CARE_EXPENSES
+                            [start_year] => 2024
+                            [end_year] => 14341
+                            [amount] => 10000
+                            [index_rate] => 0.0122
+                        )
+
+                    [2] => Array
+                        (
+                            [person] => spouse
+                            [type] => ANNUAL_RETIREMENT_EXPENSES
+                            [start_year] => 2024
+                            [end_year] => 2724
+                            [amount] => 60000
+                            [index_rate] => 0.0122
+                        )
+
+                    [3] => Array
+                        (
+                            [person] => spouse
+                            [type] => HEALTH_CARE_EXPENSES
+                            [start_year] => 2024
+                            [end_year] => 2724
+                            [amount] => 15500
+                            [index_rate] => 0.0122
+                        )
+
+                    [4] => Array
+                        (
+                            [person] => client
+                            [type] => ONE_OFF_EXPENSES
+                            [start_year] => 2033
+                            [end_year] => 2033
+                            [amount] => 100000
+                            [index_rate] => 0.0122
+                        )
+
+                    [5] => Array
+                        (
+                            [person] => spouse
+                            [type] => ONE_OFF_EXPENSES
+                            [start_year] => 2036
+                            [end_year] => 2036
+                            [amount] => 200000
+                            [index_rate] => 0.0122
+                        )
+
+                )
+
+            [charitable_donations] => Array
+                (
+                    [0] => Array
+                        (
+                            [person] => client
+                            [start_year] => 0
+                            [end_year] => 0
+                            [amount] => 0
+                            [index_rate] => 0.0122
+                        )
+
+                    [1] => Array
+                        (
+                            [person] => spouse
+                            [start_year] => 0
+                            [end_year] => 0
+                            [amount] => 0
+                            [index_rate] => 0.0122
+                        )
+
+                )
+
+        )
+
+    [start_book] => Array
+        (
+            [joint] => Array
+                (
+                    [CLEARING] => 0
+                    [HOME] => 123939
+                )
+
+            [client] => Array
+                (
+                    [RRIF] => 123
+                    [TFSA] => 0
+                    [RRSP] => 0
+                    [LIRA] => 0
+                    [LIF] => 0
+                    [NON_REGISTERED_ASSET] => 12
+                    [NON_REGISTERED_BOOK_VALUE] => 12
+                )
+
+            [spouse] => Array
+                (
+                    [TFSA] => 123
+                    [LIRA] => 123
+                    [RRSP] => 0
+                    [RRIF] => 0
+                    [LIF] => 0
+                    [NON_REGISTERED_ASSET] => 15
+                    [NON_REGISTERED_BOOK_VALUE] => 15
+                )
+
+            [transactions] => Array
+                (
+                )
+
+        )
+
+)

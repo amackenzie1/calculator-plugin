@@ -1,0 +1,277 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+* {
+    margin: 0;
+    padding: 0
+}
+
+html {
+    height: 100%
+}
+
+p {
+    color: #535353
+}
+
+#heading {
+    text-transform: uppercase;
+    color: #673AB7;
+    font-weight: normal
+}
+
+#msform {
+    text-align: center;
+    position: relative;
+    margin-top: 20px
+}
+li.progress-expense {
+    cursor: pointer;
+}
+li.progress-step {
+    cursor: pointer;
+}
+
+.form-card {
+    text-align: left
+}
+
+#msform input,
+#msform textarea {
+    padding: 8px 15px 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    margin-bottom: 25px;
+    margin-top: 2px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: montserrat;
+    color: #2C3E50;
+    background-color: #ECEFF1;
+    font-size: 16px;
+    letter-spacing: 1px
+}
+
+#msform input:focus,
+#msform textarea:focus {
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #673AB7;
+    outline-width: 0
+}
+
+#msform .action-button {
+    width: 222px;
+    background: #673AB7;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 0px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 0px 10px 5px;
+    float: right
+}
+
+#msform .action-button:hover,
+#msform .action-button:focus {
+    background-color: #311B92
+}
+
+#msform .action-button-previous {
+    width: 230px;
+    background: #616161;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 0px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 5px 10px 0px;
+    float: right
+}
+
+#msform .action-button-previous:hover,
+#msform .action-button-previous:focus {
+    background-color: #000000
+}
+
+.card {
+    z-index: 0;
+    border: none;
+    position: relative
+}
+
+.fs-title {
+    font-size: 25px;
+    color: #673AB7;
+    margin-bottom: 15px;
+    font-weight: normal;
+    text-align: left
+}
+
+.purple-text {
+    color: #673AB7;
+    font-weight: normal
+}
+
+/* ========== chart CSS start ========== */
+.chartWrapper {
+     position: relative;
+    }
+
+.chartWrapper > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.chartWrapper {
+  /* width: 500px; */
+  overflow-x: hidden;
+  margin: 0 auto;
+}
+.step-buttons {
+    margin: 50px 0px;
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+    justify-content: end;
+}
+
+a.pdf-buttons, span.pdf-buttons {
+    background-color: #DE0404;
+    border: 1px;
+    border-radius: 5px;
+    color: white !important;
+    /* padding: 4px 26px; */
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 16px;
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    border-radius: 50px;
+    line-height: 50px;
+    box-shadow: 0px 3px 6px #00000029;
+}
+.pdf-buttons i {
+    font-size: 20px;
+    line-height: 26px;
+}
+a.csv-buttons{
+    background-color: #179A3E !important;
+}
+span.save-btn{
+    background-color: #4899DF !important;
+}
+.step-buttons{
+    margin: 70px 70px 10px 70px;
+}
+.report-body{
+    overflow-y: scroll;
+    height: 246px;
+}
+.main-table h5{
+    text-align: initial;
+}
+/* ========== chart CSS end ========== */
+
+
+
+/* ========== toggle button CSS start ========== */
+.spouse-index-btn, .spouse-prefer-btn, .benifit-spouse-btn, .spouse-security-btn, .spouse-pay-btn, .prefer-btn, .toggle-btn, .payment-btn, .security-btn, .benifit-btn, .index-btn, .specify-btn, .plan-btn{
+    width: 80px;
+    height: 40px;
+    margin: 10px;
+    border-radius: 50px;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    padding-left: 20px;
+    cursor: pointer;
+    -webkit-transition: background-color .40s ease-in-out;
+    -moz-transition: background-color .40s ease-in-out;
+    -o-transition: background-color .40s ease-in-out;
+    transition: background-color .40s ease-in-out;
+    cursor:pointer;
+    background-color: #e74c3c;
+}
+.spouse-index-btn:after, .spouse-prefer-btn:after, .benifit-spouse-btn:after, .spouse-security-btn:after, .spouse-pay-btn:after, .prefer-btn:after, .toggle-btn:after, .payment-btn:after, .security-btn:after, .benifit-btn:after, .index-btn:after, .specify-btn:after, .plan-btn:after {
+    content: "No";
+}
+.spouse-index-btn.active .spouse-index-round-btn, .spouse-prefer-btn.active .spouse-prefer-round-btn, .benifit-spouse-btn.active .spouse-benifit-round-btn, .spouse-security-btn.active .spouse-security-round-btn, .spouse-pay-btn.active .spouse-round-pay-btn, .prefer-btn.active .prefer-round-btn, .toggle-btn.active .round-btn, .payment-btn.active .payment-round-btn, .security-btn.active .security-round-btn, .benifit-btn.active .benifit-round-btn, .index-btn.active .index-round-btn, .specify-btn.active .specify-round-btn, .plan-btn.active .plan-round-btn{
+    left: 54px;
+}
+
+.spouse-index-btn.active, .spouse-prefer-btn.active, .benifit-spouse-btn.active, .spouse-security-btn.active, .spouse-pay-btn.active, .prefer-btn.active, .toggle-btn.active, .payment-btn.active, .security-btn.active, .benifit-btn.active, .index-btn.active, .specify-btn.active, .plan-btn.active {
+        background-color: #2ecc71;
+}
+.spouse-index-btn.active:after, .spouse-prefer-btn.active:after, .benifit-spouse-btn.active:after, .spouse-security-btn.active:after, .spouse-pay-btn.active:after, .prefer-btn.active:after, .toggle-btn.active:after, .payment-btn.active:after, .security-btn.active:after, .benifit-btn.active:after, .index-btn.active:after, .specify-btn.active:after, .plan-btn.active:after {
+    content: "yes";
+}
+
+.spouse-index-round-btn, .spouse-prefer-round-btn, .spouse-benifit-round-btn, .spouse-security-round-btn, .spouse-round-pay-btn, .prefer-round-btn, .round-btn, .payment-round-btn, .security-round-btn, .benifit-round-btn, .index-round-btn, .specify-round-btn, .plan-round-btn{
+    width: 30px;
+    height: 30px;
+    background-color: #fff;
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    margin-top: -15px;
+    -webkit-transition: all .30s ease-in-out;
+    -moz-transition: all .30s ease-in-out;
+    -o-transition: all .30s ease-in-out;
+    transition: all .30s ease-in-out;
+}
+.spouse-index-value, .spouse-prefer-value, .spouse-benifit-value, .spouse-security-value, .spouse-pay-value, .prefer-value, .cb-value, .payment-value, .security-value, .benifit-value, .index-value, .specify-value, .plan-value{
+    position: absolute;
+    left:0;
+    right:0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 9;
+    cursor:pointer;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+}
+/* ========== toggle button CSS end ========== */
+
+.site-three-btn-wrap ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 10px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    margin: 0;
+}
+
+.site-three-btn-wrap {
+    margin-top: 30px;
+}
+
+.site-three-btn-wrap ul li {
+    font-size: 14px;
+    padding: 8px 25px;
+    line-height: 16px;
+    margin: 0;
+    background: #1c2338;
+    color: #fff;
+    border-radius: 55px;
+}
+
+.site-three-btn-wrap ul li.surplus-btn {
+    background: #ff7f00;
+}
+
+.site-three-btn-wrap ul li.shortfall-btn {
+    background: #f00;
+}
+
