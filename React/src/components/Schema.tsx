@@ -87,7 +87,6 @@ const CalculatorSchema = z
         description: z.string().optional(),
         amount: z.number().optional(),
         Year: z.number().optional(), // Changed from 'year'
-        Year: z.number().optional(), // Changed from 'year'
       })
     ),
     expensesChangeForEachStage: z.boolean().optional(),
@@ -96,7 +95,6 @@ const CalculatorSchema = z
       z.object({
         personType: z.enum(["self", "spouse"]),
         amount: z.number().optional(),
-        Year: z.number().optional(),
         Year: z.number().optional(),
       })
     ),

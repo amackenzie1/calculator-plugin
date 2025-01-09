@@ -7,7 +7,9 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetsCard from "./form-sections/Assets";
-import GeneralInformationCard from "./form-sections/GeneralInformation";
+// import OnboardingCard from "./form-sections/GeneralInformation";
+import ExpensesCard from "./form-sections/Expenses";
+import OnboardingCard from "./form-sections/Onboarding";
 import IncomeCard from "./form-sections/Income";
 import { CalculatorSchema } from "./Schema";
 
@@ -173,7 +175,7 @@ const Calculator = () => {
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
-          <GeneralInformationCard form={form} />
+          <OnboardingCard form={form} />
         </TabsContent>
         <TabsContent value="income">
           <IncomeCard

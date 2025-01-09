@@ -27,7 +27,7 @@ import {
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import React from "react";
-import { CalculatorSchema } from "@/schema";
+import { CalculatorSchema } from "../Schema";
 import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
@@ -96,9 +96,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
     <Card className="mx-auto w-full max-w-3xl border-green-500">
       <CardHeader>
         <CardTitle className="text-green-500 underline">Assets</CardTitle>
-        <CardDescription>
-          Provide details about your assets.
-        </CardDescription>
+        <CardDescription>Provide details about your assets.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -127,24 +125,23 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   Tax-Free Savings Account(TFSA): When money is
                                   withdrawn from your TSFA it is not taxable.
                                   <br /> Registered Retirement Savings Plan
-                                  (RRSP): When money is withdrawn from your
-                                  RRSP account it is taxable. At age 71 your
-                                  RRSP account, if you have one, will
-                                  automatically convert into a RRIF account.{" "}
-                                  <br /> Registered Retirement Income Fund
-                                  (RRIF): At age 71 RRSPs must be converted to
-                                  a RRIF. We will calculate the withdrawal
-                                  amount for your income each year. <br />
+                                  (RRSP): When money is withdrawn from your RRSP
+                                  account it is taxable. At age 71 your RRSP
+                                  account, if you have one, will automatically
+                                  convert into a RRIF account. <br /> Registered
+                                  Retirement Income Fund (RRIF): At age 71 RRSPs
+                                  must be converted to a RRIF. We will calculate
+                                  the withdrawal amount for your income each
+                                  year. <br />
                                   Locked-in Retirement Account (LIRA): If you
                                   have contributed to a Defined Contribution
-                                  Pension Plan you may have a LIRA. At age 71
-                                  we will automatically convert your LIRA
-                                  account into a LIF account. <br /> Life
-                                  Income Fund (LIF): Use this if you have a
-                                  LIRA account that has been converted to a LIF
-                                  (Life Income Fund). We will calculate the
-                                  withdrawal amount for your income each year.{" "}
-                                  <br />
+                                  Pension Plan you may have a LIRA. At age 71 we
+                                  will automatically convert your LIRA account
+                                  into a LIF account. <br /> Life Income Fund
+                                  (LIF): Use this if you have a LIRA account
+                                  that has been converted to a LIF (Life Income
+                                  Fund). We will calculate the withdrawal amount
+                                  for your income each year. <br />
                                 </p>
                               </TooltipContent>
                             </Tooltip>
@@ -464,8 +461,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                       <p>
                                         Enter the total cost or book value of
                                         all of your non-registered investments
-                                        listed above. The difference between
-                                        the total value of your non-registered
+                                        listed above. The difference between the
+                                        total value of your non-registered
                                         investments and the total cost of your
                                         non-registered investments represents a
                                         capital gain. 50 % of the capital gain
@@ -521,9 +518,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               whole life insurance and someone outside of your
                               immediate family is the beneficiary, please don’t
                               enter any life insurance value here for this
-                              section because we don’t want to include the
-                              value and inflate your total net estate
-                              projection.
+                              section because we don’t want to include the value
+                              and inflate your total net estate projection.
                             </p>
                           </TooltipContent>
                         </Tooltip>
