@@ -115,7 +115,7 @@ const Calculator = () => {
         definedBenefitPensionAmount: person.definedBenefitPensionAmount,
         definedBenefitPensionIndexedToInflation:
           person.definedBenefitPensionIndexedToInflation,
-        registeredInvestments: person.registeredInvestments.map(
+        registeredInvestments: person.registeredInvestments?.map(
           (investment) => ({
             accountType: investment.accountType,
             currentValue: investment.currentValue,
@@ -140,14 +140,14 @@ const Calculator = () => {
         personType: income.personType,
         description: income.description,
         amount: income.amount,
-        startDate: income.startDate,
-        endDate: income.endDate,
+        startDate: income.startYear,
+        endDate: income.endYear,
       })),
       charitableDonations: data.charitableDonations.map((donation) => ({
         personType: donation.personType,
         amount: donation.amount,
-        startDate: donation.startDate,
-        endDate: donation.endDate,
+        startDate: donation.startYear,
+        endDate: donation.endYear,
       })),
       oneOffExpenses: data.oneOffExpenses.map((expense) => ({
         personType: expense.personType,
@@ -166,7 +166,7 @@ const Calculator = () => {
     : undefined;
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-8 w-full">
       <Tabs defaultValue="general" className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General Information</TabsTrigger>

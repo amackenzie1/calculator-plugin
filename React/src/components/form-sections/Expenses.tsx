@@ -24,7 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UseFormReturn } from "react-hook-form";
-import { CalculatorSchema } from "@/schema";
+import { CalculatorSchema } from "../Schema";
 import * as z from "zod";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -66,18 +66,18 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
       id: charitableDonationIdCounter,
       personType: "self",
       amount: undefined,
-      Year: undefined,
-      Year: undefined,
+      startYear: undefined,
+      endYear: undefined,
     });
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="bg-blue-500">
-        <CardTitle className="text-white flex items-center">
+    <Card className="max-w-3xl mx-auto border-orange-500">
+      <CardHeader className="text-center">
+        <CardTitle className="text-orange-500 text-3xl underline">
           <span className="underline">Expenses</span>
         </CardTitle>
-        <CardDescription className="text-white">
+        <CardDescription className="text-sm text-gray-500 dark:text-gray-400">
           Enter your estimated expenses.
         </CardDescription>
       </CardHeader>
@@ -85,9 +85,9 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
         <Form {...form}>
           <div className="space-y-6">
             {/* Retirement Expenses */}
-            <Card className="border-blue-500">
+            <Card className="border-orange-500">
               <CardHeader>
-                <CardTitle className="text-blue-500 flex items-center">
+                <CardTitle className="flex items-center">
                   Retirement Expenses
                   <TooltipProvider>
                     <Tooltip>
@@ -781,7 +781,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
             {/* One-Off Expenses */}
             <Card className="border-orange-500">
               <CardHeader>
-                <CardTitle className="text-orange-500 flex items-center">
+                <CardTitle className="flex items-center">
                   One‐off Expenses
                   <TooltipProvider>
                     <Tooltip>
@@ -902,7 +902,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
             {/* Charitable Donations */}
             <Card className="border-orange-500">
               <CardHeader>
-                <CardTitle className="text-orange-500 flex items-center">
+                <CardTitle className="flex items-center">
                   Charitable Donations
                   <TooltipProvider>
                     <Tooltip>
@@ -980,7 +980,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <div className="flex items-center space-x-4">
                         <FormField
                           control={form.control}
-                          name={`charitableDonations.${index}.Year`}
+                          name={`charitableDonations.${index}.startYear`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>Start Year:</FormLabel>
@@ -992,7 +992,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                   onBlur={(e) => {
                                     field.onBlur();
                                     form.setValue(
-                                      `charitableDonations.${index}.Year`,
+                                      `charitableDonations.${index}.startYear`,
                                       Number(e.target.value)
                                     );
                                   }}
@@ -1004,7 +1004,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                         />
                         <FormField
                           control={form.control}
-                          name={`charitableDonations.${index}.Year`}
+                          name={`charitableDonations.${index}.endYear`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel>End Year:</FormLabel>
@@ -1016,7 +1016,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                                   onBlur={(e) => {
                                     field.onBlur();
                                     form.setValue(
-                                      `charitableDonations.${index}.Year`,
+                                      `charitableDonations.${index}.endYear`,
                                       Number(e.target.value)
                                     );
                                   }}
@@ -1042,9 +1042,9 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
             </Card>
 
             {/* Desired Estate */}
-            <Card className="border-green-500">
+            <Card className="border-orange-500">
               <CardHeader>
-                <CardTitle className="text-green-500 flex items-center">
+                <CardTitle className="flex items-center">
                   Desired Estate (to be left to heirs)
                   <TooltipProvider>
                     <Tooltip>

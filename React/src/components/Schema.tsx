@@ -6,7 +6,7 @@ const upperYearBound = currentYear + 150;
 
 const PersonSchema = z.object({
   personType: z.enum(["self", "spouse"]),
-  birthYear: z.number().min(lowerYearBound).max(currentYear),
+  birthYear: z.number().min(lowerYearBound).max(currentYear).optional(),
   lifeExpectancy: z.number().min(0).max(130),
   primaryYearlyIncome: z.number().optional(),
   incomeYearStart: z
@@ -15,20 +15,26 @@ const PersonSchema = z.object({
     .max(upperYearBound)
     .optional(),
   incomeYearEnd: z.number().min(lowerYearBound).max(upperYearBound).optional(),
+  incomeStartAge: z.number().optional(),
+  incomeEndAge: z.number().optional(),
   cppStartYear: z.number().min(lowerYearBound).max(upperYearBound).optional(),
+  cppStartAge: z.number().optional(),
   cppAmount: z.number().optional(),
   oasStartYear: z.number().min(lowerYearBound).max(upperYearBound).optional(),
+  oasStartAge: z.number().optional(),
   oasAmount: z.number().optional(),
   definedBenefitPensionStartYear: z
     .number()
     .min(lowerYearBound)
     .max(upperYearBound)
     .optional(),
+    definedBenefitPensionStartAge: z.number().optional(),
   definedBenefitPensionAmount: z.number().optional(),
   definedBenefitPensionIndexedToInflation: z.boolean().optional(),
   registeredInvestments: z
     .array(
       z.object({
+        id: z.number(),
         accountType: z.enum(["TFSA", "RRSP", "RRIF", "LIRA", "LIF"]).optional(),
         currentValue: z.number().optional(),
       })
@@ -48,6 +54,8 @@ const PersonSchema = z.object({
   healthCareExpensesStage2: z.number().optional(),
   annualRetirementExpensesStage3: z.number().optional(),
   healthCareExpensesStage3: z.number().optional(),
+  annualRetirementExpensesStage4: z.number().optional(),
+  healthCareExpensesStage4: z.number().optional(),
 });
 
 const CalculatorSchema = z
@@ -83,23 +91,28 @@ const CalculatorSchema = z
     persons: z.array(PersonSchema),
     otherIncomes: z.array(
       z.object({
+        id: z.number(),
         personType: z.enum(["self", "spouse"]),
         description: z.string().optional(),
         amount: z.number().optional(),
-        Year: z.number().optional(), // Changed from 'year'
+        startYear: z.number().optional(), // Changed from 'year'
+        endYear: z.number().optional(), // Changed from 'year'
       })
     ),
     expensesChangeForEachStage: z.boolean().optional(),
     expensesChangeForEachStageSpouse: z.boolean().optional(),
     charitableDonations: z.array(
       z.object({
+        id: z.number(),
         personType: z.enum(["self", "spouse"]),
         amount: z.number().optional(),
-        Year: z.number().optional(),
+        startYear: z.number().optional(),
+        endYear: z.number().optional(),
       })
     ),
     oneOffExpenses: z.array(
       z.object({
+        id: z.number(),
         personType: z.enum(["self", "spouse"]),
         description: z.string().optional(),
         amount: z.number().optional(),
@@ -108,7 +121,10 @@ const CalculatorSchema = z
     ),
     primaryResidenceValue: z.number().optional(),
     primaryResidenceSell: z.boolean().optional(),
+    primaryResidenceSellYear: z.number().optional(),
     desiredEstateValue: z.number().optional(),
+    incomeReturnRate: z.number().optional(),
+    growthReturnRate: z.number().optional(),
   })
   .refine(
     (data) => {

@@ -79,13 +79,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
     };
 
     const newInvestmentReturnRate = calculateInvestmentReturnRate();
-    form.setValue("investmentReturnRate", newInvestmentReturnRate);
+    form.setValue("investmentReturnRate", newInvestmentReturnRate ?? 0);
   }, [form.watch("investorProfile"), form.watch("specifyReturn")]);
 
   useEffect(() => {
     const subscription = form.watch((value) => {
       if (value.calculateForSpouse) {
-        if (!value.persons.some((p) => p.personType === "spouse")) {
+        if (!value.persons?.some((p) => p?.personType === "spouse")) {
           form.setValue("persons.1", {
             personType: "spouse",
             // age: undefined, // Removed age field
@@ -156,7 +156,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent  >
                               <p>
                                 Select 'yes' if you want to include your spouse
                                 in the calculations.
@@ -212,7 +212,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         <td className="px-6 py-4">
                           <FormField
                             control={form.control}
-                            name="persons[0].birthYear"
+                            name="persons.0.birthYear"
                             render={({ field }) => (
                               <FormItem>
                                 {/* <FormLabel
@@ -245,7 +245,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           <td className="px-6 py-4">
                             <FormField
                               control={form.control}
-                              name="persons[1].birthYear"
+                              name="persons.1.birthYear"
                               render={({ field }) => (
                                 <FormItem>
                                   {/* <FormLabel
@@ -287,7 +287,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent className="custom-tooltip-content">
                               <p>
                                 Enter the age by which you will likely have
                                 passed away. You can be conservative with your
@@ -303,7 +303,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         <td className="px-6 py-4">
                           <FormField
                             control={form.control}
-                            name="persons[0].lifeExpectancy"
+                            name="persons.0.lifeExpectancy"
                             render={({ field }) => (
                               <FormItem>
                                 {/* <FormLabel
@@ -336,7 +336,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           <td className="px-6 py-4">
                             <FormField
                               control={form.control}
-                              name="persons[1].lifeExpectancy"
+                              name="persons.1.lifeExpectancy"
                               render={({ field }) => (
                                 <FormItem>
                                   {/* <FormLabel
@@ -453,7 +453,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent className="custom-tooltip-content">
                               <p>
                                 Each investor profile selection is designated a
                                 rate of return percentage to be applied to your
@@ -489,9 +489,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                         );
                                       form.setValue(
                                         "investmentReturnRate",
-                                        selectedProfile
-                                          ? selectedProfile.rate
-                                          : 0
+                                        selectedProfile?.rate??
+                                          0
                                       );
                                     }
                                   }}
@@ -530,7 +529,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent className="custom-tooltip-content">
                               <p>
                                 Enter the average rate of inflation that you
                                 think will apply during the rest of your life.
@@ -591,7 +590,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                     </span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="custom-tooltip-content">
                                   <p>
                                     This is the average rate of interest income
                                     and/or dividend income that you expect to
@@ -650,7 +649,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                     </span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="custom-tooltip-content">
                                   <p>
                                     This is the capital gain appreciation you
                                     expect from investments. Total income from

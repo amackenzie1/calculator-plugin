@@ -94,8 +94,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
 
   return (
     <Card className="mx-auto w-full max-w-3xl border-green-500">
-      <CardHeader>
-        <CardTitle className="text-green-500 underline">Assets</CardTitle>
+      <CardHeader className="text-center">
+        <CardTitle className="text-green-500 underline text-center text-3xl">Assets</CardTitle>
         <CardDescription>Provide details about your assets.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -120,7 +120,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   (?)
                                 </span>
                               </TooltipTrigger>
-                              <TooltipContent>
+                              <TooltipContent className="custom-tooltip-content">
                                 <p>
                                   Tax-Free Savings Account(TFSA): When money is
                                   withdrawn from your TSFA it is not taxable.
@@ -317,7 +317,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               (?)
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="custom-tooltip-content">
                             <p>
                               This represents all assets and investments
                               excluding your primary residence (on which there
@@ -457,7 +457,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                         </span>
                                       </FormLabel>
                                     </TooltipTrigger>
-                                    <TooltipContent>
+                                    <TooltipContent className="custom-tooltip-content">
                                       <p>
                                         Enter the total cost or book value of
                                         all of your non-registered investments
@@ -508,7 +508,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               (?)
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="custom-tooltip-content">
                             <p>
                               Use this section if you have universal or whole
                               life insurance and indicate the face value of the
