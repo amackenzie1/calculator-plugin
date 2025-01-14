@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -40,6 +40,9 @@ interface AssetsCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
 }
 
+// to fix 'remove' button delays
+// const [refreshKey, setRefreshKey] = useState(0);
+
 const AssetsCard = ({ form }: AssetsCardProps) => {
   const calculateForSpouse = form.watch("calculateForSpouse");
   const primaryResidenceSell = form.watch("primaryResidenceSell");
@@ -62,7 +65,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
       }
       return person;
     });
-    form.setValue("persons", updatedPersons);
+    // Update form state and force re-render
+  form.setValue("persons", updatedPersons, { shouldDirty: true, shouldTouch: true });
   };
 
   const handleRemoveRegisteredInvestment = (
@@ -81,7 +85,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
       }
       return person;
     });
-    form.setValue("persons", updatedPersons);
+    // Update form state with a new reference
+    form.setValue("persons", updatedPersons, { shouldDirty: true, shouldTouch: true });
+
   };
 
   const registeredInvestmentOptions = [
@@ -106,7 +112,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                 <tbody>
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
-                      <tr className="bg-white dark:bg-gray-800">
+
+            
+                      <tr className="bg-gray-100 dark:bg-gray-900">
                         <th
                           scope="row"
                           className="px-6 py-4 font-medium"
@@ -146,6 +154,15 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+                        </th>
+                      </tr>
+                                            {/* Add a header row for each person */}
+                                            <tr className="">
+                        <th
+                          colSpan={calculateForSpouse ? 3 : 2}
+                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                        >
+                          {person.personType === "self" ? "Self" : "Spouse"}
                         </th>
                       </tr>
                       {person.registeredInvestments?.map(
@@ -336,6 +353,14 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                   </tr>
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
+                      <tr className="">
+                        <th
+                          colSpan={calculateForSpouse ? 3 : 2}
+                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                        >
+                          {person.personType === "self" ? "Self" : "Spouse"}
+                        </th>
+                      </tr>
                       <tr className="bg-white dark:bg-gray-800">
                         <th scope="row" className="px-6 py-4 font-medium"></th>
                         <td className="px-6 py-4">
@@ -526,8 +551,17 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       </TooltipProvider>
                     </th>
                   </tr>
+
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
+                      <tr className="">
+                        <th
+                          colSpan={calculateForSpouse ? 3 : 2}
+                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                        >
+                          {person.personType === "self" ? "Self" : "Spouse"}
+                        </th>
+                      </tr>
                       <tr className="bg-white dark:bg-gray-800">
                         <th scope="row" className="px-6 py-4 font-medium"></th>
                         <td className="px-6 py-4">

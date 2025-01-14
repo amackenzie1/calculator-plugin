@@ -65,7 +65,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
     const calculateInvestmentReturnRate = () => {
       const investorProfile = form.getValues("investorProfile");
       const specifyReturn = form.getValues("specifyReturn");
-
+  
       if (investorProfile && investorProfile !== "custom") {
         const selectedProfile = investorProfiles.find(
           (profile) => profile.value === investorProfile
@@ -77,10 +77,16 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
         return 0;
       }
     };
-
+  
     const newInvestmentReturnRate = calculateInvestmentReturnRate();
-    form.setValue("investmentReturnRate", newInvestmentReturnRate ?? 0);
+    const currentInvestmentReturnRate = form.getValues("investmentReturnRate");
+  
+    // Only update if the value has changed
+    if (newInvestmentReturnRate !== currentInvestmentReturnRate) {
+      form.setValue("investmentReturnRate", newInvestmentReturnRate ?? 0);
+    }
   }, [form.watch("investorProfile"), form.watch("specifyReturn")]);
+  
 
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -115,7 +121,9 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
           });
         }
       } else {
-        form.setValue("persons", [form.getValues("persons")[0]]);
+        if(form.getValues("persons").length > 1) {
+          form.setValue("persons", [form.getValues("persons")[0]]);
+        }
       }
     });
 
@@ -478,22 +486,30 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               <FormItem>
                                 <Select
                                   onValueChange={(value) => {
-                                    field.onChange(value);
+                                    field.onChange(value); // Update "investorProfile" field
+                                  
                                     if (value === "custom") {
-                                      form.setValue("specifyReturn", true);
+                                      if (!form.getValues("specifyReturn")) {
+                                        form.setValue("specifyReturn", true); // Only update if it changes
+                                      }
                                     } else {
-                                      form.setValue("specifyReturn", false);
-                                      const selectedProfile =
-                                        investorProfiles.find(
-                                          (profile) => profile.value === value
-                                        );
-                                      form.setValue(
-                                        "investmentReturnRate",
-                                        selectedProfile?.rate??
-                                          0
+                                      if (form.getValues("specifyReturn")) {
+                                        form.setValue("specifyReturn", false); // Only update if it changes
+                                      }
+                                  
+                                      const selectedProfile = investorProfiles.find(
+                                        (profile) => profile.value === value
                                       );
+                                  
+                                      const currentRate = form.getValues("investmentReturnRate");
+                                      const newRate = selectedProfile?.rate ?? 0;
+                                  
+                                      if (currentRate !== newRate) {
+                                        form.setValue("investmentReturnRate", newRate); // Only update if it changes
+                                      }
                                     }
                                   }}
+                                  
                                   value={field.value}
                                 >
                                   <FormControl>

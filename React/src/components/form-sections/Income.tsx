@@ -146,31 +146,10 @@ const IncomeCard = ({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      {/* <h2 className="text-xl font-semibold mb-2 underline">
-                       Primary Yearly Income
-                      </h2> */}
                     </td>
                   </tr>
                   <tr className="bg-gray-100 dark:bg-gray-900">
                     <th scope="row" className="px-6 py-4 font-medium">
-                      {/* <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
-                            <p>
-                              Enter your annual employment income (before tax).
-                              Include income from employment, consulting, small
-                              business, or other sources. Do not include
-                              investment income, pension income, RRSP, or RRIF
-                              withdrawals.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
                     </th>
                     <td className="px-6 py-4">
                       <span className="font-semibold">You</span>
@@ -277,7 +256,7 @@ const IncomeCard = ({
                             </FormItem>
                           )}
                         />
-                        <span>-</span>
+                        <span className="mt-6">-</span>
                         <FormField
                           control={form.control}
                           name={`persons.0.incomeEndAge`}
@@ -349,7 +328,7 @@ const IncomeCard = ({
                               </FormItem>
                             )}
                           />
-                          <span>-</span>
+                          <span className="mt-6">-</span>
                           <FormField
                             control={form.control}
                             name={`persons.1.incomeEndAge`}
@@ -946,27 +925,7 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  {/* <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      Defined Benefit Pension
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Include any private pension from a government or
-                              private company.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    {calculateForSpouse && <td className="px-6 py-4"></td>}
-                  </tr> */}
+
                   <tr className="bg-white dark:bg-gray-800">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                       Defined Benefit Pension
@@ -1155,22 +1114,7 @@ const IncomeCard = ({
                   </tr>
                   <tr className="bg-white dark:bg-gray-800">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      {/* Defined Benefit Pension
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Include any private pension from a government or
-                              private company.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
+
                     </td>
                     <td className="px-6 py-4">
                       <FormField
@@ -1424,11 +1368,14 @@ const IncomeCard = ({
                     </React.Fragment>
                   ))}
                   <tr className="bg-white dark:bg-gray-800">
+                  <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                    </td>
                     <td colSpan={calculateForSpouse ? 3 : 2}>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => handleAddOtherIncome("self")}
+                        className="mr-4 ml-5 mt-6" 
                       >
                         Add Other Income (Self)
                       </Button>
@@ -1437,6 +1384,7 @@ const IncomeCard = ({
                           type="button"
                           variant="outline"
                           onClick={() => handleAddOtherIncome("spouse")}
+                          className="ml-10"
                         >
                           Add Other Income (Spouse)
                         </Button>
