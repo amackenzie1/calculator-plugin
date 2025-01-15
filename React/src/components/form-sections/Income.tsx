@@ -386,9 +386,6 @@ const IncomeCard = ({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      {/* <h2 className="text-xl font-semibold mb-2 underline">
-                       Pension Income
-                      </h2> */}
                     </td>
 
                   </tr>
@@ -415,71 +412,7 @@ const IncomeCard = ({
                         </Tooltip>
                       </TooltipProvider>
                     </td>
-                    {/* <th
-                      scope="row"
-                      className="px-6 py-4 font-medium"
-                      rowSpan={3}
-                    >
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Include income from government pensions (CPP/QPP,
-                              OAS) and defined benefit pensions.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      Canada Pension Plan (CPP) or Quebec Pension Plan (QPP)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content"> 
-                            <p>
-                              The age you start your pension, how long you
-                              contributed, and your average earnings throughout
-                              your life determine how much CPP or QPP you
-                              receive. In 2023 the maximum annual pension for
-                              someone retiring at age 65 is $15,678.84
-                              ($1,306.57 per month).
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    </th> */}
-                    {/* <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      Canada Pension Plan (CPP) or Quebec Pension Plan (QPP)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content"> 
-                            <p>
-                              The age you start your pension, how long you
-                              contributed, and your average earnings throughout
-                              your life determine how much CPP or QPP you
-                              receive. In 2023 the maximum annual pension for
-                              someone retiring at age 65 is $15,678.84
-                              ($1,306.57 per month).
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td> */}
+                    
                     <td className="px-6 py-4">
                       <FormField
                         control={form.control}
@@ -555,104 +488,10 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  {/* <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4">
-                      <FormField
-                        control={form.control}
-                        name={`persons.0.cppStartAge`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel
-                              htmlFor="cppStartAgeSelf"
-                              className="text-gray-500 dark:text-gray-400"
-                            >
-                              At what age have you/will you receive these
-                              payments?
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                id="cppStartAgeSelf"
-                                placeholder="Enter age"
-                                {...field}
-                                onBlur={() =>
-                                  handlePensionAgeBlur("self", "cpp")
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <FormField
-                          control={form.control}
-                          name={`persons.1.cppStartAge`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel
-                                htmlFor="cppStartAgeSpouse"
-                                className="text-gray-500 dark:text-gray-400"
-                              >
-                                At what age have you/will you receive these
-                                payments?
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  id="cppStartAgeSpouse"
-                                  placeholder="Enter age"
-                                  {...field}
-                                  onBlur={() =>
-                                    handlePensionAgeBlur("spouse", "cpp")
-                                  }
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </td>
-                    )}
-                  </tr> */}
+
                   <tr className="bg-white dark:bg-gray-800">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      {/* Canada Pension Plan (CPP) or Quebec Pension Plan (QPP) */}
-                      {/* <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content"> 
-                            <p>
-                              The age you start your pension, how long you
-                              contributed, and your average earnings throughout
-                              your life determine how much CPP or QPP you
-                              receive. In 2023 the maximum annual pension for
-                              someone retiring at age 65 is $15,678.84
-                              ($1,306.57 per month).
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
+
                     </td>
                     <td className="px-6 py-4">
                       <FormField
@@ -721,28 +560,7 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  {/* <tr className="bg-gray-100 dark:bg-gray-900">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      Old Age Security (OAS)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              The maximum pension is $8,292 for 2023. The amount
-                              you receive for OAS depends on how many years you
-                              have lived in Canada.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                    {calculateForSpouse && <td className="px-6 py-4"></td>}
-                  </tr> */}
+
                   <tr className="bg-gray-100 dark:bg-gray-900">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                       Old Age Security (OAS)
@@ -840,23 +658,7 @@ const IncomeCard = ({
                   </tr>
                   <tr className="bg-gray-100 dark:bg-gray-900">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      {/* Old Age Security (OAS)
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              The maximum pension is $8,292 for 2023. The amount
-                              you receive for OAS depends on how many years you
-                              have lived in Canada.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
+
                     </td>
                     <td className="px-6 py-4">
                       <FormField
@@ -1028,22 +830,7 @@ const IncomeCard = ({
                   </tr>
                   <tr className="bg-white dark:bg-gray-800">
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      {/* Defined Benefit Pension
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Include any private pension from a government or
-                              private company.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider> */}
+
                     </td>
                     <td className="px-6 py-4">
                       <FormField
@@ -1185,35 +972,10 @@ const IncomeCard = ({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      {/* <h2 className="text-xl font-semibold mb-2 underline">
-                       Other Incomes
-                      </h2> */}
+
                     </td>
                   </tr>
-                  {/* <tr className="bg-gray-100 dark:bg-gray-900">
-                  <td className="px-6 py-4"></td>
-                    <th scope="row" className="px-6 py-4 font-medium">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                              (?)
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              Include income from rental properties, lump-sum
-                              payments, inheritances, annuities, or other
-                              sources. Do not include investment income, pension
-                              income, RRSP, or RRIF withdrawals.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </th>
-                    <td className="px-6 py-4"></td>
-                    {calculateForSpouse && <td className="px-6 py-4"></td>}
-                  </tr> */}
+
                   {form.watch("otherIncomes")?.map((income, index) => (
                     <React.Fragment key={income.id}>
                       <tr className="bg-white dark:bg-gray-800">

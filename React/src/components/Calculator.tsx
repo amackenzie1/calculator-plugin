@@ -29,6 +29,8 @@ const Calculator = () => {
     resolver: zodResolver(CalculatorSchema),
     defaultValues: {
       calculateForSpouse: false,
+      expensesChangeForEachStage: false, 
+      expensesChangeForEachStageSpouse: false, 
       persons: [
         {
           personType: "self",
@@ -190,7 +192,10 @@ const Calculator = () => {
           <AssetsCard form={form} />
         </TabsContent>
         <TabsContent value="expenses">
-          <ExpensesCard form={form} />
+          <ExpensesCard 
+            form={form} 
+            calculateForSpouse={calculateForSpouse}
+          />
         </TabsContent>
       </Tabs>
       <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button>
