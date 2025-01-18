@@ -108,31 +108,31 @@ const IncomeCard = ({
   };
 
   return (
-    <Card className="mx-auto w-full max-w-3xl border-blue-500">
-      <CardHeader className="text-center">
-        <CardTitle className="text-blue-500 text-3xl underline">
+    <Card >
+      <CardHeader >
+        <CardTitle >
           Income
         </CardTitle>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <span >
           Provide your income details below.
         </span>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-6">
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <form >
+            <div >
+              <table >
                 <tbody>
                   <tr>
                     <td colSpan={calculateForSpouse ? 3 : 2}>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-blue-500">
+                            <h2 >
                               Primary Yearly Income
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Enter your annual employment income (before tax).
                               Include income from employment, consulting, small
@@ -145,22 +145,22 @@ const IncomeCard = ({
                       </TooltipProvider>
                     </td>
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium"></th>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold">You</span>
+                  <tr >
+                    <th scope="row" ></th>
+                    <td >
+                      <span >You</span>
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <span className="font-semibold">Spouse</span>
+                      <td >
+                        <span >Spouse</span>
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Annual income (before tax)
                     </th>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.primaryYearlyIncome`}
@@ -186,7 +186,7 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.primaryYearlyIncome`}
@@ -213,20 +213,19 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Between what ages will you receive this income?
                     </th>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2">
+                    <td >
+                      <div >
                         <FormField
                           control={form.control}
                           name={`persons.0.incomeStartAge`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="incomeStartAgeSelf"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="incomeStartAgeSelf"
+                                
                               >
                                 Start Age
                               </FormLabel>
@@ -252,15 +251,14 @@ const IncomeCard = ({
                             </FormItem>
                           )}
                         />
-                        <span className="mt-6">-</span>
+                        <span >-</span>
                         <FormField
                           control={form.control}
                           name={`persons.0.incomeEndAge`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="incomeEndAgeSelf"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="incomeEndAgeSelf"
+                                
                               >
                                 End Age
                               </FormLabel>
@@ -289,16 +287,15 @@ const IncomeCard = ({
                       </div>
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2">
+                      <td >
+                        <div >
                           <FormField
                             control={form.control}
                             name={`persons.1.incomeStartAge`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor="incomeStartAgeSpouse"
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor="incomeStartAgeSpouse"
+                                  
                                 >
                                   Start Age
                                 </FormLabel>
@@ -324,15 +321,14 @@ const IncomeCard = ({
                               </FormItem>
                             )}
                           />
-                          <span className="mt-6">-</span>
+                          <span >-</span>
                           <FormField
                             control={form.control}
                             name={`persons.1.incomeEndAge`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor="incomeEndAgeSpouse"
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor="incomeEndAgeSpouse"
+                                  
                                 >
                                   End Age
                                 </FormLabel>
@@ -367,14 +363,14 @@ const IncomeCard = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               Pension Income
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Include income from government pensions (CPP/QPP,
                               OAS) and defined benefit pensions.
@@ -384,17 +380,17 @@ const IncomeCard = ({
                       </TooltipProvider>
                     </td>
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                  <tr >
+                    <td >
                       Canada Pension Plan (CPP) or Quebec Pension Plan (QPP)
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               The age you start your pension, how long you
                               contributed, and your average earnings throughout
@@ -408,15 +404,14 @@ const IncomeCard = ({
                       </TooltipProvider>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.cppStartAge`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="cppStartAgeSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="cppStartAgeSelf"
+                              
                             >
                               At what age have you/will you receive these
                               payments?
@@ -445,15 +440,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.cppStartAge`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="cppStartAgeSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="cppStartAgeSpouse"
+                                
                               >
                                 At what age have you/will you receive these
                                 payments?
@@ -484,17 +478,16 @@ const IncomeCard = ({
                     )}
                   </tr>
 
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
-                    <td className="px-6 py-4">
+                  <tr >
+                    <td ></td>
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.cppAmount`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="cppAmountSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="cppAmountSelf"
+                              
                             >
                               What is the annual amount (before tax)?
                             </FormLabel>
@@ -519,15 +512,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.cppAmount`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="cppAmountSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="cppAmountSpouse"
+                                
                               >
                                 What is the annual amount (before tax)?
                               </FormLabel>
@@ -554,13 +546,13 @@ const IncomeCard = ({
                     )}
                   </tr>
 
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                  <tr >
+                    <td >
                       Old Age Security (OAS)
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
@@ -574,15 +566,14 @@ const IncomeCard = ({
                         </Tooltip>
                       </TooltipProvider>
                     </td>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.oasStartAge`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="oasStartAgeSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="oasStartAgeSelf"
+                              
                             >
                               At what age have you/will you receive these
                               payments?
@@ -611,15 +602,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.oasStartAge`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="oasStartAgeSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="oasStartAgeSpouse"
+                                
                               >
                                 At what age have you/will you receive these
                                 payments?
@@ -649,17 +639,16 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
-                    <td className="px-6 py-4">
+                  <tr >
+                    <td ></td>
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.oasAmount`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="oasAmountSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="oasAmountSelf"
+                              
                             >
                               What is the annual amount (before tax)?
                             </FormLabel>
@@ -684,15 +673,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.oasAmount`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="oasAmountSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="oasAmountSpouse"
+                                
                               >
                                 What is the annual amount (before tax)?
                               </FormLabel>
@@ -719,13 +707,13 @@ const IncomeCard = ({
                     )}
                   </tr>
 
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                  <tr >
+                    <td >
                       Defined Benefit Pension
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
@@ -738,15 +726,14 @@ const IncomeCard = ({
                         </Tooltip>
                       </TooltipProvider>
                     </td>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.definedBenefitPensionStartAge`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="definedBenefitPensionStartAgeSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="definedBenefitPensionStartAgeSelf"
+                              
                             >
                               At what age have you/will you receive these
                               payments?
@@ -778,15 +765,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.definedBenefitPensionStartAge`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="definedBenefitPensionStartAgeSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="definedBenefitPensionStartAgeSpouse"
+                                
                               >
                                 At what age have you/will you receive these
                                 payments?
@@ -819,17 +805,16 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
-                    <td className="px-6 py-4">
+                  <tr >
+                    <td ></td>
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.definedBenefitPensionAmount`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel
-                              htmlFor="definedBenefitPensionAmountSelf"
-                              className="text-gray-500 dark:text-gray-400"
+                            <FormLabel htmlFor="definedBenefitPensionAmountSelf"
+                              
                             >
                               What is the annual amount (before tax)?
                             </FormLabel>
@@ -854,15 +839,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.definedBenefitPensionAmount`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel
-                                htmlFor="definedBenefitPensionAmountSpouse"
-                                className="text-gray-500 dark:text-gray-400"
+                              <FormLabel htmlFor="definedBenefitPensionAmountSpouse"
+                                
                               >
                                 What is the annual amount (before tax)?
                               </FormLabel>
@@ -888,16 +872,16 @@ const IncomeCard = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
-                    <td className="px-6 py-4">
+                  <tr >
+                    <td ></td>
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.definedBenefitPensionIndexedToInflation`}
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-gray-500 dark:text-gray-400">
+                          <FormItem >
+                            <div >
+                              <FormLabel >
                                 Is this indexed to inflation?
                               </FormLabel>
                             </div>
@@ -913,14 +897,14 @@ const IncomeCard = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.definedBenefitPensionIndexedToInflation`}
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                              <div className="space-y-0.5">
-                                <FormLabel className="text-gray-500 dark:text-gray-400">
+                            <FormItem >
+                              <div >
+                                <FormLabel >
                                   Is this indexed to inflation?
                                 </FormLabel>
                               </div>
@@ -942,14 +926,14 @@ const IncomeCard = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               Other Incomes
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Include income from rental properties, lump-sum
                               payments, inheritances, annuities, or other
@@ -964,16 +948,15 @@ const IncomeCard = ({
 
                   {form.watch("otherIncomes")?.map((income, index) => (
                     <React.Fragment key={income.id}>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4">
+                      <tr >
+                        <td >
                           <FormField
                             control={form.control}
                             name={`otherIncomes.${index}.description`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`otherIncomes.${index}.description`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`otherIncomes.${index}.description`}
+                                  
                                 >
                                   Description
                                 </FormLabel>
@@ -990,15 +973,14 @@ const IncomeCard = ({
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name={`otherIncomes.${index}.amount`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`otherIncomes.${index}.amount`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`otherIncomes.${index}.amount`}
+                                  
                                 >
                                   Annual amount (before tax)
                                 </FormLabel>
@@ -1023,22 +1005,21 @@ const IncomeCard = ({
                           />
                         </td>
                         {calculateForSpouse && (
-                          <td className="px-6 py-4">
+                          <td >
                             {/* Placeholder for alignment */}
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
+                      <tr >
+                        <td >
+                          <div >
                             <FormField
                               control={form.control}
                               name={`otherIncomes.${index}.startYear`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel
-                                    htmlFor={`otherIncomes.${index}.startYear`}
-                                    className="text-gray-500 dark:text-gray-400"
+                                  <FormLabel htmlFor={`otherIncomes.${index}.startYear`}
+                                    
                                   >
                                     Start Year
                                   </FormLabel>
@@ -1067,9 +1048,8 @@ const IncomeCard = ({
                               name={`otherIncomes.${index}.endYear`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel
-                                    htmlFor={`otherIncomes.${index}.endYear`}
-                                    className="text-gray-500 dark:text-gray-400"
+                                  <FormLabel htmlFor={`otherIncomes.${index}.endYear`}
+                                    
                                   >
                                     End Year
                                   </FormLabel>
@@ -1095,14 +1075,14 @@ const IncomeCard = ({
                           </div>
                         </td>
                         {calculateForSpouse && (
-                          <td className="px-6 py-4">
+                          <td >
                             {/* Placeholder for alignment */}
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
+                      <tr >
                         <td colSpan={calculateForSpouse ? 3 : 2}>
-                          <div className="flex justify-end">
+                          <div >
                             <Button
                               type="button"
                               variant="outline"
@@ -1115,8 +1095,8 @@ const IncomeCard = ({
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-white dark:bg-gray-800">
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
+                  <tr >
+                    <td ></td>
                     <td colSpan={calculateForSpouse ? 3 : 2}>
                       <Button
                         type="button"

@@ -90,20 +90,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
   }, [form]);
 
   return (
-    <Card className="mx-auto w-full max-w-3xl border-orange-500">
-      <CardHeader className="text-center">
-        <CardTitle className="text-orange-500 text-3xl underline">
+    <Card >
+      <CardHeader >
+        <CardTitle >
           Expenses
         </CardTitle>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <span >
           Enter your estimated expenses below.
         </span>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-6">
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <form >
+            <div >
+              <table >
                 <tbody>
                   {/* Retirement Expenses */}
                   <tr>
@@ -111,14 +111,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               Retirement Expenses
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Enter the expected annual cost of essential items for
                               the lifestyle you desire throughout your retirement
@@ -133,23 +133,23 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </TooltipProvider>
                     </td>
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                     </th>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold">You</span>
+                    <td >
+                      <span >You</span>
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <span className="font-semibold">Spouse</span>
+                      <td >
+                        <span >Spouse</span>
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Annual Retirement Expenses
                     </th>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.annualRetirementExpenses`}
@@ -175,7 +175,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.annualRetirementExpenses`}
@@ -202,11 +202,11 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Annual Health Care Expenses
                     </th>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name={`persons.0.healthCareExpenses`}
@@ -232,7 +232,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name={`persons.1.healthCareExpenses`}
@@ -259,18 +259,18 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </td>
                     )}
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Specify Expenses Through Each Stage of Retirement?
                     </th>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name="expensesChangeForEachStage"
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-gray-500 dark:text-gray-400">
+                          <FormItem >
+                            <div >
+                              <FormLabel >
                                 Specify expenses through each stage of retirement?
                               </FormLabel>
                             </div>
@@ -293,20 +293,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 1: Current Age to 75 */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 1: Current Age to 75
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage2"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Current Age to 75)
                     </FormLabel>
                     <FormControl>
@@ -330,7 +330,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage2"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Current Age to 75)
                     </FormLabel>
                     <FormControl>
@@ -358,20 +358,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 2: Ages 76 to 85 */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 2: Ages 76 to 85
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage3"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Ages 76 to 85)
                     </FormLabel>
                     <FormControl>
@@ -395,7 +395,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage3"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Ages 76 to 85)
                     </FormLabel>
                     <FormControl>
@@ -423,20 +423,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 3: Ages 86 to Life Expectancy */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 3: Ages 86 to Life Expectancy
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage4"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Ages 86 to Life Expectancy)
                     </FormLabel>
                     <FormControl>
@@ -460,7 +460,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage4"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Ages 86 to Life Expectancy)
                     </FormLabel>
                     <FormControl>
@@ -488,14 +488,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
 )} 
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         <FormField
                           control={form.control}
                           name="expensesChangeForEachStageSpouse"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                              <div className="space-y-0.5">
-                                <FormLabel className="text-gray-500 dark:text-gray-400">
+                            <FormItem >
+                              <div >
+                                <FormLabel >
                                   Spouse specify expenses through each stage of retirement?
                                 </FormLabel>
                               </div>
@@ -517,20 +517,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 1: Current Age to 75 */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 1: Current Age to 75
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage2"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Current Age to 75)
                     </FormLabel>
                     <FormControl>
@@ -554,7 +554,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage2"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Current Age to 75)
                     </FormLabel>
                     <FormControl>
@@ -582,20 +582,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 2: Ages 76 to 85 */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 2: Ages 76 to 85
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage3"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Ages 76 to 85)
                     </FormLabel>
                     <FormControl>
@@ -619,7 +619,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage3"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Ages 76 to 85)
                     </FormLabel>
                     <FormControl>
@@ -647,20 +647,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     {/* Retirement Stage 3: Ages 86 to Life Expectancy */}
     <tr>
       <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
+        <Card >
           <CardHeader>
-            <CardTitle className="text-orange-500">
+            <CardTitle >
               Retirement Stage 3: Ages 86 to Life Expectancy
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div >
               <FormField
                 control={form.control}
                 name="persons.0.annualRetirementExpensesStage4"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Expenses (Ages 86 to Life Expectancy)
                     </FormLabel>
                     <FormControl>
@@ -684,7 +684,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                 name="persons.0.healthCareExpensesStage4"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
+                    <FormLabel >
                       Annual Health Care Expenses (Ages 86 to Life Expectancy)
                     </FormLabel>
                     <FormControl>
@@ -720,14 +720,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               One-Off Expenses
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Enter any one-off items you anticipate in the future.
                               One-off expenses could include travel and vacations,
@@ -741,16 +741,15 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                   </tr>
                   {form.watch("oneOffExpenses")?.map((expense, index) => (
                     <React.Fragment key={expense.id}>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4 w-2/3">
+                      <tr >
+                        <td >
                           <FormField
                             control={form.control}
                             name={`oneOffExpenses.${index}.description`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.description`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`oneOffExpenses.${index}.description`}
+                                  
                                 >
                                   Description
                                 </FormLabel>
@@ -767,15 +766,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name={`oneOffExpenses.${index}.amount`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.amount`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`oneOffExpenses.${index}.amount`}
+                                  
                                 >
                                   Amount
                                 </FormLabel>
@@ -800,22 +798,20 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                           />
                         </td>
                         {/* {calculateForSpouse && (
-                          <td className="px-6 py-4">
+                          <td >
                             <FormField
                               control={form.control}
                               name={`oneOffExpenses.${index}.personType`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel
-                                    htmlFor={`oneOffExpenses.${index}.personType`}
-                                    className="text-gray-500 dark:text-gray-400"
+                                  <FormLabel htmlFor={`oneOffExpenses.${index}.personType`}
+                                    
                                   >
                                     Person
                                   </FormLabel>
                                   <FormControl>
-                                    <select
-                                      {...field}
-                                      className="bg-white border border-gray-300 px-3 py-2 rounded-md w-full"
+                                    <select {...field}
+                                      
                                     >
                                       <option value="self">Self</option>
                                       <option value="spouse">Spouse</option>
@@ -828,24 +824,22 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                           </td>
                         )} */}
 
-<td className="px-6 py-4">
+<td >
                           <FormField
                             control={form.control}
                             name={`oneOffExpenses.${index}.year`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.year`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`oneOffExpenses.${index}.year`}
+                                  
                                 >
                                   Year
                                 </FormLabel>
                                 <FormControl>
-                                  <Input
-                                    type="number"
+                                  <Input type="number"
                                     id={`oneOffExpenses.${index}.year`}
                                     placeholder="Enter year"
-                                    className="w-full"
+                                    
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(
@@ -862,17 +856,16 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                           />
                         </td>
                         {calculateForSpouse && (
-                          <td className="px-6 py-4">
+                          <td >
                             {/* Placeholder for alignment */}
                           </td>
                         )}
                       </tr>
                  
-                      <tr className="bg-white dark:bg-gray-800">
+                      <tr >
                         <td colSpan={calculateForSpouse ? 3 : 2}>
-                          <div className="flex justify-end">
-                            <Button
-                            className="mr-4"
+                          <div >
+                            <Button 
                               type="button"
                               variant="outline"
                               onClick={() => handleRemoveOneOffExpense(expense.id)}
@@ -884,12 +877,11 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-white dark:bg-gray-800">
-  <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
+                  <tr >
+  <td ></td>
   <td colSpan={calculateForSpouse ? 3 : 2}>
-    <div className="flex justify-start space-x-14 ml-8">
-      <Button
-      className="mb-5"
+    <div >
+      <Button 
         type="button"
         variant="outline"
         onClick={() => handleAddOneOffExpense("self")}
@@ -915,14 +907,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               Charitable Donations
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Use this section if you will make a one-time donation
                               or any annual donations in the future. We will record
@@ -936,16 +928,15 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                   </tr>
                   {form.watch("charitableDonations")?.map((donation, index) => (
                     <React.Fragment key={donation.id}>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4">
+                      <tr >
+                        <td >
                           <FormField
                             control={form.control}
                             name={`charitableDonations.${index}.amount`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.amount`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`charitableDonations.${index}.amount`}
+                                  
                                 >
                                   Annual Donations
                                 </FormLabel>
@@ -969,15 +960,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name={`charitableDonations.${index}.startYear`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.startYear`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`charitableDonations.${index}.startYear`}
+                                  
                                 >
                                   Start Year
                                 </FormLabel>
@@ -1001,15 +991,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name={`charitableDonations.${index}.endYear`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.endYear`}
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor={`charitableDonations.${index}.endYear`}
+                                  
                                 >
                                   End Year
                                 </FormLabel>
@@ -1034,16 +1023,16 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                           />
                         </td>
                         {calculateForSpouse && (
-                          <td className="px-6 py-4">
+                          <td >
                             {/* Placeholder for alignment */}
                           </td>
                         )}
 
                       </tr>
 
-                      <tr className="bg-white dark:bg-gray-800">
+                      <tr >
                         <td colSpan={calculateForSpouse ? 3 : 2}>
-                          <div className="flex justify-end">
+                          <div >
                             <Button
                               type="button"
                               variant="outline"
@@ -1056,12 +1045,11 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-white dark:bg-gray-800">
-  <td className="px-6 py-4 text-gray-500 dark:text-gray-400 ml-8"></td>
+                  <tr >
+  <td ></td>
   <td colSpan={calculateForSpouse ? 3 : 2}>
-    <div className="flex justify-start space-x-9 ml-8">
-      <Button
-      className="mb-4"
+    <div >
+      <Button 
         type="button"
         variant="outline"
         onClick={() => handleAddCharitableDonation("self")}
@@ -1069,8 +1057,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
         Add Charitable Donation (Self)
       </Button>
       {calculateForSpouse && (
-        <Button
-        className="mb-4"
+        <Button 
           type="button"
           variant="outline"
           onClick={() => handleAddCharitableDonation("spouse")}
@@ -1088,14 +1075,14 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
+                            <h2 >
                               Desired Estate (to be left to heirs)
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
+                              <span >
                                 (?)
                               </span>
                             </h2>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Please state your desired estate amount (if any) you’d
                               like to leave behind to your family, heirs, and
@@ -1110,11 +1097,11 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       </TooltipProvider>
                     </td>
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
+                  <tr >
+                    <th scope="row" >
                       Desired Estate Amount
                     </th>
-                    <td className="px-6 py-4">
+                    <td >
                       <FormField
                         control={form.control}
                         name="desiredEstateValue"
@@ -1140,7 +1127,7 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                       />
                     </td>
                     {calculateForSpouse && (
-                      <td className="px-6 py-4">
+                      <td >
                         {/* Placeholder for alignment */}
                       </td>
                     )}

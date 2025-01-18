@@ -133,34 +133,34 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
 
   return (
     <TooltipProvider>
-      <Card className="mx-auto w-full max-w-3xl border-purple-500">
-        <CardHeader className="flex flex-row items-center justify-center">
-          <CardTitle className="text-purple-500 underline text-center text-3xl">
+      <Card >
+        <CardHeader >
+          <CardTitle >
             Onboarding
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form className="space-y-6">
+            <form >
               {/* --- General Information Subsection --- */}
-              <div className="mb-4">
-                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
+              <div >
+                <h2 >
                   General Information
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p >
                   To discover your Essential and Surplus Capital, let’s start
                   with some general questions.
                 </p>
-                <div className="relative overflow-x-auto mt-4">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <div >
+                  <table >
                     <tbody>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 Calculate for spouse?{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
@@ -173,12 +173,12 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="calculateForSpouse"
                             render={({ field }) => (
-                              <FormItem className="flex items-center space-x-2">
+                              <FormItem >
                                 <FormControl>
                                   <Checkbox
                                     id="calculateForSpouse"
@@ -187,9 +187,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                     aria-label="Calculate for spouse"
                                   />
                                 </FormControl>
-                                <FormLabel
-                                  htmlFor="calculateForSpouse"
-                                  className="text-gray-500 dark:text-gray-400"
+                                <FormLabel htmlFor="calculateForSpouse"
+                                  
                                 >
                                   Yes
                                 </FormLabel>
@@ -197,15 +196,15 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             )}
                           />
                         </td>
-                        <td className="px-6 py-4"></td>
+                        <td ></td>
                       </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 Birth Year{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
@@ -218,15 +217,14 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="persons.0.birthYear"
                             render={({ field }) => (
                               <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="birthYearSelf"
-                                  className="text-gray-500 dark:text-gray-400"
+                                {/* <FormLabel htmlFor="birthYearSelf"
+                                  
                                 >
                                   Your Birth Year
                                 </FormLabel> */}
@@ -251,15 +249,14 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4">
+                          <td >
                             <FormField
                               control={form.control}
                               name="persons.1.birthYear"
                               render={({ field }) => (
                                 <FormItem>
-                                  {/* <FormLabel
-                                    htmlFor="birthYearSpouse"
-                                    className="text-gray-500 dark:text-gray-400"
+                                  {/* <FormLabel htmlFor="birthYearSpouse"
+                                    
                                   >
                                     Spouse's Birth Year
                                   </FormLabel> */}
@@ -285,18 +282,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 Life Expectancy Estimate{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
+                            <TooltipContent >
                               <p>
                                 Enter the age by which you will likely have
                                 passed away. You can be conservative with your
@@ -309,15 +306,14 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="persons.0.lifeExpectancy"
                             render={({ field }) => (
                               <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="lifeExpectancySelf"
-                                  className="text-gray-500 dark:text-gray-400"
+                                {/* <FormLabel htmlFor="lifeExpectancySelf"
+                                  
                                 >
                                   Your Life Expectancy
                                 </FormLabel> */}
@@ -342,15 +338,14 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4">
+                          <td >
                             <FormField
                               control={form.control}
                               name="persons.1.lifeExpectancy"
                               render={({ field }) => (
                                 <FormItem>
-                                  {/* <FormLabel
-                                    htmlFor="lifeExpectancySpouse"
-                                    className="text-gray-500 dark:text-gray-400"
+                                  {/* <FormLabel htmlFor="lifeExpectancySpouse"
+                                    
                                   >
                                     Spouse's Life Expectancy
                                   </FormLabel> */}
@@ -376,13 +371,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </td>
                         )}
                       </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 Province of Residence{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
@@ -392,15 +387,14 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="province"
                             render={({ field }) => (
                               <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="province"
-                                  className="text-gray-500 dark:text-gray-400"
+                                {/* <FormLabel htmlFor="province"
+                                  
                                 >
                                   Select Province
                                 </FormLabel> */}
@@ -430,7 +424,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4"></td>
+                          <td ></td>
                         )}
                       </tr>
                     </tbody>
@@ -439,30 +433,30 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
               </div>
 
               {/* --- Investor Profile Subsection --- */}
-              <div className="mb-4">
-                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
+              <div >
+                <h2 >
                   Investor Profile
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p >
                   This determines the rate at which your wealth grows throughout
                   your life. This section assumes you and your spouse are the
                   same type of investor.
                 </p>
-                <div className="relative overflow-x-auto mt-4">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <div >
+                  <table >
                     <tbody>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 What type of Investor are you?{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
+                            <TooltipContent >
                               <p>
                                 Each investor profile selection is designated a
                                 rate of return percentage to be applied to your
@@ -479,7 +473,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="investorProfile"
@@ -541,18 +535,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           />
                         </td>
                       </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      <tr >
+                        <th scope="row" >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
                                 Inflation rate (%)
-                                <span className="text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
+                            <TooltipContent >
                               <p>
                                 Enter the average rate of inflation that you
                                 think will apply during the rest of your life.
@@ -564,7 +558,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td className="px-6 py-4">
+                        <td >
                           <FormField
                             control={form.control}
                             name="inflationRate"
@@ -602,18 +596,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       </tr>
                       {form.watch("specifyReturn") && (
                         <>
-                          <tr className="bg-white dark:bg-gray-800">
-                            <th scope="row" className="px-6 py-4 font-medium">
+                          <tr >
+                            <th scope="row" >
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span>
                                     Income rate (%)
-                                    <span className="text-gray-400 cursor-pointer">
+                                    <span >
                                       (?)
                                     </span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent className="custom-tooltip-content">
+                                <TooltipContent >
                                   <p>
                                     This is the average rate of interest income
                                     and/or dividend income that you expect to
@@ -626,7 +620,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </TooltipContent>
                               </Tooltip>
                             </th>
-                            <td className="px-6 py-4">
+                            <td >
                               <FormField
                                 control={form.control}
                                 name="incomeReturnRate"
@@ -661,18 +655,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               />
                             </td>
                           </tr>
-                          <tr className="bg-gray-100 dark:bg-gray-900">
-                            <th scope="row" className="px-6 py-4 font-medium">
+                          <tr >
+                            <th scope="row" >
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span>
                                     Growth rate (%)
-                                    <span className="text-gray-400 cursor-pointer">
+                                    <span >
                                       (?)
                                     </span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent className="custom-tooltip-content">
+                                <TooltipContent >
                                   <p>
                                     This is the capital gain appreciation you
                                     expect from investments. Total income from
@@ -693,7 +687,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </TooltipContent>
                               </Tooltip>
                             </th>
-                            <td className="px-6 py-4">
+                            <td >
                               <FormField
                                 control={form.control}
                                 name="growthReturnRate"

@@ -99,36 +99,35 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
   ];
 
   return (
-    <Card className="mx-auto w-full max-w-3xl border-green-500">
-      <CardHeader className="text-center">
-        <CardTitle className="text-green-500 underline text-center text-3xl">Assets</CardTitle>
+    <Card >
+      <CardHeader >
+        <CardTitle >Assets</CardTitle>
         <CardDescription>Provide details about your assets.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-6">
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <form >
+            <div >
+              <table >
                 <tbody>
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
 
             
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th
-                          scope="row"
-                          className="px-6 py-4 font-medium"
+                      <tr >
+                        <th scope="row"
+                          
                           colSpan={calculateForSpouse ? 3 : 2}
                         >
                           Registered Investments
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="ml-1 text-gray-500 dark:text-gray-400 cursor-pointer">
+                                <span >
                                   (?)
                                 </span>
                               </TooltipTrigger>
-                              <TooltipContent className="custom-tooltip-content">
+                              <TooltipContent >
                                 <p>
                                   Tax-Free Savings Account(TFSA): When money is
                                   withdrawn from your TSFA it is not taxable.
@@ -157,10 +156,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                         </th>
                       </tr>
                                             {/* Add a header row for each person */}
-                                            <tr className="">
-                        <th
-                          colSpan={calculateForSpouse ? 3 : 2}
-                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                                            <tr >
+                        <th colSpan={calculateForSpouse ? 3 : 2}
+                          
                         >
                           {person.personType === "self" ? "Self" : "Spouse"}
                         </th>
@@ -168,10 +166,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       {person.registeredInvestments?.map(
                         (investment, index) => (
                           <React.Fragment key={investment.id}>
-                            <tr className="bg-gray-100 dark:bg-gray-900">
-                              <td className="px-6 py-4" rowSpan={2}>
-                                <div className="flex items-center space-x-2">
-                                  <h4 className="font-medium">
+                            <tr >
+                              <td  rowSpan={2}>
+                                <div >
+                                  <h4 >
                                     Investment {index + 1}
                                   </h4>
                                   <Button
@@ -189,7 +187,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   </Button>
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
+                              <td >
                                 <FormField
                                   control={form.control}
                                   name={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
@@ -198,13 +196,12 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                       <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
-                                            <FormLabel
-                                              htmlFor={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
-                                              className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                            <FormLabel htmlFor={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
+                                              
                                             >
                                               Please select any account(s) you
                                               have?
-                                              <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                              <span >
                                                 (?)
                                               </span>
                                             </FormLabel>
@@ -247,11 +244,11 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                 />
                               </td>
                               {calculateForSpouse && (
-                                <td className="px-6 py-4"></td>
+                                <td ></td>
                               )}
                             </tr>
-                            <tr className="bg-white dark:bg-gray-800">
-                              <td className="px-6 py-4">
+                            <tr >
+                              <td >
                                 <FormField
                                   control={form.control}
                                   name={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
@@ -260,13 +257,12 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                       <TooltipProvider>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
-                                            <FormLabel
-                                              htmlFor={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
-                                              className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                            <FormLabel htmlFor={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
+                                              
                                             >
                                               What is the current value in this
                                               account? (CAD)
-                                              <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                              <span >
                                                 (?)
                                               </span>
                                             </FormLabel>
@@ -303,8 +299,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                           </React.Fragment>
                         )
                       )}
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4">
+                      <tr >
+                        <td >
                           <Button
                             type="button"
                             variant="outline"
@@ -315,26 +311,25 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                             Add Registered Investment Account
                           </Button>
                         </td>
-                        <td className="px-6 py-4"></td>
-                        {calculateForSpouse && <td className="px-6 py-4"></td>}
+                        <td ></td>
+                        {calculateForSpouse && <td ></td>}
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium"
+                  <tr >
+                    <th scope="row"
+                      
                       colSpan={calculateForSpouse ? 3 : 2}
                     >
                       Non-Registered Investments
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 text-gray-500 dark:text-gray-400 cursor-pointer">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               This represents all assets and investments
                               excluding your primary residence (on which there
@@ -353,17 +348,16 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                   </tr>
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
-                      <tr className="">
-                        <th
-                          colSpan={calculateForSpouse ? 3 : 2}
-                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                      <tr >
+                        <th colSpan={calculateForSpouse ? 3 : 2}
+                          
                         >
                           {person.personType === "self" ? "Self" : "Spouse"}
                         </th>
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium"></th>
-                        <td className="px-6 py-4">
+                      <tr >
+                        <th scope="row" ></th>
+                        <td >
                           <FormField
                             control={form.control}
                             name={`persons.${personIndex}.nonRegisteredInvestmentValue`}
@@ -372,12 +366,11 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <FormLabel
-                                        htmlFor={`persons.${personIndex}.nonRegisteredInvestmentValue`}
-                                        className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                      <FormLabel htmlFor={`persons.${personIndex}.nonRegisteredInvestmentValue`}
+                                        
                                       >
                                         What is the current value (CAD)?
-                                        <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                        <span >
                                           (?)
                                         </span>
                                       </FormLabel>
@@ -411,9 +404,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                           />
                         </td>
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium"></th>
-                        <td className="px-6 py-4">
+                      <tr >
+                        <th scope="row" ></th>
+                        <td >
                           <FormField
                             control={form.control}
                             name={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
@@ -422,12 +415,11 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <FormLabel
-                                        htmlFor={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
-                                        className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                      <FormLabel htmlFor={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
+                                        
                                       >
                                         What was the opening year?
-                                        <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                        <span >
                                           (?)
                                         </span>
                                       </FormLabel>
@@ -461,9 +453,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                           />
                         </td>
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium"></th>
-                        <td className="px-6 py-4">
+                      <tr >
+                        <th scope="row" ></th>
+                        <td >
                           <FormField
                             control={form.control}
                             name={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
@@ -472,17 +464,16 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <FormLabel
-                                        htmlFor={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
-                                        className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                      <FormLabel htmlFor={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
+                                        
                                       >
                                         What is the book value (CAD)?
-                                        <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                        <span >
                                           (?)
                                         </span>
                                       </FormLabel>
                                     </TooltipTrigger>
-                                    <TooltipContent className="custom-tooltip-content">
+                                    <TooltipContent >
                                       <p>
                                         Enter the total cost or book value of
                                         all of your non-registered investments
@@ -519,21 +510,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium"
+                  <tr >
+                    <th scope="row"
+                      
                       colSpan={calculateForSpouse ? 3 : 2}
                     >
                       Life Insurance
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 text-gray-500 dark:text-gray-400 cursor-pointer">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
+                          <TooltipContent >
                             <p>
                               Use this section if you have universal or whole
                               life insurance and indicate the face value of the
@@ -554,17 +544,16 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
 
                   {form.getValues("persons").map((person, personIndex) => (
                     <React.Fragment key={personIndex}>
-                      <tr className="">
-                        <th
-                          colSpan={calculateForSpouse ? 3 : 2}
-                          className="px-6 py-4 font-bold text-gray-700 dark:text-gray-300"
+                      <tr >
+                        <th colSpan={calculateForSpouse ? 3 : 2}
+                          
                         >
                           {person.personType === "self" ? "Self" : "Spouse"}
                         </th>
                       </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium"></th>
-                        <td className="px-6 py-4">
+                      <tr >
+                        <th scope="row" ></th>
+                        <td >
                           <FormField
                             control={form.control}
                             name={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
@@ -573,13 +562,12 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <FormLabel
-                                        htmlFor={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
-                                        className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                      <FormLabel htmlFor={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
+                                        
                                       >
                                         What will be the death benefit left to
                                         your estate?
-                                        <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                        <span >
                                           (?)
                                         </span>
                                       </FormLabel>
@@ -615,17 +603,16 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       </tr>
                     </React.Fragment>
                   ))}
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium"
+                  <tr >
+                    <th scope="row"
+                      
                       colSpan={calculateForSpouse ? 3 : 2}
                     >
                       Primary Residence
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="ml-1 text-gray-500 dark:text-gray-400 cursor-pointer">
+                            <span >
                               (?)
                             </span>
                           </TooltipTrigger>
@@ -641,9 +628,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       </TooltipProvider>
                     </th>
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
-                    <th scope="row" className="px-6 py-4 font-medium"></th>
-                    <td className="px-6 py-4">
+                  <tr >
+                    <th scope="row" ></th>
+                    <td >
                       <FormField
                         control={form.control}
                         name="primaryResidenceValue"
@@ -652,13 +639,12 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <FormLabel
-                                    htmlFor="primaryResidenceValue"
-                                    className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                  <FormLabel htmlFor="primaryResidenceValue"
+                                    
                                   >
                                     What is the current market value of your
                                     home?
-                                    <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                    <span >
                                       (?)
                                     </span>
                                   </FormLabel>
@@ -692,22 +678,22 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                       />
                     </td>
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
-                    <th scope="row" className="px-6 py-4 font-medium"></th>
-                    <td className="px-6 py-4 flex items-center">
+                  <tr >
+                    <th scope="row" ></th>
+                    <td >
                       <FormField
                         control={form.control}
                         name="primaryResidenceSell"
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
+                          <FormItem >
+                            <div >
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <FormLabel className="text-gray-500 dark:text-gray-400 cursor-pointer">
+                                    <FormLabel >
                                       Do you plan to sell your home in the
                                       future?
-                                      <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                      <span >
                                         (?)
                                       </span>
                                     </FormLabel>
@@ -734,9 +720,9 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                     </td>
                   </tr>
                   {primaryResidenceSell && (
-                    <tr className="bg-white dark:bg-gray-800">
-                      <th scope="row" className="px-6 py-4 font-medium"></th>
-                      <td className="px-6 py-4">
+                    <tr >
+                      <th scope="row" ></th>
+                      <td >
                         <FormField
                           control={form.control}
                           name="primaryResidenceSellYear"
@@ -745,12 +731,11 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <FormLabel
-                                      htmlFor="primaryResidenceSellYear"
-                                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                                    <FormLabel htmlFor="primaryResidenceSellYear"
+                                      
                                     >
                                       When would you like to sell?
-                                      <span className="ml-1 text-gray-500 dark:text-gray-400">
+                                      <span >
                                         (?)
                                       </span>
                                     </FormLabel>
