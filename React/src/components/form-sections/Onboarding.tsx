@@ -133,62 +133,61 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
 
   return (
     <TooltipProvider>
-      <Card >
-        <CardHeader >
-          <CardTitle >
-            Onboarding
-          </CardTitle>
+      <Card className="shad-card">
+        <CardHeader className="shad-card-header">
+          <CardTitle className="shad-card-title">Onboarding</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="shad-card-content">
           <Form {...form}>
-            <form >
+            <form className="shad-form">
               {/* --- General Information Subsection --- */}
-              <div >
-                <h2 >
-                  General Information
-                </h2>
-                <p >
+              <div>
+                <h2 className="section-heading">General Information</h2>
+                <p className="section-description">
                   To discover your Essential and Surplus Capital, let’s start
                   with some general questions.
                 </p>
-                <div >
-                  <table >
+                <div className="">
+                  <table className="table">
                     <tbody>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 Calculate for spouse?{" "}
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
                                 Select 'yes' if you want to include your spouse
                                 in the calculations.
                               </p>
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="calculateForSpouse"
                             render={({ field }) => (
-                              <FormItem >
-                                <FormControl>
+                              <FormItem className="shad-form-item">
+                                <FormControl className="shad-form-control">
                                   <Checkbox
                                     id="calculateForSpouse"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                     aria-label="Calculate for spouse"
+                                    className="shad-checkbox"
                                   />
                                 </FormControl>
-                                <FormLabel htmlFor="calculateForSpouse"
-                                  
+                                <FormLabel
+                                  htmlFor="calculateForSpouse"
+                                  className="shad-form-label"
                                 >
                                   Yes
                                 </FormLabel>
@@ -196,39 +195,40 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             )}
                           />
                         </td>
-                        <td ></td>
+                        <td className="table-cell"></td>
                       </tr>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 Birth Year{" "}
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
                                 Enter the year you were born. We will use this
                                 to calculate your age.
                               </p>
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="persons.0.birthYear"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="shad-form-item">
                                 {/* <FormLabel htmlFor="birthYearSelf"
-                                  
+                                  className="shad-form-label"
                                 >
                                   Your Birth Year
                                 </FormLabel> */}
-                                <FormControl>
+                                <FormControl className="shad-form-control">
                                   <Input
                                     type="number"
                                     id="birthYearSelf"
@@ -241,26 +241,27 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                           : undefined
                                       )
                                     }
+                                    className="shad-input"
                                   />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="shad-form-message" />
                               </FormItem>
                             )}
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td >
+                          <td className="table-cell">
                             <FormField
                               control={form.control}
                               name="persons.1.birthYear"
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="shad-form-item">
                                   {/* <FormLabel htmlFor="birthYearSpouse"
-                                    
+                                    className="shad-form-label"
                                   >
                                     Spouse's Birth Year
                                   </FormLabel> */}
-                                  <FormControl>
+                                  <FormControl className="shad-form-control">
                                     <Input
                                       type="number"
                                       id="birthYearSpouse"
@@ -273,28 +274,30 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                             : undefined
                                         )
                                       }
+                                      className="shad-input"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage className="shad-form-message" />
                                 </FormItem>
                               )}
                             />
                           </td>
                         )}
                       </tr>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 Life Expectancy Estimate{" "}
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent >
-                              <p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
                                 Enter the age by which you will likely have
                                 passed away. You can be conservative with your
                                 estimate to start with and adjust it after if
@@ -306,18 +309,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="persons.0.lifeExpectancy"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="shad-form-item">
                                 {/* <FormLabel htmlFor="lifeExpectancySelf"
-                                  
+                                  className="shad-form-label"
                                 >
                                   Your Life Expectancy
                                 </FormLabel> */}
-                                <FormControl>
+                                <FormControl className="shad-form-control">
                                   <Input
                                     type="number"
                                     id="lifeExpectancySelf"
@@ -330,26 +333,27 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                           : undefined
                                       )
                                     }
+                                    className="shad-input"
                                   />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="shad-form-message" />
                               </FormItem>
                             )}
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td >
+                          <td className="table-cell">
                             <FormField
                               control={form.control}
                               name="persons.1.lifeExpectancy"
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="shad-form-item">
                                   {/* <FormLabel htmlFor="lifeExpectancySpouse"
-                                    
+                                    className="shad-form-label"
                                   >
                                     Spouse's Life Expectancy
                                   </FormLabel> */}
-                                  <FormControl>
+                                  <FormControl className="shad-form-control">
                                     <Input
                                       type="number"
                                       id="lifeExpectancySpouse"
@@ -362,39 +366,43 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                             : undefined
                                         )
                                       }
+                                      className="shad-input"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage className="shad-form-message" />
                                 </FormItem>
                               )}
                             />
                           </td>
                         )}
                       </tr>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 Province of Residence{" "}
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Select your province of residence.</p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
+                                Select your province of residence.
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="province"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="shad-form-item">
                                 {/* <FormLabel htmlFor="province"
-                                  
+                                  className="shad-form-label"
                                 >
                                   Select Province
                                 </FormLabel> */}
@@ -402,29 +410,36 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                   onValueChange={field.onChange}
                                   value={field.value}
                                 >
-                                  <FormControl>
-                                    <SelectTrigger id="province">
-                                      <SelectValue placeholder="Select province" />
+                                  <FormControl className="shad-form-control">
+                                    <SelectTrigger
+                                      id="province"
+                                      className="shad-select-trigger"
+                                    >
+                                      <SelectValue
+                                        placeholder="Select province"
+                                        className="shad-select-value"
+                                      />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent>
+                                  <SelectContent className="shad-select-content">
                                     {canadianProvinces.map((province) => (
                                       <SelectItem
                                         key={province}
                                         value={province}
+                                        className="shad-select-item"
                                       >
                                         {province}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
-                                <FormMessage />
+                                <FormMessage className="shad-form-message" />
                               </FormItem>
                             )}
                           />
                         </td>
                         {form.watch("calculateForSpouse") && (
-                          <td ></td>
+                          <td className="table-cell"></td>
                         )}
                       </tr>
                     </tbody>
@@ -433,31 +448,30 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
               </div>
 
               {/* --- Investor Profile Subsection --- */}
-              <div >
-                <h2 >
-                  Investor Profile
-                </h2>
-                <p >
+              <div>
+                <h2 className="section-heading">Investor Profile</h2>
+                <p className="section-description">
                   This determines the rate at which your wealth grows throughout
                   your life. This section assumes you and your spouse are the
                   same type of investor.
                 </p>
-                <div >
-                  <table >
+                <div className="">
+                  <table className="table">
                     <tbody>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 What type of Investor are you?{" "}
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent >
-                              <p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
                                 Each investor profile selection is designated a
                                 rate of return percentage to be applied to your
                                 assets and investments. Choose the appropriate
@@ -473,12 +487,12 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="investorProfile"
                             render={({ field }) => (
-                              <FormItem>
+                              <FormItem className="shad-form-item">
                                 <Select
                                   onValueChange={(value) => {
                                     field.onChange(value); // Update "investorProfile" field
@@ -513,41 +527,49 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                   }}
                                   value={field.value}
                                 >
-                                  <FormControl>
-                                    <SelectTrigger id="investorProfile">
-                                      <SelectValue placeholder="Select investor profile" />
+                                  <FormControl className="shad-form-control">
+                                    <SelectTrigger
+                                      id="investorProfile"
+                                      className="shad-select-trigger"
+                                    >
+                                      <SelectValue
+                                        placeholder="Select investor profile"
+                                        className="shad-select-value"
+                                      />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent>
+                                  <SelectContent className="shad-select-content">
                                     {investorProfiles.map((profile) => (
                                       <SelectItem
                                         key={profile.value}
                                         value={profile.value}
+                                        className="shad-select-item"
                                       >
                                         {profile.label}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
-                                <FormMessage />
+                                <FormMessage className="shad-form-message" />
                               </FormItem>
                             )}
                           />
                         </td>
                       </tr>
-                      <tr >
-                        <th scope="row" >
+                      <tr>
+                        <th scope="row" className="table-header-cell">
                           <Tooltip>
-                            <TooltipTrigger asChild>
+                            <TooltipTrigger
+                              asChild
+                              className="shad-tooltip-trigger"
+                            >
                               <span>
                                 Inflation rate (%)
-                                <span >
-                                  (?)
-                                </span>
+                                <span className="tooltip-icon">(?)</span>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent >
-                              <p>
+                            <TooltipContent className="shad-tooltip-content">
+                              <p className="tooltip-text">
                                 Enter the average rate of inflation that you
                                 think will apply during the rest of your life.
                                 This is the rate of inflation that will apply to
@@ -558,13 +580,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </th>
-                        <td >
+                        <td className="table-cell">
                           <FormField
                             control={form.control}
                             name="inflationRate"
                             render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
+                              <FormItem className="shad-form-item">
+                                <FormControl className="shad-form-control">
                                   <Input
                                     type="number"
                                     id="inflationRate"
@@ -575,6 +597,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                         ? ""
                                         : (field.value * 100).toFixed(2)
                                     }
+                                    className="shad-input"
                                     onChange={(e) => {
                                       const value = e.target.value;
                                       if (value === "") {
@@ -588,7 +611,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                     }}
                                   />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="shad-form-message" />
                               </FormItem>
                             )}
                           />
@@ -596,19 +619,20 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       </tr>
                       {form.watch("specifyReturn") && (
                         <>
-                          <tr >
-                            <th scope="row" >
+                          <tr>
+                            <th scope="row" className="table-header-cell">
                               <Tooltip>
-                                <TooltipTrigger asChild>
+                                <TooltipTrigger
+                                  asChild
+                                  className="shad-tooltip-trigger"
+                                >
                                   <span>
                                     Income rate (%)
-                                    <span >
-                                      (?)
-                                    </span>
+                                    <span className="tooltip-icon">(?)</span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent >
-                                  <p>
+                                <TooltipContent className="shad-tooltip-content">
+                                  <p className="tooltip-text">
                                     This is the average rate of interest income
                                     and/or dividend income that you expect to
                                     earn on your investments. Income earned on
@@ -620,19 +644,20 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </TooltipContent>
                               </Tooltip>
                             </th>
-                            <td >
+                            <td className="table-cell">
                               <FormField
                                 control={form.control}
                                 name="incomeReturnRate"
                                 render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
+                                  <FormItem className="shad-form-item">
+                                    <FormControl className="shad-form-control">
                                       <Input
                                         type="number"
                                         id="incomeReturnRate"
                                         placeholder="Enter income rate"
                                         {...field}
                                         value={""}
+                                        className="shad-input"
                                         onChange={(e) => {
                                           const value = e.target.value;
                                           if (value === "") {
@@ -649,25 +674,26 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                         }}
                                       />
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage className="shad-form-message" />
                                   </FormItem>
                                 )}
                               />
                             </td>
                           </tr>
-                          <tr >
-                            <th scope="row" >
+                          <tr>
+                            <th scope="row" className="table-header-cell">
                               <Tooltip>
-                                <TooltipTrigger asChild>
+                                <TooltipTrigger
+                                  asChild
+                                  className="shad-tooltip-trigger"
+                                >
                                   <span>
                                     Growth rate (%)
-                                    <span >
-                                      (?)
-                                    </span>
+                                    <span className="tooltip-icon">(?)</span>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent >
-                                  <p>
+                                <TooltipContent className="shad-tooltip-content">
+                                  <p className="tooltip-text">
                                     This is the capital gain appreciation you
                                     expect from investments. Total income from
                                     investments may consist of interest and
@@ -687,19 +713,20 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                 </TooltipContent>
                               </Tooltip>
                             </th>
-                            <td >
+                            <td className="table-cell">
                               <FormField
                                 control={form.control}
                                 name="growthReturnRate"
                                 render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
+                                  <FormItem className="shad-form-item">
+                                    <FormControl className="shad-form-control">
                                       <Input
                                         type="number"
                                         id="growthReturnRate"
                                         placeholder="Enter growth rate"
                                         {...field}
                                         value={""}
+                                        className="shad-input"
                                         onChange={(e) => {
                                           const value = e.target.value;
                                           if (value === "") {
@@ -716,7 +743,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                         }}
                                       />
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage className="shad-form-message" />
                                   </FormItem>
                                 )}
                               />
