@@ -4,6 +4,7 @@ export default {
   darkMode: ["class"],
   content: [
     "./index.html",
+    "./src/css/*.css",
     "./src/**/*.{ts,tsx,js,jsx}",
     "./node_modules/@shadcn/ui/**/*.{js,ts,jsx,tsx}", // Include Shadcn components
   ],

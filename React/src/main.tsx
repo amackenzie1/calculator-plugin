@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import './index.css' // Tailwind styles
+import './css/index.css' // Tailwind styles
 
 console.log('React app initializing...')
 

@@ -1,0 +1,235 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @tailwind base;
+}
+
+@layer components {
+  @tailwind components;
+}
+
+@layer utilities {
+  @tailwind utilities;
+}
+
+:root {
+  --accent-color: #007bff; /* Default accent color - customize as needed */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* --- General Styles --- */
+
+body {
+  @apply bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center;
+}
+
+/* --- Card Component --- */
+
+.card {
+  @apply mx-auto w-full max-w-3xl border rounded-lg shadow-md;
+  border-color: var(--accent-color);
+  @apply bg-white dark:bg-gray-800;
+}
+
+.card-header {
+  @apply flex flex-row items-center justify-center p-6;
+}
+
+.card-title {
+  @apply text-center text-3xl font-bold;
+  color: var(--accent-color);
+}
+
+.card-content {
+  @apply px-6 pb-6;
+}
+
+/* --- Form --- */
+
+.form {
+  @apply space-y-6;
+}
+
+/* --- Section Headings --- */
+
+.section-heading {
+  @apply text-xl font-medium mb-2 underline;
+  color: var(--accent-color);
+}
+
+.section-description {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* --- Table --- */
+
+.table {
+  @apply w-full text-sm text-left;
+}
+
+.table-row-even {
+  @apply bg-white dark:bg-gray-800;
+}
+
+.table-row-odd {
+  @apply bg-gray-100 dark:bg-gray-700;
+}
+
+.table-cell {
+  @apply px-6 py-4;
+}
+
+.table-header-cell {
+  @apply font-medium text-gray-900 dark:text-white;
+}
+
+/* --- Form Fields --- */
+
+.form-label {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+.form-item {
+  @apply relative;
+}
+
+.form-control {
+  @apply block w-full;
+}
+
+.form-message {
+  @apply text-xs text-red-500 mt-1;
+}
+
+/* --- Input --- */
+
+.input {
+  @apply block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none dark:bg-gray-800 dark:text-gray-100;
+  border-color: var(--accent-color);
+}
+
+.input:focus {
+  @apply focus:ring-2;
+  ring-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* --- Checkbox --- */
+
+.checkbox {
+  @apply h-4 w-4 rounded;
+  color: var(--accent-color);
+}
+
+.checkbox:focus {
+  @apply focus:ring-2;
+  ring-color: var(--accent-color);
+}
+
+/* --- Select --- */
+
+.select-trigger {
+  @apply inline-flex items-center justify-between w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none dark:bg-gray-800 dark:text-gray-100;
+}
+
+.select-trigger:focus {
+  @apply focus:ring-2;
+  ring-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.select-content {
+  @apply z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg;
+}
+
+.select-item {
+  @apply relative flex items-center w-full px-4 py-2 text-sm cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700;
+}
+
+/* --- Tooltip --- */
+
+.tooltip-trigger {
+  @apply inline-flex items-center;
+}
+
+.tooltip-content {
+  @apply bg-gray-800 dark:bg-gray-900 text-white dark:text-gray-100 px-3 py-2 rounded-md shadow-lg;
+}
+
+/* customized css to adjust tooltip content length */
+.custom-tooltip-content {
+  max-width: 500px; /* Adjust width as needed */
+}
+
+/* --- Button --- */
+button {
+  @apply rounded-md border border-transparent px-4 py-2 text-sm font-medium cursor-pointer transition-colors;
+  @apply bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900;
+  @apply hover:bg-gray-700 dark:hover:bg-gray-300;
+}
+
+button:focus,
+button:focus-visible {
+  @apply outline-none ring-2 ring-offset-2;
+  ring-color: var(--accent-color);
+}
+
+/* --- Shadcn UI Theming Overrides --- */
+/* @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --primary: 24 9.8% 10%;
+    --primary-foreground: 60 9.1% 97.8%;
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --ring: 20 14.3% 4.1%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 60 9.1% 97.8%;
+    --card: 20 14.3% 4.1%;
+    --card-foreground: 60 9.1% 97.8%;
+    --popover: 20 14.3% 4.1%;
+    --popover-foreground: 60 9.1% 97.8%;
+    --primary: 60 9.1% 97.8%;
+    --primary-foreground: 24 9.8% 10%;
+    --secondary: 12 6.5% 15.1%;
+    --secondary-foreground: 60 9.1% 97.8%;
+    --muted: 12 6.5% 15.1%;
+    --muted-foreground: 24 5.4% 63.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 60 9.1% 97.8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 12 6.5% 15.1%;
+    --input: 12 6.5% 15.1%;
+    --ring: 24 5.7% 82.9%;
+  }
+} */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
