@@ -7,7 +7,6 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetsCard from "./form-sections/Assets";
-// import OnboardingCard from "./form-sections/GeneralInformation";
 import ExpensesCard from "./form-sections/Expenses";
 import OnboardingCard from "./form-sections/Onboarding";
 import IncomeCard from "./form-sections/Income";
@@ -29,8 +28,8 @@ const Calculator = () => {
     resolver: zodResolver(CalculatorSchema),
     defaultValues: {
       calculateForSpouse: false,
-      expensesChangeForEachStage: false, 
-      expensesChangeForEachStageSpouse: false, 
+      expensesChangeForEachStage: false,
+      expensesChangeForEachStageSpouse: false,
       persons: [
         {
           personType: "self",
@@ -66,6 +65,7 @@ const Calculator = () => {
     },
   });
 
+  const [activeTab, setActiveTab] = useState("general");
   const calculateForSpouse = form.watch("calculateForSpouse");
 
   // Load state from local storage on component mount
@@ -167,9 +167,28 @@ const Calculator = () => {
     ? form.watch("persons.1.birthYear")
     : undefined;
 
+  const getAccentClass = (tabValue: string) => {
+    switch (tabValue) {
+      case "general":
+        return "accent-purple";
+      case "income":
+        return "accent-turquoise";
+      case "assets":
+        return "accent-green";
+      case "expenses":
+        return "accent-yellow";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="p-6 space-y-8 w-full">
-      <Tabs defaultValue="general" className="space-y-4">
+      <Tabs
+        defaultValue="general"
+        className="space-y-4"
+        onValueChange={setActiveTab}
+      >
         <TabsList>
           <TabsTrigger value="general">General Information</TabsTrigger>
           <TabsTrigger value="income">Income</TabsTrigger>
@@ -177,7 +196,7 @@ const Calculator = () => {
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
-          <OnboardingCard form={form} />
+          <OnboardingCard form={form} accentClass={getAccentClass("general")} />
         </TabsContent>
         <TabsContent value="income">
           <IncomeCard
@@ -186,15 +205,17 @@ const Calculator = () => {
             birthYearSelf={birthYearSelf}
             birthYearSpouse={birthYearSpouse}
             yearFromBirthYearAndTargetAge={yearFromBirthYearAndTargetAge}
+            accentClass={getAccentClass("income")} // Pass accent class
           />
         </TabsContent>
         <TabsContent value="assets">
-          <AssetsCard form={form} />
+          <AssetsCard form={form} accentClass={getAccentClass("assets")} />
         </TabsContent>
         <TabsContent value="expenses">
-          <ExpensesCard 
-            form={form} 
+          <ExpensesCard
+            form={form}
             calculateForSpouse={calculateForSpouse}
+            accentClass={getAccentClass("expenses")}
           />
         </TabsContent>
       </Tabs>
