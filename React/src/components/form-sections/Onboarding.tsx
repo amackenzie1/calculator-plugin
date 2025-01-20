@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -34,7 +32,6 @@ interface OnboardingCardProps {
 }
 
 const OnboardingCard = ({ form }: OnboardingCardProps) => {
-  // --- Canadian Provinces ---
   const canadianProvinces = [
     "Alberta",
     "British Columbia",
@@ -60,33 +57,27 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
     { label: "Custom", value: "custom" },
   ];
 
-  // Calculate investmentReturnRate
   useEffect(() => {
     const calculateInvestmentReturnRate = () => {
       const investorProfile = form.getValues("investorProfile");
       const specifyReturn = form.getValues("specifyReturn");
-  
+
       if (investorProfile && investorProfile !== "custom") {
         const selectedProfile = investorProfiles.find(
           (profile) => profile.value === investorProfile
         );
         return selectedProfile ? selectedProfile.rate : 0;
-      } else if (specifyReturn) {
-        return 0;
-      } else {
-        return 0;
       }
+      return specifyReturn ? 0 : 0;
     };
-  
+
     const newInvestmentReturnRate = calculateInvestmentReturnRate();
     const currentInvestmentReturnRate = form.getValues("investmentReturnRate");
-  
-    // Only update if the value has changed
+
     if (newInvestmentReturnRate !== currentInvestmentReturnRate) {
       form.setValue("investmentReturnRate", newInvestmentReturnRate ?? 0);
     }
   }, [form.watch("investorProfile"), form.watch("specifyReturn")]);
-  
 
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -94,17 +85,16 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
         if (!value.persons?.some((p) => p?.personType === "spouse")) {
           form.setValue("persons.1", {
             personType: "spouse",
-            // age: undefined, // Removed age field
             birthYear: undefined,
             lifeExpectancy: 100,
             primaryYearlyIncome: undefined,
-            incomeYearStart: undefined, // Changed to year
-            incomeYearEnd: undefined, // Changed to year
-            cppStartYear: undefined, // Changed to year
+            incomeYearStart: undefined,
+            incomeYearEnd: undefined,
+            cppStartYear: undefined,
             cppAmount: undefined,
-            oasStartYear: undefined, // Changed to year
+            oasStartYear: undefined,
             oasAmount: undefined,
-            definedBenefitPensionStartYear: undefined, // Changed to year
+            definedBenefitPensionStartYear: undefined,
             definedBenefitPensionAmount: undefined,
             definedBenefitPensionIndexedToInflation: undefined,
             registeredInvestments: [],
@@ -120,10 +110,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
             healthCareExpensesStage3: undefined,
           });
         }
-      } else {
-        if(form.getValues("persons").length > 1) {
-          form.setValue("persons", [form.getValues("persons")[0]]);
-        }
+      } else if (form.getValues("persons").length > 1) {
+        form.setValue("persons", [form.getValues("persons")[0]]);
       }
     });
 
@@ -131,337 +119,293 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
   }, [form.watch("calculateForSpouse")]);
 
   return (
-    <TooltipProvider>
-      <Card className="mx-auto w-full max-w-3xl border-purple-500">
-        <CardHeader className="flex flex-row items-center justify-center">
-          <CardTitle className="text-purple-500 underline text-center text-3xl">
-            Onboarding
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form className="space-y-6">
-              {/* --- General Information Subsection --- */}
-              <div className="mb-4">
-                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
-                  General Information
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  To discover your Essential and Surplus Capital, let’s start
-                  with some general questions.
-                </p>
-                <div className="relative overflow-x-auto mt-4">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <tbody>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                Calculate for spouse?{" "}
-                                <span className="text-gray-400 cursor-pointer">
+    <Card className="form-card">
+      <CardHeader className="form-card-header">
+        <CardTitle className="form-card-title text-primary">
+          General Information
+        </CardTitle>
+        <p className="form-card-description">
+          To discover your Essential and Surplus Capital, let's start with some
+          general questions.
+        </p>
+      </CardHeader>
+      <CardContent className="form-card-content">
+        <Form {...form}>
+          <form className="space-y-8">
+            {/* Personal Information Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">Personal Information</h3>
+              <TooltipProvider>
+                <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="calculateForSpouse"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Calculate for Spouse</FormLabel>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-help text-muted-foreground">
                                   (?)
                                 </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent  >
-                              <p>
-                                Select 'yes' if you want to include your spouse
-                                in the calculations.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="calculateForSpouse"
-                            render={({ field }) => (
-                              <FormItem className="flex items-center space-x-2">
-                                <FormControl>
-                                  <Checkbox
-                                    id="calculateForSpouse"
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    aria-label="Calculate for spouse"
-                                  />
-                                </FormControl>
-                                <FormLabel
-                                  htmlFor="calculateForSpouse"
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Yes
-                                </FormLabel>
-                              </FormItem>
-                            )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  Select if you want to include your spouse in
+                                  the calculations.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Include your spouse in the financial calculations
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
-                        </td>
-                        <td className="px-6 py-4"></td>
-                      </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                Birth Year{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="persons.0.birthYear"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Your Birth Year</FormLabel>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-help text-muted-foreground">
                                   (?)
                                 </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
-                                Enter the year you were born. We will use this
-                                to calculate your age.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="persons.0.birthYear"
-                            render={({ field }) => (
-                              <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="birthYearSelf"
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Your Birth Year
-                                </FormLabel> */}
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id="birthYearSelf"
-                                    placeholder="Enter your birth year"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4">
-                            <FormField
-                              control={form.control}
-                              name="persons.1.birthYear"
-                              render={({ field }) => (
-                                <FormItem>
-                                  {/* <FormLabel
-                                    htmlFor="birthYearSpouse"
-                                    className="text-gray-500 dark:text-gray-400"
-                                  >
-                                    Spouse's Birth Year
-                                  </FormLabel> */}
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      id="birthYearSpouse"
-                                      placeholder="Enter spouse's birth year"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  Enter the year you were born. We will use this
+                                  to calculate your age.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter birth year"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
                             />
-                          </td>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch("calculateForSpouse") && (
+                      <FormField
+                        control={form.control}
+                        name="persons.1.birthYear"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Spouse's Birth Year</FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help text-muted-foreground">
+                                    (?)
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Enter the year your spouse was born.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter spouse's birth year"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value
+                                      ? parseInt(e.target.value)
+                                      : undefined
+                                  )
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                Life Expectancy Estimate{" "}
-                                <span className="text-gray-400 cursor-pointer">
+                      />
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="persons.0.lifeExpectancy"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Your Life Expectancy</FormLabel>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-help text-muted-foreground">
                                   (?)
                                 </span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
-                              <p>
-                                Enter the age by which you will likely have
-                                passed away. You can be conservative with your
-                                estimate to start with and adjust it after if
-                                necessary to assess its impact on your finances.
-                                Most retirement calculators recommend age 91,
-                                but we suggest entering age 100 at first to be
-                                safe.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="persons.0.lifeExpectancy"
-                            render={({ field }) => (
-                              <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="lifeExpectancySelf"
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Your Life Expectancy
-                                </FormLabel> */}
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id="lifeExpectancySelf"
-                                    placeholder="Enter your life expectancy"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4">
-                            <FormField
-                              control={form.control}
-                              name="persons.1.lifeExpectancy"
-                              render={({ field }) => (
-                                <FormItem>
-                                  {/* <FormLabel
-                                    htmlFor="lifeExpectancySpouse"
-                                    className="text-gray-500 dark:text-gray-400"
-                                  >
-                                    Spouse's Life Expectancy
-                                  </FormLabel> */}
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      id="lifeExpectancySpouse"
-                                      placeholder="Enter spouse's life expectancy"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  Enter the age by which you will likely have
+                                  passed away. You can be conservative with your
+                                  estimate to start with and adjust it after if
+                                  necessary to assess its impact on your
+                                  finances. Most retirement calculators
+                                  recommend age 91, but we suggest entering age
+                                  100 at first to be safe.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter life expectancy"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
                             />
-                          </td>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch("calculateForSpouse") && (
+                      <FormField
+                        control={form.control}
+                        name="persons.1.lifeExpectancy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Spouse's Life Expectancy</FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help text-muted-foreground">
+                                    (?)
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    Enter the age by which your spouse will
+                                    likely have passed away. We suggest entering
+                                    age 100 at first to be safe.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter spouse's life expectancy"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value
+                                      ? parseInt(e.target.value)
+                                      : undefined
+                                  )
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                      />
+                    )}
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="province"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Province</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span>
-                                Province of Residence{" "}
-                                <span className="text-gray-400 cursor-pointer">
-                                  (?)
-                                </span>
+                              <span className="cursor-help text-muted-foreground">
+                                (?)
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>Select your province of residence.</p>
                             </TooltipContent>
                           </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="province"
-                            render={({ field }) => (
-                              <FormItem>
-                                {/* <FormLabel
-                                  htmlFor="province"
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Select Province
-                                </FormLabel> */}
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger id="province">
-                                      <SelectValue placeholder="Select province" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {canadianProvinces.map((province) => (
-                                      <SelectItem
-                                        key={province}
-                                        value={province}
-                                      >
-                                        {province}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {form.watch("calculateForSpouse") && (
-                          <td className="px-6 py-4"></td>
-                        )}
-                      </tr>
-                    </tbody>
-                  </table>
+                        </div>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select province" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {canadianProvinces.map((province) => (
+                              <SelectItem key={province} value={province}>
+                                {province}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
+              </TooltipProvider>
+            </div>
 
-              {/* --- Investor Profile Subsection --- */}
-              <div className="mb-4">
-                <h2 className="text-xl font-medium mb-2 underline text-purple-500">
-                  Investor Profile
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  This determines the rate at which your wealth grows throughout
-                  your life. This section assumes you and your spouse are the
-                  same type of investor.
-                </p>
-                <div className="relative overflow-x-auto mt-4">
-                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <tbody>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium">
+            {/* Investment Profile Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">Investment Profile</h3>
+              <TooltipProvider>
+                <div className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="investorProfile"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Investment Risk Profile</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span>
-                                What type of Investor are you?{" "}
-                                <span className="text-gray-400 cursor-pointer">
-                                  (?)
-                                </span>
+                              <span className="cursor-help text-muted-foreground">
+                                (?)
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
+                            <TooltipContent>
                               <p>
                                 Each investor profile selection is designated a
                                 rate of return percentage to be applied to your
@@ -477,75 +421,60 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               </p>
                             </TooltipContent>
                           </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="investorProfile"
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value); // Update "investorProfile" field
-                                  
-                                    if (value === "custom") {
-                                      if (!form.getValues("specifyReturn")) {
-                                        form.setValue("specifyReturn", true); // Only update if it changes
-                                      }
-                                    } else {
-                                      if (form.getValues("specifyReturn")) {
-                                        form.setValue("specifyReturn", false); // Only update if it changes
-                                      }
-                                  
-                                      const selectedProfile = investorProfiles.find(
-                                        (profile) => profile.value === value
-                                      );
-                                  
-                                      const currentRate = form.getValues("investmentReturnRate");
-                                      const newRate = selectedProfile?.rate ?? 0;
-                                  
-                                      if (currentRate !== newRate) {
-                                        form.setValue("investmentReturnRate", newRate); // Only update if it changes
-                                      }
-                                    }
-                                  }}
-                                  
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger id="investorProfile">
-                                      <SelectValue placeholder="Select investor profile" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {investorProfiles.map((profile) => (
-                                      <SelectItem
-                                        key={profile.value}
-                                        value={profile.value}
-                                      >
-                                        {profile.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                      </tr>
-                      <tr className="bg-gray-100 dark:bg-gray-900">
-                        <th scope="row" className="px-6 py-4 font-medium">
+                        </div>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            if (value === "custom") {
+                              form.setValue("specifyReturn", true);
+                            } else {
+                              form.setValue("specifyReturn", false);
+                              const selectedProfile = investorProfiles.find(
+                                (profile) => profile.value === value
+                              );
+                              form.setValue(
+                                "investmentReturnRate",
+                                selectedProfile?.rate ?? 0
+                              );
+                            }
+                          }}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select investor profile" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {investorProfiles.map((profile) => (
+                              <SelectItem
+                                key={profile.value}
+                                value={profile.value}
+                              >
+                                {profile.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="inflationRate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Inflation Rate (%)</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span>
-                                Inflation rate (%)
-                                <span className="text-gray-400 cursor-pointer">
-                                  (?)
-                                </span>
+                              <span className="cursor-help text-muted-foreground">
+                                (?)
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent className="custom-tooltip-content">
+                            <TooltipContent>
                               <p>
                                 Enter the average rate of inflation that you
                                 think will apply during the rest of your life.
@@ -556,57 +485,46 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               </p>
                             </TooltipContent>
                           </Tooltip>
-                        </th>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name="inflationRate"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id="inflationRate"
-                                    placeholder="Enter inflation rate (default 2.5%)"
-                                    {...field}
-                                    value={
-                                      field.value === undefined
-                                        ? ""
-                                        : (field.value * 100).toFixed(2)
-                                    }
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      if (value === "") {
-                                        field.onChange(undefined);
-                                      } else {
-                                        const numericValue = parseFloat(value);
-                                        if (!isNaN(numericValue)) {
-                                          field.onChange(numericValue / 100);
-                                        }
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                        </div>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Enter inflation rate"
+                            {...field}
+                            value={
+                              field.value === undefined
+                                ? ""
+                                : (field.value * 100).toFixed(2)
+                            }
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(
+                                value ? parseFloat(value) / 100 : undefined
+                              );
+                            }}
                           />
-                        </td>
-                      </tr>
-                      {form.watch("specifyReturn") && (
-                        <>
-                          <tr className="bg-white dark:bg-gray-800">
-                            <th scope="row" className="px-6 py-4 font-medium">
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch("specifyReturn") && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="incomeReturnRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Income Return Rate (%)</FormLabel>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span>
-                                    Income rate (%)
-                                    <span className="text-gray-400 cursor-pointer">
-                                      (?)
-                                    </span>
+                                  <span className="cursor-help text-muted-foreground">
+                                    (?)
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent className="custom-tooltip-content">
+                                <TooltipContent>
                                   <p>
                                     This is the average rate of interest income
                                     and/or dividend income that you expect to
@@ -618,54 +536,44 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
-                            </th>
-                            <td className="px-6 py-4">
-                              <FormField
-                                control={form.control}
-                                name="incomeReturnRate"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        id="incomeReturnRate"
-                                        placeholder="Enter income rate"
-                                        {...field}
-                                        value={""}
-                                        onChange={(e) => {
-                                          const value = e.target.value;
-                                          if (value === "") {
-                                            field.onChange(0);
-                                          } else {
-                                            const numericValue =
-                                              parseFloat(value);
-                                            if (!isNaN(numericValue)) {
-                                              field.onChange(
-                                                numericValue / 100
-                                              );
-                                            }
-                                          }
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter income return rate"
+                                {...field}
+                                value={
+                                  field.value === undefined
+                                    ? ""
+                                    : (field.value * 100).toFixed(2)
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(
+                                    value ? parseFloat(value) / 100 : undefined
+                                  );
+                                }}
                               />
-                            </td>
-                          </tr>
-                          <tr className="bg-gray-100 dark:bg-gray-900">
-                            <th scope="row" className="px-6 py-4 font-medium">
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="growthReturnRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Growth Return Rate (%)</FormLabel>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span>
-                                    Growth rate (%)
-                                    <span className="text-gray-400 cursor-pointer">
-                                      (?)
-                                    </span>
+                                  <span className="cursor-help text-muted-foreground">
+                                    (?)
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent className="custom-tooltip-content">
+                                <TooltipContent>
                                   <p>
                                     This is the capital gain appreciation you
                                     expect from investments. Total income from
@@ -678,60 +586,45 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                                     growth rate and the size of the investment
                                     portfolio. For example, if you assumed a
                                     growth rate of 3% and an income/dividend
-                                    rate of 2%, and you had a $1,000,000 non-
-                                    registered investment portfolio, we will
+                                    rate of 2%, and you had a $1,000,000
+                                    non-registered investment portfolio, we will
                                     calculate and show that your investment
                                     income for the year is $50,000.
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
-                            </th>
-                            <td className="px-6 py-4">
-                              <FormField
-                                control={form.control}
-                                name="growthReturnRate"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        id="growthReturnRate"
-                                        placeholder="Enter growth rate"
-                                        {...field}
-                                        value={""}
-                                        onChange={(e) => {
-                                          const value = e.target.value;
-                                          if (value === "") {
-                                            field.onChange(0);
-                                          } else {
-                                            const numericValue =
-                                              parseFloat(value);
-                                            if (!isNaN(numericValue)) {
-                                              field.onChange(
-                                                numericValue / 100
-                                              );
-                                            }
-                                          }
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter growth return rate"
+                                {...field}
+                                value={
+                                  field.value === undefined
+                                    ? ""
+                                    : (field.value * 100).toFixed(2)
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(
+                                    value ? parseFloat(value) / 100 : undefined
+                                  );
+                                }}
                               />
-                            </td>
-                          </tr>
-                        </>
-                      )}
-                    </tbody>
-                  </table>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                 </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </TooltipProvider>
+              </TooltipProvider>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 

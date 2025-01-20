@@ -1,11 +1,4 @@
-"use client";
-import { useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,44 +20,50 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CalculatorSchema } from "../Schema";
-import { PlusIcon } from "@radix-ui/react-icons";
 
 interface ExpensesCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
   calculateForSpouse: boolean;
 }
 
-const ExpensesCard: React.FC<ExpensesCardProps> = ({
-  form,
-  calculateForSpouse,
- 
-}) => {
+const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
   const [oneOffExpenseIdCounter, setOneOffExpenseIdCounter] = useState(0);
-  const [charitableDonationIdCounter, setCharitableDonationIdCounter] = useState(0);
+  const [charitableDonationIdCounter, setCharitableDonationIdCounter] =
+    useState(0);
 
   const expensesChangeForEachStage = form.watch("expensesChangeForEachStage");
-  const expensesChangeForEachStageSpouse = form.watch("expensesChangeForEachStageSpouse");
+  const expensesChangeForEachStageSpouse = form.watch(
+    "expensesChangeForEachStageSpouse"
+  );
 
   const handleAddOneOffExpense = (personType: "self" | "spouse") => {
     setOneOffExpenseIdCounter((prev) => prev + 1);
-    form.setValue(`oneOffExpenses.${oneOffExpenseIdCounter}`, {
-      id: oneOffExpenseIdCounter,
-      personType: personType, // Use the passed personType
-      description: "",
-      amount: undefined,
-      year: undefined,
-    });
+    const currentExpenses = form.getValues("oneOffExpenses") || [];
+    form.setValue("oneOffExpenses", [
+      ...currentExpenses,
+      {
+        id: oneOffExpenseIdCounter,
+        personType,
+        description: "",
+        amount: undefined,
+        year: undefined,
+      },
+    ]);
   };
-  
+
   const handleAddCharitableDonation = (personType: "self" | "spouse") => {
     setCharitableDonationIdCounter((prev) => prev + 1);
-    form.setValue(`charitableDonations.${charitableDonationIdCounter}`, {
-      id: charitableDonationIdCounter,
-      personType: personType, // Use the passed personType
-      amount: undefined,
-      startYear: undefined,
-      endYear: undefined,
-    });
+    const currentDonations = form.getValues("charitableDonations") || [];
+    form.setValue("charitableDonations", [
+      ...currentDonations,
+      {
+        id: charitableDonationIdCounter,
+        personType,
+        amount: undefined,
+        startYear: undefined,
+        endYear: undefined,
+      },
+    ]);
   };
 
   const handleRemoveOneOffExpense = (id: number) => {
@@ -74,885 +73,101 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
     form.setValue("oneOffExpenses", updatedExpenses, { shouldDirty: true });
   };
 
-
-
   const handleRemoveCharitableDonation = (id: number) => {
     const updatedDonations = form
       .getValues("charitableDonations")
       .filter((donation) => donation.id !== id);
-    form.setValue("charitableDonations", updatedDonations, { shouldDirty: true });
-  };
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      console.log("Form values:", value); // Log the entire form state
+    form.setValue("charitableDonations", updatedDonations, {
+      shouldDirty: true,
     });
-    return () => subscription.unsubscribe();
-  }, [form]);
+  };
 
   return (
-    <Card className="mx-auto w-full max-w-3xl border-orange-500">
-      <CardHeader className="text-center">
-        <CardTitle className="text-orange-500 text-3xl underline">
-          Expenses
-        </CardTitle>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          Enter your estimated expenses below.
-        </span>
+    <Card className="form-card">
+      <CardHeader className="form-card-header">
+        <CardTitle className="form-card-title text-primary">Expenses</CardTitle>
+        <p className="form-card-description">
+          Provide details about your various expenses and financial commitments.
+        </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="form-card-content">
         <Form {...form}>
-          <form className="space-y-6">
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <tbody>
-                  {/* Retirement Expenses */}
-                  <tr>
-                    <td colSpan={calculateForSpouse ? 3 : 2}>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
-                              Retirement Expenses
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
-                                (?)
-                              </span>
-                            </h2>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
-                            <p>
-                              Enter the expected annual cost of essential items for
-                              the lifestyle you desire throughout your retirement
-                              years. Note: If you’re a Surplus member, you have
-                              access to a comprehensive expenses worksheet to help
-                              give you a more accurate estimate of all of your
-                              expenses e.g., discretionary, non-discretionary,
-                              health care, one-off items.
+          <form className="space-y-8">
+            {/* Retirement Expenses Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">Retirement Expenses</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
+                      Enter your expected retirement expenses (?)
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Enter the expected annual cost of essential items for the
+                      lifestyle you desire throughout your retirement years.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {form.getValues("persons").map((person, personIndex) => (
+                <div key={personIndex} className="space-y-6">
+                  <h4 className="text-lg font-medium">
+                    {person.personType === "self" ? "Your" : "Spouse's"}{" "}
+                    Retirement Expenses
+                  </h4>
+
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name={
+                        person.personType === "self"
+                          ? "expensesChangeForEachStage"
+                          : "expensesChangeForEachStageSpouse"
+                      }
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>
+                              Specify Expenses Through Each Stage
+                            </FormLabel>
+                            <p className="text-sm text-muted-foreground">
+                              Do you want to specify different expenses for each
+                              retirement stage?
                             </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
-                    </th>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold">You</span>
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <span className="font-semibold">Spouse</span>
-                      </td>
-                    )}
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
-                      Annual Retirement Expenses
-                    </th>
-                    <td className="px-6 py-4">
-                      <FormField
-                        control={form.control}
-                        name={`persons.0.annualRetirementExpenses`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) => {
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  );
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <FormField
-                          control={form.control}
-                          name={`persons.1.annualRetirementExpenses`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </td>
-                    )}
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
-                      Annual Health Care Expenses
-                    </th>
-                    <td className="px-6 py-4">
-                      <FormField
-                        control={form.control}
-                        name={`persons.0.healthCareExpenses`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) => {
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  );
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <FormField
-                          control={form.control}
-                          name={`persons.1.healthCareExpenses`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </td>
-                    )}
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
-                      Specify Expenses Through Each Stage of Retirement?
-                    </th>
-                    <td className="px-6 py-4">
-                      <FormField
-                        control={form.control}
-                        name="expensesChangeForEachStage"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-gray-500 dark:text-gray-400">
-                                Specify expenses through each stage of retirement?
-                              </FormLabel>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={(checked) => {
-                                    field.onChange(checked); // Update the form state
-                                    console.log("expensesChangeForEachStage:", checked); // Debugging
-                                  }}
-                                aria-label="Toggle if expenses change for each stage"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-
-                    {expensesChangeForEachStage && (
-  <>
-    {/* Retirement Stage 1: Current Age to 75 */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 1: Current Age to 75
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Current Age to 75)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Current Age to 75)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-
-    {/* Retirement Stage 2: Ages 76 to 85 */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 2: Ages 76 to 85
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage3"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Ages 76 to 85)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage3"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Ages 76 to 85)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-
-    {/* Retirement Stage 3: Ages 86 to Life Expectancy */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 3: Ages 86 to Life Expectancy
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage4"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Ages 86 to Life Expectancy)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage4"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Ages 86 to Life Expectancy)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-  </>
-)} 
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        <FormField
-                          control={form.control}
-                          name="expensesChangeForEachStageSpouse"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                              <div className="space-y-0.5">
-                                <FormLabel className="text-gray-500 dark:text-gray-400">
-                                  Spouse specify expenses through each stage of retirement?
-                                </FormLabel>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={(checked) => {
-                                    field.onChange(checked); // Update the form state
-                                    console.log("expensesChangeForEachStageSpouse:", checked); // Debugging
-                                  }}
-                                  aria-label="Toggle if expenses change for each stage"
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        {expensesChangeForEachStageSpouse && (
-  <>
-    {/* Retirement Stage 1: Current Age to 75 */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 1: Current Age to 75
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Current Age to 75)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Current Age to 75)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-
-    {/* Retirement Stage 2: Ages 76 to 85 */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 2: Ages 76 to 85
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage3"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Ages 76 to 85)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage3"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Ages 76 to 85)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-
-    {/* Retirement Stage 3: Ages 86 to Life Expectancy */}
-    <tr>
-      <td colSpan={calculateForSpouse ? 3 : 2}>
-        <Card className="border-orange-500">
-          <CardHeader>
-            <CardTitle className="text-orange-500">
-              Retirement Stage 3: Ages 86 to Life Expectancy
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="persons.0.annualRetirementExpensesStage4"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Expenses (Ages 86 to Life Expectancy)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="persons.0.healthCareExpensesStage4"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-500 dark:text-gray-400">
-                      Annual Health Care Expenses (Ages 86 to Life Expectancy)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </td>
-    </tr>
-  </>
-)}
-                      </td>
-                    )}
-                  </tr>
-
-                  {/* One-Off Expenses */}
-                  <tr>
-                    <td colSpan={calculateForSpouse ? 3 : 2}>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
-                              One-Off Expenses
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
-                                (?)
-                              </span>
-                            </h2>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
-                            <p>
-                              Enter any one-off items you anticipate in the future.
-                              One-off expenses could include travel and vacations,
-                              any big-ticket items, gifting, and helping children
-                              with downpayments or weddings.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                  </tr>
-                  {form.watch("oneOffExpenses")?.map((expense, index) => (
-                    <React.Fragment key={expense.id}>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4 w-2/3">
-                          <FormField
-                            control={form.control}
-                            name={`oneOffExpenses.${index}.description`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.description`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Description
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="text"
-                                    id={`oneOffExpenses.${index}.description`}
-                                    placeholder="Enter description"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name={`oneOffExpenses.${index}.amount`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.amount`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Amount
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id={`oneOffExpenses.${index}.amount`}
-                                    placeholder="Enter amount"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {/* {calculateForSpouse && (
-                          <td className="px-6 py-4">
-                            <FormField
-                              control={form.control}
-                              name={`oneOffExpenses.${index}.personType`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel
-                                    htmlFor={`oneOffExpenses.${index}.personType`}
-                                    className="text-gray-500 dark:text-gray-400"
-                                  >
-                                    Person
-                                  </FormLabel>
-                                  <FormControl>
-                                    <select
-                                      {...field}
-                                      className="bg-white border border-gray-300 px-3 py-2 rounded-md w-full"
-                                    >
-                                      <option value="self">Self</option>
-                                      <option value="spouse">Spouse</option>
-                                    </select>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
                             />
-                          </td>
-                        )} */}
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-<td className="px-6 py-4">
+                    {(person.personType === "self" &&
+                      expensesChangeForEachStage) ||
+                    (person.personType === "spouse" &&
+                      expensesChangeForEachStageSpouse) ? (
+                      <>
+                        <div className="space-y-4 border rounded-lg p-4">
+                          <h5 className="font-medium">
+                            Stage 1 (Current Age to 75)
+                          </h5>
                           <FormField
                             control={form.control}
-                            name={`oneOffExpenses.${index}.year`}
+                            name={`persons.${personIndex}.annualRetirementExpenses`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`oneOffExpenses.${index}.year`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Year
+                                <FormLabel>
+                                  Annual Retirement Expenses
                                 </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    id={`oneOffExpenses.${index}.year`}
-                                    placeholder="Enter year"
-                                    className="w-full"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </td>
-                        {calculateForSpouse && (
-                          <td className="px-6 py-4">
-                            {/* Placeholder for alignment */}
-                          </td>
-                        )}
-                      </tr>
-                 
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td colSpan={calculateForSpouse ? 3 : 2}>
-                          <div className="flex justify-end">
-                            <Button
-                            className="mr-4"
-                              type="button"
-                              variant="outline"
-                              onClick={() => handleRemoveOneOffExpense(expense.id)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  ))}
-                  <tr className="bg-white dark:bg-gray-800">
-  <td className="px-6 py-4 text-gray-500 dark:text-gray-400"></td>
-  <td colSpan={calculateForSpouse ? 3 : 2}>
-    <div className="flex justify-start space-x-14 ml-8">
-      <Button
-      className="mb-5"
-        type="button"
-        variant="outline"
-        onClick={() => handleAddOneOffExpense("self")}
-      >
-        Add One-Off Expense (Self)
-      </Button>
-      {calculateForSpouse && (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => handleAddOneOffExpense("spouse")}
-        >
-          Add One-Off Expense (Spouse)
-        </Button>
-      )}
-    </div>
-  </td>
-</tr>
-
-                  {/* Charitable Donations */}
-                  <tr>
-                    <td colSpan={calculateForSpouse ? 3 : 2}>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
-                              Charitable Donations
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
-                                (?)
-                              </span>
-                            </h2>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
-                            <p>
-                              Use this section if you will make a one-time donation
-                              or any annual donations in the future. We will record
-                              this as a use of funds and will calculate the income
-                              tax reduction from any donations you make.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                  </tr>
-                  {form.watch("charitableDonations")?.map((donation, index) => (
-                    <React.Fragment key={donation.id}>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4">
-                          <FormField
-                            control={form.control}
-                            name={`charitableDonations.${index}.amount`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.amount`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Annual Donations
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    id={`charitableDonations.${index}.amount`}
                                     placeholder="Enter amount"
                                     {...field}
                                     onChange={(e) =>
@@ -968,24 +183,19 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                               </FormItem>
                             )}
                           />
-                        </td>
-                        <td className="px-6 py-4">
+
                           <FormField
                             control={form.control}
-                            name={`charitableDonations.${index}.startYear`}
+                            name={`persons.${personIndex}.healthCareExpenses`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.startYear`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  Start Year
+                                <FormLabel>
+                                  Annual Healthcare Expenses
                                 </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    id={`charitableDonations.${index}.startYear`}
-                                    placeholder="Enter start year"
+                                    placeholder="Enter amount"
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(
@@ -1000,24 +210,22 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                               </FormItem>
                             )}
                           />
-                        </td>
-                        <td className="px-6 py-4">
+                        </div>
+
+                        <div className="space-y-4 border rounded-lg p-4">
+                          <h5 className="font-medium">Stage 2 (Ages 76-85)</h5>
                           <FormField
                             control={form.control}
-                            name={`charitableDonations.${index}.endYear`}
+                            name={`persons.${personIndex}.annualRetirementExpensesStage2`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel
-                                  htmlFor={`charitableDonations.${index}.endYear`}
-                                  className="text-gray-500 dark:text-gray-400"
-                                >
-                                  End Year
+                                <FormLabel>
+                                  Annual Retirement Expenses
                                 </FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    id={`charitableDonations.${index}.endYear`}
-                                    placeholder="Enter end year"
+                                    placeholder="Enter amount"
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(
@@ -1032,121 +240,456 @@ const ExpensesCard: React.FC<ExpensesCardProps> = ({
                               </FormItem>
                             )}
                           />
-                        </td>
-                        {calculateForSpouse && (
-                          <td className="px-6 py-4">
-                            {/* Placeholder for alignment */}
-                          </td>
-                        )}
 
-                      </tr>
+                          <FormField
+                            control={form.control}
+                            name={`persons.${personIndex}.healthCareExpensesStage2`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Annual Healthcare Expenses
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="Enter amount"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value
+                                          ? parseInt(e.target.value)
+                                          : undefined
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
 
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td colSpan={calculateForSpouse ? 3 : 2}>
-                          <div className="flex justify-end">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => handleRemoveCharitableDonation(donation.id)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  ))}
-                  <tr className="bg-white dark:bg-gray-800">
-  <td className="px-6 py-4 text-gray-500 dark:text-gray-400 ml-8"></td>
-  <td colSpan={calculateForSpouse ? 3 : 2}>
-    <div className="flex justify-start space-x-9 ml-8">
-      <Button
-      className="mb-4"
-        type="button"
-        variant="outline"
-        onClick={() => handleAddCharitableDonation("self")}
-      >
-        Add Charitable Donation (Self)
-      </Button>
-      {calculateForSpouse && (
-        <Button
-        className="mb-4"
-          type="button"
-          variant="outline"
-          onClick={() => handleAddCharitableDonation("spouse")}
-        >
-          Add Charitable Donation (Spouse)
-        </Button>
-      )}
-    </div>
-  </td>
-</tr>
+                        <div className="space-y-4 border rounded-lg p-4">
+                          <h5 className="font-medium">Stage 3 (Age 86+)</h5>
+                          <FormField
+                            control={form.control}
+                            name={`persons.${personIndex}.annualRetirementExpensesStage3`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Annual Retirement Expenses
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="Enter amount"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value
+                                          ? parseInt(e.target.value)
+                                          : undefined
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                  {/* Desired Estate */}
-                  <tr>
-                    <td colSpan={calculateForSpouse ? 3 : 2}>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <h2 className="text-xl font-semibold mb-2 underline relative inline-block">
-                              Desired Estate (to be left to heirs)
-                              <span className="ml-1 cursor-pointer text-gray-500 dark:text-gray-400 text-xs no-underline absolute top-0 right-[-20px]">
-                                (?)
-                              </span>
-                            </h2>
-                          </TooltipTrigger>
-                          <TooltipContent className="custom-tooltip-content">
-                            <p>
-                              Please state your desired estate amount (if any) you’d
-                              like to leave behind to your family, heirs, and
-                              charities at your life expectancy age. Stating this
-                              amount will help determine whether you have a surplus
-                              by excluding the amount from the projections in your
-                              retirement years. The amount is then added back into
-                              your net estate at life expectancy.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </td>
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-gray-900">
-                    <th scope="row" className="px-6 py-4 font-medium">
-                      Desired Estate Amount
-                    </th>
-                    <td className="px-6 py-4">
-                      <FormField
-                        control={form.control}
-                        name="desiredEstateValue"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) => {
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  );
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </td>
-                    {calculateForSpouse && (
-                      <td className="px-6 py-4">
-                        {/* Placeholder for alignment */}
-                      </td>
+                          <FormField
+                            control={form.control}
+                            name={`persons.${personIndex}.healthCareExpensesStage3`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Annual Healthcare Expenses
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="Enter amount"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        e.target.value
+                                          ? parseInt(e.target.value)
+                                          : undefined
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name={`persons.${personIndex}.annualRetirementExpenses`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Annual Retirement Expenses</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value)
+                                        : undefined
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`persons.${personIndex}.healthCareExpenses`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Annual Healthcare Expenses</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value)
+                                        : undefined
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
                     )}
-                  </tr>
-                </tbody>
-              </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* One-Off Expenses Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">One-Off Expenses</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
+                      Enter any one-time expenses you anticipate (?)
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Include major purchases, travel plans, gifts, or other
+                      significant one-time expenses.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {form.watch("oneOffExpenses")?.map((expense, index) => (
+                <div
+                  key={expense.id}
+                  className="border rounded-lg p-4 space-y-4 mb-4"
+                >
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">One-Off Expense {index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveOneOffExpense(expense.id)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`oneOffExpenses.${index}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter description" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`oneOffExpenses.${index}.amount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`oneOffExpenses.${index}.year`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Year</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter year"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleAddOneOffExpense("self")}
+                >
+                  Add One-Off Expense (Self)
+                </Button>
+                {calculateForSpouse && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleAddOneOffExpense("spouse")}
+                  >
+                    Add One-Off Expense (Spouse)
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Charitable Donations Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">Charitable Donations</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
+                      Enter your planned charitable donations (?)
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Include any regular or one-time charitable donations you
+                      plan to make.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {form.watch("charitableDonations")?.map((donation, index) => (
+                <div
+                  key={donation.id}
+                  className="border rounded-lg p-4 space-y-4 mb-4"
+                >
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">
+                      Charitable Donation {index + 1}
+                    </h4>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleRemoveCharitableDonation(donation.id)
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`charitableDonations.${index}.amount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`charitableDonations.${index}.startYear`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Year</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter start year"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`charitableDonations.${index}.endYear`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Year</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Enter end year"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleAddCharitableDonation("self")}
+                >
+                  Add Charitable Donation (Self)
+                </Button>
+                {calculateForSpouse && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleAddCharitableDonation("spouse")}
+                  >
+                    Add Charitable Donation (Spouse)
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Desired Estate Section */}
+            <div className="form-section">
+              <h3 className="form-section-title">Desired Estate</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
+                      Enter the amount you wish to leave to your heirs (?)
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Specify the amount you would like to leave as inheritance
+                      or estate.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <FormField
+                control={form.control}
+                name="desiredEstateValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Desired Estate Amount</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter amount"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                              ? parseInt(e.target.value)
+                              : undefined
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </form>
         </Form>
