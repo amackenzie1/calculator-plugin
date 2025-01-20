@@ -17,7 +17,6 @@
 
 .accent-yellow {
   --accent-color: yellow;
-  /* You might need to adjust text colors for readability on yellow */
 }
 
 .accent-purple {
@@ -26,6 +25,14 @@
 
 .accent-turquoise {
   --accent-color: turquoise;
+}
+
+.component-container {
+  border: 0.2rem solid var(--accent-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 100%;
 }
 /* --- General Styles --- */
 
@@ -38,54 +45,6 @@ body {
   justify-content: center;
 }
 
-/* --- Card Component --- */
-
-Card.shad-card {
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  max-width: 768px;
-  border: 1px solid var(--accent-color);
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: pink;
-}
-
-CardHeader.shad-card-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
-
-CardTitle.shad-card-title {
-  text-align: center;
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: var(--accent-color);
-  text-decoration: underline;
-}
-
-CardContent.shad-card-content {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  padding-bottom: 1.5rem;
-}
-
-/* --- Form --- */
-
-Form.shad-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-Form > div {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
 
 /* --- Section Headings --- */
 
@@ -104,158 +63,28 @@ Form > div {
 
 /* --- Table --- */
 
-.table {
+table {
   width: 100%;
   font-size: 0.875rem;
   text-align: left;
 }
 
-.table tbody tr:nth-child(even) {
+table tbody tr:nth-child(even) {
   background-color: #fff;
 }
 
-.table tbody tr:nth-child(odd) {
+table tbody tr:nth-child(odd) {
   background-color: #f5f5f5;
 }
 
-.table-cell {
+table-cell {
   padding: 1rem 1.5rem;
 }
 
-.table-header-cell {
+table-header-cell {
   font-weight: 500;
   color: #212529;
 }
-
-/* --- Form Fields --- */
-
-FormLabel.shad-form-label {
-  color: #495057;
-}
-
-FormItem.shad-form-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-FormControl.shad-form-control {
-  display: block;
-  width: 100%;
-}
-
-FormMessage.shad-form-message {
-  font-size: 0.75rem;
-  color: #dc3545;
-  margin-top: 0.25rem;
-}
-
-/* --- Input --- */
-
-Input.shad-input {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  color: #495057;
-  border-color: var(--accent-color);
-}
-
-Input.shad-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--accent-color);
-  border-color: var(--accent-color);
-}
-
-/* --- Checkbox --- */
-
-Checkbox.shad-checkbox {
-  height: 1rem;
-  width: 1rem;
-  border-radius: 0.25rem;
-  accent-color: var(--accent-color);
-}
-
-Checkbox.shad-checkbox:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--accent-color);
-}
-
-/* --- Select --- */
-
-SelectTrigger.shad-select-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  color: #495057;
-}
-
-SelectTrigger.shad-select-trigger:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--accent-color);
-  border-color: var(--accent-color);
-}
-
-SelectContent.shad-select-content {
-  position: absolute;
-  z-index: 10;
-  margin-top: 0.25rem;
-  width: 100%;
-  background-color: #fff;
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-SelectItem.shad-select-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  user-select: none;
-}
-
-SelectItem.shad-select-item:hover {
-  background-color: #e9ecef;
-}
-
-SelectItem.shad-select-item:focus {
-  outline: none;
-  background-color: #e9ecef;
-}
-
-/* --- Tooltip --- */
-
-TooltipTrigger.shad-tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-TooltipContent.shad-tooltip-content {
-  background-color: #343a40;
-  color: #f8f9fa;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-/* customized css to adjust tooltip content length */
-TooltipContent.custom-tooltip-content {
-  max-width: 500px;
-}
-
 /* --- Button --- */
 button {
   border-radius: 0.375rem;

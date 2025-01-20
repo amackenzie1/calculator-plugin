@@ -167,26 +167,10 @@ const Calculator = () => {
     ? form.watch("persons.1.birthYear")
     : undefined;
 
-  const getAccentClass = (tabValue: string) => {
-    switch (tabValue) {
-      case "general":
-        return "accent-purple";
-      case "income":
-        return "accent-turquoise";
-      case "assets":
-        return "accent-green";
-      case "expenses":
-        return "accent-yellow";
-      default:
-        return "";
-    }
-  };
-
   return (
-    <div className="p-6 space-y-8 w-full">
+    <div className="p-6 space-y-8 flex flex-col items-center">
       <Tabs
         defaultValue="general"
-        className="space-y-4"
         onValueChange={setActiveTab}
       >
         <TabsList>
@@ -196,7 +180,7 @@ const Calculator = () => {
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
-          <OnboardingCard form={form} accentClass={getAccentClass("general")} />
+          <OnboardingCard form={form} accentClass="accent-purple" />
         </TabsContent>
         <TabsContent value="income">
           <IncomeCard
@@ -205,21 +189,23 @@ const Calculator = () => {
             birthYearSelf={birthYearSelf}
             birthYearSpouse={birthYearSpouse}
             yearFromBirthYearAndTargetAge={yearFromBirthYearAndTargetAge}
-            accentClass={getAccentClass("income")} // Pass accent class
+            accentClass="accent-turquoise"
           />
         </TabsContent>
         <TabsContent value="assets">
-          <AssetsCard form={form} accentClass={getAccentClass("assets")} />
+          <AssetsCard form={form} accentClass="accent-green" />
         </TabsContent>
         <TabsContent value="expenses">
           <ExpensesCard
             form={form}
             calculateForSpouse={calculateForSpouse}
-            accentClass={getAccentClass("expenses")}
+            accentClass="accent-yellow"
           />
         </TabsContent>
       </Tabs>
-      <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button>
+      <div className="w-full max-w-xl">
+        <Button onClick={form.handleSubmit(onSubmit)}>Submit</Button>
+      </div>
     </div>
   );
 };
