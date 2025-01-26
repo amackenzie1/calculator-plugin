@@ -1,13 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -15,28 +7,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import * as z from "zod";
-import { Switch } from "@/components/ui/switch";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { CalculatorSchema } from "../Schema";
+} from '@/components/ui/tooltip'
+import { UseFormReturn } from 'react-hook-form'
+import * as z from 'zod'
+import { CalculatorSchema } from '../Schema'
 
 interface AssetsCardProps {
-  form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
+  form: UseFormReturn<z.infer<typeof CalculatorSchema>>
 }
 
 const AssetsCard = ({ form }: AssetsCardProps) => {
-  const primaryResidenceSell = form.watch("primaryResidenceSell");
-  const persons = form.watch("persons");
+  const primaryResidenceSell = form.watch('primaryResidenceSell')
+  const persons = form.watch('persons')
 
-  const handleAddRegisteredInvestment = (personType: "self" | "spouse") => {
-    const currentPersons = form.getValues("persons");
+  const handleAddRegisteredInvestment = (personType: 'self' | 'spouse') => {
+    const currentPersons = form.getValues('persons')
     const updatedPersons = currentPersons.map((person) => {
       if (person.personType === personType) {
         return {
@@ -49,18 +49,18 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
               currentValue: undefined,
             },
           ],
-        };
+        }
       }
-      return person;
-    });
-    form.setValue("persons", updatedPersons, { shouldDirty: true });
-  };
+      return person
+    })
+    form.setValue('persons', updatedPersons, { shouldDirty: true })
+  }
 
   const handleRemoveRegisteredInvestment = (
-    personType: "self" | "spouse",
+    personType: 'self' | 'spouse',
     id: number
   ) => {
-    const currentPersons = form.getValues("persons");
+    const currentPersons = form.getValues('persons')
     const updatedPersons = currentPersons.map((person) => {
       if (person.personType === personType) {
         return {
@@ -68,20 +68,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
           registeredInvestments: person.registeredInvestments?.filter(
             (investment) => investment.id !== id
           ),
-        };
+        }
       }
-      return person;
-    });
-    form.setValue("persons", updatedPersons, { shouldDirty: true });
-  };
+      return person
+    })
+    form.setValue('persons', updatedPersons, { shouldDirty: true })
+  }
 
   const registeredInvestmentOptions = [
-    { value: "TFSA", label: "TFSA" },
-    { value: "RRSP", label: "RRSP" },
-    { value: "RRIF", label: "RRIF" },
-    { value: "LIRA", label: "LIRA" },
-    { value: "LIF", label: "LIF" },
-  ];
+    { value: 'TFSA', label: 'TFSA' },
+    { value: 'RRSP', label: 'RRSP' },
+    { value: 'RRIF', label: 'RRIF' },
+    { value: 'LIRA', label: 'LIRA' },
+    { value: 'LIF', label: 'LIF' },
+  ]
 
   return (
     <Card className="form-card">
@@ -134,136 +134,142 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                   </TooltipContent>
                 </Tooltip>
 
-                {persons.map((person, personIndex) => (
-                  <div key={personIndex} className="space-y-6">
-                    <h4 className="text-lg font-medium">
-                      {person.personType === "self" ? "Your" : "Spouse's"}{" "}
-                      Registered Investments
-                    </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {persons.map((person, personIndex) => (
+                    <div key={personIndex} className="space-y-6">
+                      <h4 className="text-lg font-medium">
+                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
+                        Registered Investments
+                      </h4>
 
-                    {person.registeredInvestments?.map((investment, index) => (
-                      <div
-                        key={investment.id}
-                        className="border rounded-lg p-4 space-y-4"
-                      >
-                        <div className="flex justify-between items-center">
-                          <h5 className="font-medium">
-                            Investment {index + 1}
-                          </h5>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleRemoveRegisteredInvestment(
-                                person.personType,
-                                investment.id
-                              )
-                            }
+                      {person.registeredInvestments?.map(
+                        (investment, index) => (
+                          <div
+                            key={investment.id}
+                            className="border rounded-lg p-4 space-y-4"
                           >
-                            Remove
-                          </Button>
-                        </div>
-
-                        <FormField
-                          control={form.control}
-                          name={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel>Account Type</FormLabel>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help text-muted-foreground">
-                                      (?)
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      Select the type of registered investment
-                                      account you have.
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
+                            <div className="flex justify-between items-center">
+                              <h5 className="font-medium">
+                                Investment {index + 1}
+                              </h5>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleRemoveRegisteredInvestment(
+                                    person.personType,
+                                    investment.id
+                                  )
+                                }
                               >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select account type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {registeredInvestmentOptions.map((option) => (
-                                    <SelectItem
-                                      key={option.value}
-                                      value={option.value}
-                                    >
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                Remove
+                              </Button>
+                            </div>
 
-                        <FormField
-                          control={form.control}
-                          name={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel>Current Value</FormLabel>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help text-muted-foreground">
-                                      (?)
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      Enter the current market value of this
-                                      registered investment account.
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter current value"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
+                            <FormField
+                              control={form.control}
+                              name={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <div className="flex items-center gap-2">
+                                    <FormLabel>Account Type</FormLabel>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="cursor-help text-muted-foreground">
+                                          (?)
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>
+                                          Select the type of registered
+                                          investment account you have.
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select account type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {registeredInvestmentOptions.map(
+                                        (option) => (
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
+                                            {option.label}
+                                          </SelectItem>
+                                        )
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() =>
-                        handleAddRegisteredInvestment(person.personType)
-                      }
-                    >
-                      Add Registered Investment
-                    </Button>
-                  </div>
-                ))}
+                            <FormField
+                              control={form.control}
+                              name={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <div className="flex items-center gap-2">
+                                    <FormLabel>Current Value</FormLabel>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="cursor-help text-muted-foreground">
+                                          (?)
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>
+                                          Enter the current market value of this
+                                          registered investment account.
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="Enter current value"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value
+                                            ? parseInt(e.target.value)
+                                            : undefined
+                                        )
+                                      }
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        )
+                      )}
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          handleAddRegisteredInvestment(person.personType)
+                        }
+                      >
+                        Add Registered Investment
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Non-Registered Investments Section */}
@@ -290,139 +296,142 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                   </TooltipContent>
                 </Tooltip>
 
-                {persons.map((person, personIndex) => (
-                  <div key={personIndex} className="space-y-6">
-                    <h4 className="text-lg font-medium">
-                      {person.personType === "self" ? "Your" : "Spouse's"}{" "}
-                      Non-Registered Investments
-                    </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {persons.map((person, personIndex) => (
+                    <div key={personIndex} className="space-y-6">
+                      <h4 className="text-lg font-medium">
+                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
+                        Non-Registered Investments
+                      </h4>
 
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.nonRegisteredInvestmentValue`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Current Value</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    Enter the total current market value of all
-                                    your non-registered investments.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter current value"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name={`persons.${personIndex}.nonRegisteredInvestmentValue`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormLabel>Current Value</FormLabel>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help text-muted-foreground">
+                                      (?)
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      Enter the total current market value of
+                                      all your non-registered investments.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter current value"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value)
+                                        : undefined
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Opening Year</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    Enter the year you acquired these
-                                    non-registered investments.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter opening year"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormLabel>Opening Year</FormLabel>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help text-muted-foreground">
+                                      (?)
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      Enter the year you acquired these
+                                      non-registered investments.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter opening year"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value)
+                                        : undefined
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Book Value</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    Enter the total cost or book value of all
-                                    your non-registered investments. The
-                                    difference between the total value and book
-                                    value represents a capital gain, of which
-                                    50% will be taxable when the asset is sold.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter book value"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="flex items-center gap-2">
+                                <FormLabel>Book Value</FormLabel>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help text-muted-foreground">
+                                      (?)
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      Enter the total cost or book value of all
+                                      your non-registered investments. The
+                                      difference between the total value and
+                                      book value represents a capital gain, of
+                                      which 50% will be taxable when the asset
+                                      is sold.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter book value"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? parseInt(e.target.value)
+                                        : undefined
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {/* Life Insurance Section */}
@@ -446,55 +455,57 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                   </TooltipContent>
                 </Tooltip>
 
-                {persons.map((person, personIndex) => (
-                  <div key={personIndex} className="space-y-4">
-                    <h4 className="text-lg font-medium">
-                      {person.personType === "self" ? "Your" : "Spouse's"} Life
-                      Insurance
-                    </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {persons.map((person, personIndex) => (
+                    <div key={personIndex} className="space-y-4">
+                      <h4 className="text-lg font-medium">
+                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
+                        Life Insurance
+                      </h4>
 
-                    <FormField
-                      control={form.control}
-                      name={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center gap-2">
-                            <FormLabel>Death Benefit Amount</FormLabel>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>
-                                  Enter the amount of life insurance death
-                                  benefit that will be paid to your
-                                  beneficiaries.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter death benefit amount"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                ))}
+                      <FormField
+                        control={form.control}
+                        name={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center gap-2">
+                              <FormLabel>Death Benefit Amount</FormLabel>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help text-muted-foreground">
+                                    (?)
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    Enter the amount of life insurance death
+                                    benefit that will be paid to your
+                                    beneficiaries.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Enter death benefit amount"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value
+                                      ? parseInt(e.target.value)
+                                      : undefined
+                                  )
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Primary Residence Section */}
@@ -642,7 +653,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
         </Form>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default AssetsCard;
+export default AssetsCard
