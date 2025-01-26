@@ -5,12 +5,12 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: '../js', // Output the bundled JS file to the plugin's `js/` folder
+    outDir: 'dist',
     emptyOutDir: true,
     manifest: true, // Enable manifest.json generation
     rollupOptions: {
       output: {
-        entryFileNames: 'app.bundle.js',
+        entryFileNames: '[name].[hash].js',
       },
     },
   },
