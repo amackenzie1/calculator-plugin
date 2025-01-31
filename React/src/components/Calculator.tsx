@@ -73,7 +73,7 @@ const Calculator = () => {
   }, [form]);
 
   const onSubmit = (data: z.infer<typeof CalculatorSchema>) => {
-    console.log("Form data:", data);
+    console.log("Form data:", JSON.stringify(data, null, 2));
   };
 
   const birthYearSelf = form.watch("persons.0.birthYear");
