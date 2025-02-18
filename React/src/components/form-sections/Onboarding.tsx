@@ -456,9 +456,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         </div>
                         <FormControl>
                           <Input
-                            {...createNumberInput(field, {
-                              isPercentage: true,
-                            })}
+                            {...createNumberInput(field)}
                             placeholder="Enter inflation rate"
                           />
                         </FormControl>
