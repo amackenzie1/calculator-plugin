@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -8,28 +7,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import * as z from "zod";
-import { Switch } from "@/components/ui/switch";
-import React from "react";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { CalculatorSchema } from "../Schema";
+} from '@/components/ui/tooltip'
+import { createNumberInput } from '@/lib/form-utils'
+import { UseFormReturn } from 'react-hook-form'
+import * as z from 'zod'
+import { CalculatorSchema } from '../Schema'
 
 interface IncomeCardProps {
-  form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
-  calculateForSpouse: boolean;
-  birthYearSelf: number | undefined;
-  birthYearSpouse: number | undefined;
+  form: UseFormReturn<z.infer<typeof CalculatorSchema>>
+  calculateForSpouse: boolean
+  birthYearSelf: number | undefined
+  birthYearSpouse: number | undefined
   yearFromBirthYearAndTargetAge: (
     birthYear: number,
     targetAge: number
-  ) => number;
+  ) => number
 }
 
 const IncomeCard = ({
@@ -39,72 +39,72 @@ const IncomeCard = ({
   birthYearSpouse,
   yearFromBirthYearAndTargetAge,
 }: IncomeCardProps) => {
-  const handleAddOtherIncome = (personType: "self" | "spouse") => {
-    const currentOtherIncomes = form.getValues("otherIncomes") || [];
+  const handleAddOtherIncome = (personType: 'self' | 'spouse') => {
+    const currentOtherIncomes = form.getValues('otherIncomes') || []
     const newOtherIncome = {
       id: Date.now(),
       personType: personType,
-      description: "",
+      description: '',
       amount: undefined,
       startYear: undefined,
       endYear: undefined,
-    };
+    }
 
-    form.setValue("otherIncomes", [...currentOtherIncomes, newOtherIncome]);
-  };
+    form.setValue('otherIncomes', [...currentOtherIncomes, newOtherIncome])
+  }
 
   const handleRemoveOtherIncome = (id: number) => {
     const updatedOtherIncomes = form
-      .getValues("otherIncomes")
-      .filter((income) => income.id !== id);
-    form.setValue("otherIncomes", updatedOtherIncomes);
-  };
+      .getValues('otherIncomes')
+      .filter((income) => income.id !== id)
+    form.setValue('otherIncomes', updatedOtherIncomes)
+  }
 
-  const handlePrimaryIncomeAgeBlur = (personType: "self" | "spouse") => {
+  const handlePrimaryIncomeAgeBlur = (personType: 'self' | 'spouse') => {
     const startAge = form.getValues(
-      `persons.${personType === "spouse" ? 1 : 0}.incomeStartAge`
-    );
+      `persons.${personType === 'spouse' ? 1 : 0}.incomeStartAge`
+    )
     const endAge = form.getValues(
-      `persons.${personType === "spouse" ? 1 : 0}.incomeEndAge`
-    );
-    const birthYear = personType === "self" ? birthYearSelf : birthYearSpouse;
+      `persons.${personType === 'spouse' ? 1 : 0}.incomeEndAge`
+    )
+    const birthYear = personType === 'self' ? birthYearSelf : birthYearSpouse
 
     if (startAge && birthYear) {
-      const startYear = yearFromBirthYearAndTargetAge(birthYear, startAge);
+      const startYear = yearFromBirthYearAndTargetAge(birthYear, startAge)
       form.setValue(
-        `persons.${personType === "spouse" ? 1 : 0}.incomeYearStart`,
+        `persons.${personType === 'spouse' ? 1 : 0}.incomeYearStart`,
         startYear
-      );
+      )
     }
 
     if (endAge && birthYear) {
-      const endYear = yearFromBirthYearAndTargetAge(birthYear, endAge);
+      const endYear = yearFromBirthYearAndTargetAge(birthYear, endAge)
       form.setValue(
-        `persons.${personType === "spouse" ? 1 : 0}.incomeYearEnd`,
+        `persons.${personType === 'spouse' ? 1 : 0}.incomeYearEnd`,
         endYear
-      );
+      )
     }
-  };
+  }
 
   const handlePensionAgeBlur = (
-    personType: "self" | "spouse",
-    fieldPrefix: "cpp" | "oas" | "definedBenefitPension"
+    personType: 'self' | 'spouse',
+    fieldPrefix: 'cpp' | 'oas' | 'definedBenefitPension'
   ) => {
-    const values = form.getValues();
+    const values = form.getValues()
     const age =
-      values.persons?.[personType === "spouse" ? 1 : 0]?.[
+      values.persons?.[personType === 'spouse' ? 1 : 0]?.[
         `${fieldPrefix}StartAge` as keyof (typeof values.persons)[0]
-      ];
-    const birthYear = personType === "self" ? birthYearSelf : birthYearSpouse;
+      ]
+    const birthYear = personType === 'self' ? birthYearSelf : birthYearSpouse
 
     if (age && birthYear) {
-      const year = yearFromBirthYearAndTargetAge(birthYear, Number(age));
+      const year = yearFromBirthYearAndTargetAge(birthYear, Number(age))
       form.setValue(
-        `persons.${personType === "spouse" ? 1 : 0}.${fieldPrefix}StartYear`,
+        `persons.${personType === 'spouse' ? 1 : 0}.${fieldPrefix}StartYear`,
         year
-      );
+      )
     }
-  };
+  }
 
   return (
     <Card className="form-card">
@@ -149,16 +149,8 @@ const IncomeCard = ({
                         <FormLabel>Your Annual Income (before tax)</FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            {...createNumberInput(field)}
                             placeholder="Enter income"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value
-                                  ? parseInt(e.target.value)
-                                  : undefined
-                              )
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -177,16 +169,8 @@ const IncomeCard = ({
                           </FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field)}
                               placeholder="Enter income"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -206,17 +190,9 @@ const IncomeCard = ({
                           <FormLabel>Your Income Start Age</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field)}
                               placeholder="Enter age"
-                              {...field}
-                              onBlur={() => handlePrimaryIncomeAgeBlur("self")}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
+                              onBlur={() => handlePrimaryIncomeAgeBlur('self')}
                             />
                           </FormControl>
                           <FormMessage />
@@ -232,17 +208,9 @@ const IncomeCard = ({
                           <FormLabel>Your Income End Age</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field)}
                               placeholder="Enter age"
-                              {...field}
-                              onBlur={() => handlePrimaryIncomeAgeBlur("self")}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
+                              onBlur={() => handlePrimaryIncomeAgeBlur('self')}
                             />
                           </FormControl>
                           <FormMessage />
@@ -261,18 +229,10 @@ const IncomeCard = ({
                             <FormLabel>Spouse's Income Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter age"
-                                {...field}
                                 onBlur={() =>
-                                  handlePrimaryIncomeAgeBlur("spouse")
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                  handlePrimaryIncomeAgeBlur('spouse')
                                 }
                               />
                             </FormControl>
@@ -289,18 +249,10 @@ const IncomeCard = ({
                             <FormLabel>Spouse's Income End Age</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter age"
-                                {...field}
                                 onBlur={() =>
-                                  handlePrimaryIncomeAgeBlur("spouse")
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                  handlePrimaryIncomeAgeBlur('spouse')
                                 }
                               />
                             </FormControl>
@@ -354,18 +306,10 @@ const IncomeCard = ({
                             <FormLabel>Your Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter age"
-                                {...field}
                                 onBlur={() =>
-                                  handlePensionAgeBlur("self", "cpp")
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                  handlePensionAgeBlur('self', 'cpp')
                                 }
                               />
                             </FormControl>
@@ -382,16 +326,10 @@ const IncomeCard = ({
                             <FormLabel>Your Annual Amount</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field, {
+                                  isDecimal: true,
+                                })}
                                 placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -410,18 +348,10 @@ const IncomeCard = ({
                               <FormLabel>Spouse's Start Age</FormLabel>
                               <FormControl>
                                 <Input
-                                  type="number"
+                                  {...createNumberInput(field)}
                                   placeholder="Enter age"
-                                  {...field}
                                   onBlur={() =>
-                                    handlePensionAgeBlur("spouse", "cpp")
-                                  }
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
+                                    handlePensionAgeBlur('spouse', 'cpp')
                                   }
                                 />
                               </FormControl>
@@ -438,16 +368,10 @@ const IncomeCard = ({
                               <FormLabel>Spouse's Annual Amount</FormLabel>
                               <FormControl>
                                 <Input
-                                  type="number"
+                                  {...createNumberInput(field, {
+                                    isDecimal: true,
+                                  })}
                                   placeholder="Enter amount"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -493,18 +417,10 @@ const IncomeCard = ({
                             <FormLabel>Your Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter age"
-                                {...field}
                                 onBlur={() =>
-                                  handlePensionAgeBlur("self", "oas")
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                  handlePensionAgeBlur('self', 'oas')
                                 }
                               />
                             </FormControl>
@@ -521,6 +437,9 @@ const IncomeCard = ({
                             <FormLabel>Your Annual Amount</FormLabel>
                             <FormControl>
                               <Input
+                                {...createNumberInput(field, {
+                                  isDecimal: true,
+                                })}
                                 type="number"
                                 placeholder="Enter amount"
                                 {...field}
@@ -553,7 +472,7 @@ const IncomeCard = ({
                                   placeholder="Enter age"
                                   {...field}
                                   onBlur={() =>
-                                    handlePensionAgeBlur("spouse", "oas")
+                                    handlePensionAgeBlur('spouse', 'oas')
                                   }
                                   onChange={(e) =>
                                     field.onChange(
@@ -636,8 +555,8 @@ const IncomeCard = ({
                                 {...field}
                                 onBlur={() =>
                                   handlePensionAgeBlur(
-                                    "self",
-                                    "definedBenefitPension"
+                                    'self',
+                                    'definedBenefitPension'
                                   )
                                 }
                                 onChange={(e) =>
@@ -716,8 +635,8 @@ const IncomeCard = ({
                                   {...field}
                                   onBlur={() =>
                                     handlePensionAgeBlur(
-                                      "spouse",
-                                      "definedBenefitPension"
+                                      'spouse',
+                                      'definedBenefitPension'
                                     )
                                   }
                                   onChange={(e) =>
@@ -808,7 +727,7 @@ const IncomeCard = ({
               </TooltipProvider>
 
               <div className="space-y-6">
-                {form.watch("otherIncomes")?.map((income, index) => (
+                {form.watch('otherIncomes')?.map((income, index) => (
                   <div
                     key={income.id}
                     className="border rounded-lg p-4 space-y-4"
@@ -925,7 +844,7 @@ const IncomeCard = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => handleAddOtherIncome("self")}
+                    onClick={() => handleAddOtherIncome('self')}
                   >
                     Add Other Income (Self)
                   </Button>
@@ -933,7 +852,7 @@ const IncomeCard = ({
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => handleAddOtherIncome("spouse")}
+                      onClick={() => handleAddOtherIncome('spouse')}
                     >
                       Add Other Income (Spouse)
                     </Button>
@@ -945,7 +864,7 @@ const IncomeCard = ({
         </Form>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default IncomeCard;
+export default IncomeCard

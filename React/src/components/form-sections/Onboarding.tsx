@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -7,86 +6,88 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useEffect } from "react";
-import { CalculatorSchema } from "../Schema";
+} from '@/components/ui/tooltip'
+import { createNumberInput } from '@/lib/form-utils'
+import { useEffect } from 'react'
+import { UseFormReturn } from 'react-hook-form'
+import { z } from 'zod'
+import { CalculatorSchema } from '../Schema'
 
 interface OnboardingCardProps {
-  form: UseFormReturn<z.infer<typeof CalculatorSchema>>;
+  form: UseFormReturn<z.infer<typeof CalculatorSchema>>
 }
 
 const OnboardingCard = ({ form }: OnboardingCardProps) => {
   const canadianProvinces = [
-    "Alberta",
-    "British Columbia",
-    "Manitoba",
-    "New Brunswick",
-    "Newfoundland and Labrador",
-    "Nova Scotia",
-    "Ontario",
-    "Prince Edward Island",
-    "Quebec",
-    "Saskatchewan",
-    "Northwest Territories",
-    "Nunavut",
-    "Yukon",
-  ];
+    { label: 'Alberta', value: 'AB' },
+    { label: 'British Columbia', value: 'BC' },
+    { label: 'Manitoba', value: 'MB' },
+    { label: 'New Brunswick', value: 'NB' },
+    { label: 'Newfoundland and Labrador', value: 'NL' },
+    { label: 'Nova Scotia', value: 'NS' },
+    { label: 'Ontario', value: 'ON' },
+    { label: 'Prince Edward Island', value: 'PE' },
+    { label: 'Quebec', value: 'QC' },
+    { label: 'Saskatchewan', value: 'SK' },
+    { label: 'Northwest Territories', value: 'NT' },
+    { label: 'Nunavut', value: 'NU' },
+    { label: 'Yukon', value: 'YT' },
+  ]
 
   const investorProfiles = [
-    { label: "Risk Averse", value: "risk_averse", rate: 0.03 },
-    { label: "Conservative", value: "conservative", rate: 0.04 },
-    { label: "Moderate", value: "moderate", rate: 0.05 },
-    { label: "Aggressive", value: "aggressive", rate: 0.06 },
-    { label: "Speculative", value: "speculative", rate: 0.07 },
-    { label: "Custom", value: "custom" },
-  ];
+    { label: 'Risk Averse', value: 'risk_averse', rate: 0.03 },
+    { label: 'Conservative', value: 'conservative', rate: 0.04 },
+    { label: 'Moderate', value: 'moderate', rate: 0.05 },
+    { label: 'Aggressive', value: 'aggressive', rate: 0.06 },
+    { label: 'Speculative', value: 'speculative', rate: 0.07 },
+    { label: 'Custom', value: 'custom' },
+  ]
 
   useEffect(() => {
     const calculateInvestmentReturnRate = () => {
-      const investorProfile = form.getValues("investorProfile");
-      const specifyReturn = form.getValues("specifyReturn");
+      const investorProfile = form.getValues('investorProfile')
+      const specifyReturn = form.getValues('specifyReturn')
 
-      if (investorProfile && investorProfile !== "custom") {
+      if (investorProfile && investorProfile !== 'custom') {
         const selectedProfile = investorProfiles.find(
           (profile) => profile.value === investorProfile
-        );
-        return selectedProfile ? selectedProfile.rate : 0;
+        )
+        return selectedProfile ? selectedProfile.rate : 0
       }
-      return specifyReturn ? 0 : 0;
-    };
+      return specifyReturn ? 0 : 0
+    }
 
-    const newInvestmentReturnRate = calculateInvestmentReturnRate();
-    const currentInvestmentReturnRate = form.getValues("investmentReturnRate");
+    const newInvestmentReturnRate = calculateInvestmentReturnRate()
+    const currentInvestmentReturnRate = form.getValues('investmentReturnRate')
 
     if (newInvestmentReturnRate !== currentInvestmentReturnRate) {
-      form.setValue("investmentReturnRate", newInvestmentReturnRate ?? 0);
+      form.setValue('investmentReturnRate', newInvestmentReturnRate ?? 0)
     }
-  }, [form.watch("investorProfile"), form.watch("specifyReturn")]);
+  }, [form.watch('investorProfile'), form.watch('specifyReturn')])
 
   useEffect(() => {
     const subscription = form.watch((value) => {
       if (value.calculateForSpouse) {
-        if (!value.persons?.some((p) => p?.personType === "spouse")) {
-          form.setValue("persons.1", {
-            personType: "spouse",
+        if (!value.persons?.some((p) => p?.personType === 'spouse')) {
+          form.setValue('persons.1', {
+            personType: 'spouse',
             birthYear: undefined,
-            lifeExpectancy: 100,
+            lifeExpectancy: undefined,
             primaryYearlyIncome: undefined,
             incomeYearStart: undefined,
             incomeYearEnd: undefined,
@@ -108,15 +109,15 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
             healthCareExpensesStage2: undefined,
             annualRetirementExpensesStage3: undefined,
             healthCareExpensesStage3: undefined,
-          });
+          })
         }
-      } else if (form.getValues("persons").length > 1) {
-        form.setValue("persons", [form.getValues("persons")[0]]);
+      } else if (form.getValues('persons').length > 1) {
+        form.setValue('persons', [form.getValues('persons')[0]])
       }
-    });
+    })
 
-    return () => subscription.unsubscribe();
-  }, [form.watch("calculateForSpouse")]);
+    return () => subscription.unsubscribe()
+  }, [form.watch('calculateForSpouse')])
 
   return (
     <Card className="form-card">
@@ -164,7 +165,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </p>
                         </div>
                         <FormControl>
-                          <Checkbox
+                          <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />
@@ -197,16 +198,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field)}
                               placeholder="Enter birth year"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -214,7 +207,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       )}
                     />
 
-                    {form.watch("calculateForSpouse") && (
+                    {form.watch('calculateForSpouse') && (
                       <FormField
                         control={form.control}
                         name="persons.1.birthYear"
@@ -235,16 +228,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter spouse's birth year"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -283,16 +268,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field)}
                               placeholder="Enter life expectancy"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -300,7 +277,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       )}
                     />
 
-                    {form.watch("calculateForSpouse") && (
+                    {form.watch('calculateForSpouse') && (
                       <FormField
                         control={form.control}
                         name="persons.1.lifeExpectancy"
@@ -325,16 +302,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field)}
                                 placeholder="Enter spouse's life expectancy"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -373,8 +342,11 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </FormControl>
                           <SelectContent>
                             {canadianProvinces.map((province) => (
-                              <SelectItem key={province} value={province}>
-                                {province}
+                              <SelectItem
+                                key={province.value}
+                                value={province.value}
+                              >
+                                {province.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -424,18 +396,18 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         </div>
                         <Select
                           onValueChange={(value) => {
-                            field.onChange(value);
-                            if (value === "custom") {
-                              form.setValue("specifyReturn", true);
+                            field.onChange(value)
+                            if (value === 'custom') {
+                              form.setValue('specifyReturn', true)
                             } else {
-                              form.setValue("specifyReturn", false);
+                              form.setValue('specifyReturn', false)
                               const selectedProfile = investorProfiles.find(
                                 (profile) => profile.value === value
-                              );
+                              )
                               form.setValue(
-                                "investmentReturnRate",
+                                'investmentReturnRate',
                                 selectedProfile?.rate ?? 0
-                              );
+                              )
                             }
                           }}
                           value={field.value}
@@ -488,20 +460,10 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         </div>
                         <FormControl>
                           <Input
-                            type="number"
+                            {...createNumberInput(field, {
+                              isPercentage: true,
+                            })}
                             placeholder="Enter inflation rate"
-                            {...field}
-                            value={
-                              field.value === undefined
-                                ? ""
-                                : (field.value * 100).toFixed(2)
-                            }
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              field.onChange(
-                                value ? parseFloat(value) / 100 : undefined
-                              );
-                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -509,7 +471,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                     )}
                   />
 
-                  {form.watch("specifyReturn") && (
+                  {form.watch('specifyReturn') && (
                     <>
                       <FormField
                         control={form.control}
@@ -539,20 +501,10 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field, {
+                                  isPercentage: true,
+                                })}
                                 placeholder="Enter income return rate"
-                                {...field}
-                                value={
-                                  field.value === undefined
-                                    ? ""
-                                    : (field.value * 100).toFixed(2)
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  field.onChange(
-                                    value ? parseFloat(value) / 100 : undefined
-                                  );
-                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -596,20 +548,10 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                type="number"
+                                {...createNumberInput(field, {
+                                  isPercentage: true,
+                                })}
                                 placeholder="Enter growth return rate"
-                                {...field}
-                                value={
-                                  field.value === undefined
-                                    ? ""
-                                    : (field.value * 100).toFixed(2)
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  field.onChange(
-                                    value ? parseFloat(value) / 100 : undefined
-                                  );
-                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -625,7 +567,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
         </Form>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default OnboardingCard;
+export default OnboardingCard

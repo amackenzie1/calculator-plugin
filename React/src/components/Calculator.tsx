@@ -1,15 +1,18 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AssetsCard from "./form-sections/Assets";
-import ExpensesCard from "./form-sections/Expenses";
-import OnboardingCard from "./form-sections/Onboarding";
-import IncomeCard from "./form-sections/Income";
-import { CalculatorSchema } from "./Schema";
-import { yearFromBirthYearAndTargetAge } from "@/lib/utils";
+// File: src/components/Calculator.tsx
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { projectNetWorth } from '@/lib/calculator/projection'
+import { yearFromBirthYearAndTargetAge } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+import AssetsCard from './form-sections/Assets'
+import ExpensesCard from './form-sections/Expenses'
+import IncomeCard from './form-sections/Income'
+import OnboardingCard from './form-sections/Onboarding'
+import ResultsCard from './form-sections/Results'
+import { CalculatorSchema, CalculatorSchemaType } from './Schema'
 
 const Calculator = () => {
   const form = useForm<z.infer<typeof CalculatorSchema>>({
@@ -20,9 +23,9 @@ const Calculator = () => {
       expensesChangeForEachStageSpouse: false,
       persons: [
         {
-          personType: "self",
+          personType: 'self',
           birthYear: undefined,
-          lifeExpectancy: 100,
+          lifeExpectancy: undefined,
           primaryYearlyIncome: undefined,
           incomeYearStart: undefined,
           incomeYearEnd: undefined,
@@ -51,35 +54,42 @@ const Calculator = () => {
       charitableDonations: [],
       oneOffExpenses: [],
     },
-  });
+  })
 
-  const calculateForSpouse = form.watch("calculateForSpouse");
+  const calculateForSpouse = form.watch('calculateForSpouse')
+  const birthYearSelf = form.watch('persons.0.birthYear')
+  const birthYearSpouse = calculateForSpouse
+    ? form.watch('persons.1.birthYear')
+    : undefined
+
+  // Projection state
+  const [projectionData, setProjectionData] = useState<
+    { year: number; netWorth: number }[]
+  >([])
 
   // Load state from local storage on component mount
   useEffect(() => {
-    const storedData = localStorage.getItem("calculatorState");
+    const storedData = localStorage.getItem('calculatorState')
     if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      form.reset(parsedData);
+      const parsedData = JSON.parse(storedData)
+      form.reset(parsedData)
     }
-  }, []);
+  }, [])
 
   // Save state to local storage whenever form values change
   useEffect(() => {
     const subscription = form.watch((value) => {
-      localStorage.setItem("calculatorState", JSON.stringify(value));
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+      localStorage.setItem('calculatorState', JSON.stringify(value))
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
-  const onSubmit = (data: z.infer<typeof CalculatorSchema>) => {
-    console.log("Form data:", JSON.stringify(data, null, 2));
-  };
-
-  const birthYearSelf = form.watch("persons.0.birthYear");
-  const birthYearSpouse = calculateForSpouse
-    ? form.watch("persons.1.birthYear")
-    : undefined;
+  const onSubmit = (data: CalculatorSchemaType) => {
+    // Use the projection module to get the data
+    console.log('data', data)
+    const projection = projectNetWorth(data)
+    setProjectionData(projection)
+  }
 
   return (
     <div className="space-y-8">
@@ -88,7 +98,7 @@ const Calculator = () => {
       </h1>
       <div className="max-w-6xl mx-auto">
         <Tabs defaultValue="general" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 h-14 text-lg">
+          <TabsList className="grid w-full grid-cols-5 h-14 text-lg">
             <TabsTrigger value="general" className="text-lg">
               General
             </TabsTrigger>
@@ -101,7 +111,11 @@ const Calculator = () => {
             <TabsTrigger value="expenses" className="text-lg">
               Expenses
             </TabsTrigger>
+            <TabsTrigger value="results" className="text-lg">
+              Results
+            </TabsTrigger>
           </TabsList>
+
           <TabsContent value="general">
             <OnboardingCard form={form} />
           </TabsContent>
@@ -120,6 +134,9 @@ const Calculator = () => {
           <TabsContent value="expenses">
             <ExpensesCard form={form} calculateForSpouse={calculateForSpouse} />
           </TabsContent>
+          <TabsContent value="results">
+            <ResultsCard projectionData={projectionData} />
+          </TabsContent>
         </Tabs>
         <div className="mt-8 flex justify-center">
           <Button
@@ -132,7 +149,7 @@ const Calculator = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Calculator;
+export default Calculator

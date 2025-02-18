@@ -23,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { createNumberInput } from '@/lib/form-utils'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
@@ -238,16 +239,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   </div>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter current value"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -328,16 +323,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  type="number"
+                                  {...createNumberInput(field, {
+                                    isDecimal: true,
+                                  })}
                                   placeholder="Enter current value"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -368,16 +357,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  type="number"
+                                  {...createNumberInput(field, {
+                                    isDecimal: true,
+                                  })}
                                   placeholder="Enter opening year"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -412,16 +395,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  type="number"
+                                  {...createNumberInput(field, {
+                                    isDecimal: true,
+                                  })}
                                   placeholder="Enter book value"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
-                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -487,16 +464,10 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                type="number"
-                                placeholder="Enter death benefit amount"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
-                                }
+                                {...createNumberInput(field, {
+                                  isDecimal: true,
+                                })}
+                                placeholder="Enter death benefit"
                               />
                             </FormControl>
                             <FormMessage />
@@ -552,16 +523,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                         </div>
                         <FormControl>
                           <Input
-                            type="number"
+                            {...createNumberInput(field, { isDecimal: true })}
                             placeholder="Enter current value"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value
-                                  ? parseInt(e.target.value)
-                                  : undefined
-                              )
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -629,16 +592,8 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              type="number"
+                              {...createNumberInput(field, { isDecimal: true })}
                               placeholder="Enter planned sale year"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined
-                                )
-                              }
                             />
                           </FormControl>
                           <FormMessage />

@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { createNumberInput } from '@/lib/form-utils'
 import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
@@ -168,16 +169,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -195,16 +190,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -227,16 +216,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -254,16 +237,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -284,16 +261,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -311,16 +282,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   </FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -341,16 +306,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 </FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field, {
+                                      isDecimal: true,
+                                    })}
                                     placeholder="Enter amount"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -368,16 +327,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 </FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field, {
+                                      isDecimal: true,
+                                    })}
                                     placeholder="Enter amount"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -464,16 +417,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 <FormLabel>Amount</FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field, {
+                                      isDecimal: true,
+                                    })}
                                     placeholder="Enter amount"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -489,16 +436,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 <FormLabel>Year</FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field)}
                                     placeholder="Enter year"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -572,16 +511,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   <FormLabel>Amount</FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -597,16 +530,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   <FormLabel>Year</FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field)}
                                       placeholder="Enter year"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -685,16 +610,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 <FormLabel>Amount</FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field, {
+                                      isDecimal: true,
+                                    })}
                                     placeholder="Enter amount"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -710,16 +629,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 <FormLabel>Start Year</FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field)}
                                     placeholder="Enter start year"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -735,16 +646,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                 <FormLabel>End Year</FormLabel>
                                 <FormControl>
                                   <Input
-                                    type="number"
+                                    {...createNumberInput(field)}
                                     placeholder="Enter end year"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        e.target.value
-                                          ? parseInt(e.target.value)
-                                          : undefined
-                                      )
-                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -801,16 +704,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   <FormLabel>Amount</FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field, {
+                                        isDecimal: true,
+                                      })}
                                       placeholder="Enter amount"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -826,16 +723,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   <FormLabel>Start Year</FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field)}
                                       placeholder="Enter start year"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -851,16 +740,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                   <FormLabel>End Year</FormLabel>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      {...createNumberInput(field)}
                                       placeholder="Enter end year"
-                                      {...field}
-                                      onChange={(e) =>
-                                        field.onChange(
-                                          e.target.value
-                                            ? parseInt(e.target.value)
-                                            : undefined
-                                        )
-                                      }
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -909,16 +790,8 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                     <FormLabel>Desired Estate Amount</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
+                        {...createNumberInput(field, { isDecimal: true })}
                         placeholder="Enter amount"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value
-                              ? parseInt(e.target.value)
-                              : undefined
-                          )
-                        }
                       />
                     </FormControl>
                     <FormMessage />
