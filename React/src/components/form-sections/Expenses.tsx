@@ -9,7 +9,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import {
   Tooltip,
   TooltipContent,
@@ -31,11 +30,6 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
   const [oneOffExpenseIdCounter, setOneOffExpenseIdCounter] = useState(0)
   const [charitableDonationIdCounter, setCharitableDonationIdCounter] =
     useState(0)
-
-  const expensesChangeForEachStage = form.watch('expensesChangeForEachStage')
-  const expensesChangeForEachStageSpouse = form.watch(
-    'expensesChangeForEachStageSpouse'
-  )
 
   const handleAddOneOffExpense = (personType: 'self' | 'spouse') => {
     setOneOffExpenseIdCounter((prev) => prev + 1)
@@ -94,14 +88,14 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
       <CardContent className="form-card-content">
         <Form {...form}>
           <form className="space-y-8">
-            {/* Retirement Expenses Section */}
+            {/* Annual Expenses Section */}
             <div className="form-section">
-              <h3 className="form-section-title">Retirement Expenses</h3>
+              <h3 className="form-section-title">Annual Expenses</h3>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter your expected retirement expenses (?)
+                      Enter your expected annual expenses (?)
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -118,227 +112,47 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                   <div key={personIndex} className="space-y-6">
                     <h4 className="text-lg font-medium">
                       {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
-                      Retirement Expenses
+                      Annual Expenses
                     </h4>
 
                     <div className="space-y-4">
                       <FormField
                         control={form.control}
-                        name={
-                          person.personType === 'self'
-                            ? 'expensesChangeForEachStage'
-                            : 'expensesChangeForEachStageSpouse'
-                        }
+                        name={`persons.${personIndex}.annualExpenses`}
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel>
-                                Specify Expenses Through Each Stage
-                              </FormLabel>
-                              <p className="text-sm text-muted-foreground">
-                                Do you want to specify different expenses for
-                                each retirement stage?
-                              </p>
-                            </div>
+                          <FormItem>
+                            <FormLabel>Annual Living Expenses</FormLabel>
                             <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
+                              <Input
+                                {...createNumberInput(field, {
+                                  isDecimal: true,
+                                })}
+                                placeholder="Enter amount"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
 
-                      {(person.personType === 'self' &&
-                        expensesChangeForEachStage) ||
-                      (person.personType === 'spouse' &&
-                        expensesChangeForEachStageSpouse) ? (
-                        <>
-                          <div className="space-y-4 border rounded-lg p-4">
-                            <h5 className="font-medium">
-                              Stage 1 (Current Age to 75)
-                            </h5>
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.annualRetirementExpenses`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Retirement Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.healthCareExpenses`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Healthcare Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="space-y-4 border rounded-lg p-4">
-                            <h5 className="font-medium">
-                              Stage 2 (Ages 76-85)
-                            </h5>
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.annualRetirementExpensesStage2`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Retirement Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.healthCareExpensesStage2`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Healthcare Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <div className="space-y-4 border rounded-lg p-4">
-                            <h5 className="font-medium">Stage 3 (Age 86+)</h5>
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.annualRetirementExpensesStage3`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Retirement Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`persons.${personIndex}.healthCareExpensesStage3`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    Annual Healthcare Expenses
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter amount"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <FormField
-                            control={form.control}
-                            name={`persons.${personIndex}.annualRetirementExpenses`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Annual Retirement Expenses
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...createNumberInput(field, {
-                                      isDecimal: true,
-                                    })}
-                                    placeholder="Enter amount"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`persons.${personIndex}.healthCareExpenses`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Annual Healthcare Expenses
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...createNumberInput(field, {
-                                      isDecimal: true,
-                                    })}
-                                    placeholder="Enter amount"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </>
-                      )}
+                      <FormField
+                        control={form.control}
+                        name={`persons.${personIndex}.healthCareExpenses`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Annual Healthcare Expenses</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...createNumberInput(field, {
+                                  isDecimal: true,
+                                })}
+                                placeholder="Enter amount"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </div>
                 ))}

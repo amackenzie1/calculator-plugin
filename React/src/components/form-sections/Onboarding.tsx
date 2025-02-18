@@ -103,12 +103,8 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
             nonRegisteredInvestmentOpeningYear: undefined,
             nonRegisteredInvestmentBookValue: undefined,
             lifeInsuranceDeathBenefit: undefined,
-            annualRetirementExpenses: undefined,
+            annualExpenses: undefined,
             healthCareExpenses: undefined,
-            annualRetirementExpensesStage2: undefined,
-            healthCareExpensesStage2: undefined,
-            annualRetirementExpensesStage3: undefined,
-            healthCareExpensesStage3: undefined,
           })
         }
       } else if (form.getValues('persons').length > 1) {

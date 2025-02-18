@@ -21,6 +21,9 @@ describe('Retirement Projection', () => {
     investmentReturnRate: 4,
     inflationRate: 2,
     province: 'ON',
+    otherIncomes: [],
+    charitableDonations: [],
+    oneOffExpenses: [],
   }
 
   describe('Input Validation', () => {
@@ -90,6 +93,9 @@ describe('Retirement Projection', () => {
         inflationRate: 2,
         province: 'ON',
         primaryResidenceValue: 500000,
+        otherIncomes: [],
+        charitableDonations: [],
+        oneOffExpenses: [],
       }
 
       const projection = projectNetWorth(inputWithAssets)

@@ -48,14 +48,8 @@ const PersonSchema = z.object({
     .optional(),
   nonRegisteredInvestmentBookValue: z.number().optional(),
   lifeInsuranceDeathBenefit: z.number().optional(),
-  annualRetirementExpenses: z.number().optional(),
+  annualExpenses: z.number().optional(),
   healthCareExpenses: z.number().optional(),
-  annualRetirementExpensesStage2: z.number().optional(),
-  healthCareExpensesStage2: z.number().optional(),
-  annualRetirementExpensesStage3: z.number().optional(),
-  healthCareExpensesStage3: z.number().optional(),
-  annualRetirementExpensesStage4: z.number().optional(),
-  healthCareExpensesStage4: z.number().optional(),
 })
 
 export const CalculatorSchema = z
