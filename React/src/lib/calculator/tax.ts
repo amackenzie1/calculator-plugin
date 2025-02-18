@@ -50,7 +50,7 @@ function applyProgressiveBrackets(
 /**
  * Gets the federal Basic Personal Amount based on income
  */
-function getFederalBPA(income: number): number {
+export function getFederalBPA(income: number): number {
   const fullBPA = 15705
   const lowerThreshold = 177882
   const upperThreshold = 253414
@@ -103,7 +103,7 @@ export function calculateTax(income: number, province: Province): number {
  * Holds the provincial/territorial basic personal amount (BPA)
  * and the array of progressive brackets (rate + upTo).
  */
-const provincialTaxData: Record<
+export const provincialTaxData: Record<
   Province,
   {
     personalAmount: number

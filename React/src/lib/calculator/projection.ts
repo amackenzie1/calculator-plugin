@@ -16,6 +16,7 @@ interface AccountState {
 
 interface PersonState {
   age: number
+  personType: 'self' | 'spouse' // Add this field
   accounts: {
     nonRegistered: AccountState
     tfsa: AccountState
@@ -39,8 +40,7 @@ interface PersonState {
 interface YearState {
   year: number
   persons: {
-    self: PersonState
-    spouse?: PersonState
+    [key: string]: PersonState // Change to allow any number of people
   }
   realizedGains: number
   taxPaid: number
@@ -98,12 +98,40 @@ function isProjectionComplete(
   return currentState.persons.self.age >= targetAge
 }
 
+// Helper function to process withdrawals from an account
+function withdrawFromAccount(
+  account: AccountState,
+  amount: number
+): { withdrawn: number; remaining: number; realizedGains: number } {
+  const available = Math.min(account.marketValue, amount)
+  const oldMarketValue = account.marketValue
+  account.marketValue -= available
+
+  let realizedGains = 0
+  if ('bookValue' in account && oldMarketValue > 0) {
+    const proportion = available / oldMarketValue
+    const bookValueReduced = account.bookValue * proportion
+    account.bookValue *= 1 - proportion
+    realizedGains = available - bookValueReduced
+  }
+
+  return {
+    withdrawn: available,
+    remaining: amount - available,
+    realizedGains,
+  }
+}
+
+function deepClone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 function applyInvestmentReturns(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  const newState = structuredClone(currentState)
-  const r = input.investmentReturnRate || 0
+  const newState = deepClone(currentState)
+  const r = (input.investmentReturnRate || 0) / 100
 
   function growAccounts(person: PersonState): PersonState {
     const newAccounts = { ...person.accounts }
@@ -118,10 +146,10 @@ function applyInvestmentReturns(
     }
   }
 
-  newState.persons.self = growAccounts(newState.persons.self)
-  if ('spouse' in newState.persons && newState.persons.spouse) {
-    newState.persons.spouse = growAccounts(newState.persons.spouse)
-  }
+  // Process all persons
+  Object.keys(newState.persons).forEach((personType) => {
+    newState.persons[personType] = growAccounts(newState.persons[personType])
+  })
 
   return newState
 }
@@ -130,9 +158,9 @@ function calculateYearlyIncome(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  const newState = structuredClone(currentState)
+  const newState = deepClone(currentState)
   const currentYear = newState.year
-  const inflationRate = input.inflationRate || 0.025
+  const inflationRate = (input.inflationRate || 2.5) / 100
 
   // Helper to calculate inflation adjusted amount
   function adjustForInflation(baseAmount: number, startYear: number): number {
@@ -141,10 +169,12 @@ function calculateYearlyIncome(
   }
 
   // Process each person's income
-  function processPersonIncome(
-    person: PersonState,
-    schemaPerson: SchemaPerson
-  ) {
+  function processPersonIncome(person: PersonState) {
+    const schemaPerson = input.persons.find(
+      (p) => p.personType === person.personType
+    )
+    if (!schemaPerson) return
+
     // 1. Employment Income
     if (
       schemaPerson.incomeYearStart &&
@@ -198,7 +228,7 @@ function calculateYearlyIncome(
     }
 
     // 5. Other Income
-    person.income.other = input.otherIncomes
+    person.income.other = (input.otherIncomes || [])
       .filter(
         (inc) =>
           inc.personType === schemaPerson.personType &&
@@ -213,17 +243,8 @@ function calculateYearlyIncome(
       }))
   }
 
-  // Process self
-  const self = input.persons.find((p) => p.personType === 'self')
-  if (self) {
-    processPersonIncome(newState.persons.self, self)
-  }
-
-  // Process spouse if exists
-  const spouse = input.persons.find((p) => p.personType === 'spouse')
-  if (spouse && newState.persons.spouse) {
-    processPersonIncome(newState.persons.spouse, spouse)
-  }
+  // Process all persons
+  Object.values(newState.persons).forEach(processPersonIncome)
 
   // Calculate total income for each person
   function calculateTotalIncome(person: PersonState): number {
@@ -237,11 +258,10 @@ function calculateYearlyIncome(
   }
 
   // Calculate total income and expenses
-  const selfIncome = calculateTotalIncome(newState.persons.self)
-  const spouseIncome = newState.persons.spouse
-    ? calculateTotalIncome(newState.persons.spouse)
-    : 0
-  const totalIncome = selfIncome + spouseIncome
+  const totalIncome = Object.values(newState.persons).reduce(
+    (sum, person) => sum + calculateTotalIncome(person),
+    0
+  )
 
   // Calculate inflation adjusted expenses
   const inflationAdjustedExpenses = adjustForInflation(
@@ -254,21 +274,16 @@ function calculateYearlyIncome(
 
   // Add surplus to non-registered accounts proportionally based on income contribution
   if (surplusIncome > 0) {
-    const selfProportion = selfIncome / totalIncome
-    const spouseProportion = spouseIncome / totalIncome
-
-    // Add to self's non-registered account
-    const selfSurplus = surplusIncome * selfProportion
-    newState.persons.self.accounts.nonRegistered.marketValue += selfSurplus
-    newState.persons.self.accounts.nonRegistered.bookValue += selfSurplus
-
-    // Add to spouse's non-registered account if exists
-    if (newState.persons.spouse) {
-      const spouseSurplus = surplusIncome * spouseProportion
-      newState.persons.spouse.accounts.nonRegistered.marketValue +=
-        spouseSurplus
-      newState.persons.spouse.accounts.nonRegistered.bookValue += spouseSurplus
-    }
+    const totalContribution = Object.values(newState.persons).reduce(
+      (sum, person) => sum + calculateTotalIncome(person),
+      0
+    )
+    Object.values(newState.persons).forEach((person) => {
+      const proportion = calculateTotalIncome(person) / totalContribution
+      const surplus = surplusIncome * proportion
+      person.accounts.nonRegistered.marketValue += surplus
+      person.accounts.nonRegistered.bookValue += surplus
+    })
   }
 
   return newState
@@ -278,8 +293,8 @@ function calculateRequiredWithdrawals(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  const newState = structuredClone(currentState)
-  const inflationRate = input.inflationRate || 0.025
+  const newState = deepClone(currentState)
+  const inflationRate = (input.inflationRate || 2.5) / 100
   const currentYear = newState.year
   const startYear = new Date().getFullYear()
 
@@ -300,160 +315,79 @@ function calculateRequiredWithdrawals(
   // Total expenses needed this year
   const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear
 
-  // Helper to convert RRSP to RRIF at age 71
-  function convertRRSPtoRRIF(person: PersonState) {
+  // Process RRSP to RRIF conversions and mandatory withdrawals
+  Object.values(newState.persons).forEach((person) => {
+    // Convert RRSP to RRIF at age 71
     if (person.age === 71 && person.accounts.rrsp.marketValue > 0) {
       person.accounts.rrif.marketValue = person.accounts.rrsp.marketValue
       person.accounts.rrif.bookValue = person.accounts.rrsp.bookValue
       person.accounts.rrsp.marketValue = 0
       person.accounts.rrsp.bookValue = 0
     }
-  }
 
-  // Helper to calculate mandatory RRIF withdrawal
-  function calculateMandatoryRRIFWithdrawal(person: PersonState): number {
-    if (person.age < 71 || person.accounts.rrif.marketValue === 0) return 0
+    // Calculate and apply mandatory RRIF withdrawal
+    if (person.age >= 71 && person.accounts.rrif.marketValue > 0) {
+      const rate = RRIF_MIN_WITHDRAWAL_RATES[Math.min(person.age, 95)] || 0.2
+      const mandatoryWithdrawal = person.accounts.rrif.marketValue * rate
+      person.accounts.rrif.marketValue -= mandatoryWithdrawal
+      newState.withdrawals.rrif += mandatoryWithdrawal
+    }
+  })
 
-    const rate = RRIF_MIN_WITHDRAWAL_RATES[Math.min(person.age, 95)] || 0.2 // 20% for age > 95
-    return person.accounts.rrif.marketValue * rate
-  }
-
-  // Convert RRSP to RRIF at age 71
-  convertRRSPtoRRIF(newState.persons.self)
-  if (newState.persons.spouse) {
-    convertRRSPtoRRIF(newState.persons.spouse)
-  }
-
-  // Calculate mandatory RRIF withdrawals
-  const selfMandatoryRRIF = calculateMandatoryRRIFWithdrawal(
-    newState.persons.self
-  )
-  const spouseMandatoryRRIF = newState.persons.spouse
-    ? calculateMandatoryRRIFWithdrawal(newState.persons.spouse)
-    : 0
-
-  // Track RRIF withdrawals
-  newState.withdrawals.rrif = selfMandatoryRRIF + spouseMandatoryRRIF
-
-  // Reduce RRIF account values
-  if (selfMandatoryRRIF > 0) {
-    newState.persons.self.accounts.rrif.marketValue -= selfMandatoryRRIF
-  }
-  if (spouseMandatoryRRIF > 0 && newState.persons.spouse) {
-    newState.persons.spouse.accounts.rrif.marketValue -= spouseMandatoryRRIF
-  }
-
-  // Calculate total income available (including mandatory RRIF withdrawals)
-  function calculateTotalIncome(person: PersonState): number {
-    return (
-      person.income.employment +
-      person.income.cpp +
-      person.income.oas +
-      person.income.definedBenefit +
-      person.income.other.reduce((sum, inc) => sum + inc.amount, 0)
-    )
-  }
-
-  // Calculate total income available
-  const selfIncome = calculateTotalIncome(newState.persons.self)
-  const spouseIncome = newState.persons.spouse
-    ? calculateTotalIncome(newState.persons.spouse)
-    : 0
-  const totalIncome = selfIncome + spouseIncome + newState.withdrawals.rrif
+  // Calculate total available income
+  const totalIncome =
+    Object.values(newState.persons).reduce(
+      (sum, person) =>
+        sum +
+        person.income.employment +
+        person.income.cpp +
+        person.income.oas +
+        person.income.definedBenefit +
+        person.income.other.reduce((sum, inc) => sum + inc.amount, 0),
+      0
+    ) + newState.withdrawals.rrif
 
   // Calculate required additional withdrawals
   let remainingNeeded = Math.max(0, totalExpensesNeeded - totalIncome)
 
-  // Withdrawal strategy (in order of tax efficiency):
-  // 1. TFSA (tax-free)
-  // 2. Non-registered (only gains are taxed)
-  // 3. RRSP/RRIF (fully taxable)
-
-  function withdrawFromAccount(
-    account: AccountState,
-    amount: number
-  ): { withdrawn: number; remaining: number } {
-    const available = Math.min(account.marketValue, amount)
-    account.marketValue -= available
-    if ('bookValue' in account) {
-      // For non-registered accounts, adjust book value proportionally
-      const proportion = available / account.marketValue
-      account.bookValue *= 1 - proportion
-    }
-    return {
-      withdrawn: available,
-      remaining: amount - available,
-    }
-  }
-
-  // 1. TFSA Withdrawals
+  // Withdrawal strategy (in order of tax efficiency)
   if (remainingNeeded > 0) {
-    const tfsaWithdrawal = withdrawFromAccount(
-      newState.persons.self.accounts.tfsa,
-      remainingNeeded
-    )
-    newState.withdrawals.tfsa = tfsaWithdrawal.withdrawn
-    remainingNeeded = tfsaWithdrawal.remaining
-
-    if (remainingNeeded > 0 && newState.persons.spouse) {
-      const spouseTfsaWithdrawal = withdrawFromAccount(
-        newState.persons.spouse.accounts.tfsa,
+    // 1. TFSA Withdrawals
+    for (const person of Object.values(newState.persons)) {
+      const { withdrawn, remaining } = withdrawFromAccount(
+        person.accounts.tfsa,
         remainingNeeded
       )
-      newState.withdrawals.tfsa += spouseTfsaWithdrawal.withdrawn
-      remainingNeeded = spouseTfsaWithdrawal.remaining
+      newState.withdrawals.tfsa += withdrawn
+      remainingNeeded = remaining
+      if (remainingNeeded === 0) break
     }
-  }
 
-  // 2. Non-registered Withdrawals
-  if (remainingNeeded > 0) {
-    const nonRegWithdrawal = withdrawFromAccount(
-      newState.persons.self.accounts.nonRegistered,
-      remainingNeeded
-    )
-    newState.withdrawals.nonRegistered = nonRegWithdrawal.withdrawn
-    // Track realized gains for tax purposes
-    const proportion =
-      nonRegWithdrawal.withdrawn /
-      newState.persons.self.accounts.nonRegistered.marketValue
-    newState.realizedGains +=
-      nonRegWithdrawal.withdrawn -
-      newState.persons.self.accounts.nonRegistered.bookValue * proportion
-    remainingNeeded = nonRegWithdrawal.remaining
-
-    if (remainingNeeded > 0 && newState.persons.spouse) {
-      const spouseNonRegWithdrawal = withdrawFromAccount(
-        newState.persons.spouse.accounts.nonRegistered,
-        remainingNeeded
-      )
-      newState.withdrawals.nonRegistered += spouseNonRegWithdrawal.withdrawn
-      const spouseProportion =
-        spouseNonRegWithdrawal.withdrawn /
-        newState.persons.spouse.accounts.nonRegistered.marketValue
-      newState.realizedGains +=
-        spouseNonRegWithdrawal.withdrawn -
-        newState.persons.spouse.accounts.nonRegistered.bookValue *
-          spouseProportion
-      remainingNeeded = spouseNonRegWithdrawal.remaining
+    // 2. Non-registered Withdrawals
+    if (remainingNeeded > 0) {
+      for (const person of Object.values(newState.persons)) {
+        const { withdrawn, remaining, realizedGains } = withdrawFromAccount(
+          person.accounts.nonRegistered,
+          remainingNeeded
+        )
+        newState.withdrawals.nonRegistered += withdrawn
+        newState.realizedGains += realizedGains
+        remainingNeeded = remaining
+        if (remainingNeeded === 0) break
+      }
     }
-  }
 
-  // 3. RRSP/RRIF Withdrawals
-  if (remainingNeeded > 0) {
-    const rrspWithdrawal = withdrawFromAccount(
-      newState.persons.self.accounts.rrsp,
-      remainingNeeded
-    )
-    newState.withdrawals.rrsp = rrspWithdrawal.withdrawn
-    remainingNeeded = rrspWithdrawal.remaining
-
-    if (remainingNeeded > 0 && newState.persons.spouse) {
-      const spouseRrspWithdrawal = withdrawFromAccount(
-        newState.persons.spouse.accounts.rrsp,
-        remainingNeeded
-      )
-      newState.withdrawals.rrsp += spouseRrspWithdrawal.withdrawn
-      remainingNeeded = spouseRrspWithdrawal.remaining
+    // 3. RRSP Withdrawals
+    if (remainingNeeded > 0) {
+      for (const person of Object.values(newState.persons)) {
+        const { withdrawn, remaining } = withdrawFromAccount(
+          person.accounts.rrsp,
+          remainingNeeded
+        )
+        newState.withdrawals.rrsp += withdrawn
+        remainingNeeded = remaining
+        if (remainingNeeded === 0) break
+      }
     }
   }
 
@@ -464,103 +398,60 @@ function calculateTaxImplications(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  const newState = structuredClone(currentState)
+  const newState = deepClone(currentState)
+  const numPersons = Object.keys(newState.persons).length
 
-  // Helper to calculate total taxable income for a person
-  function calculateTaxableIncome(
-    person: PersonState,
-    isSpouse: boolean,
-    newState: YearState
-  ): number {
-    // Sum up all fully taxable income
-    const employmentIncome = person.income.employment
-    const cppIncome = person.income.cpp
-    const oasIncome = person.income.oas
-    const dbIncome = person.income.definedBenefit
-    const otherIncome = person.income.other.reduce(
-      (sum, inc) => sum + inc.amount,
-      0
-    )
+  // Calculate taxable income and apply OAS clawback for each person
+  const taxableIncomes = Object.values(newState.persons).map((person) => {
+    const income = person.income
+    const baseIncome =
+      income.employment +
+      income.cpp +
+      income.oas +
+      income.definedBenefit +
+      income.other.reduce((sum, inc) => sum + inc.amount, 0)
 
-    // Include both RRSP and RRIF withdrawals
-    const registeredWithdrawals = isSpouse
-      ? (newState.withdrawals.rrsp + newState.withdrawals.rrif) * 0.5 // Assume 50/50 split
-      : (newState.withdrawals.rrsp + newState.withdrawals.rrif) * 0.5
+    // Split registered withdrawals and capital gains equally
+    const registeredWithdrawals =
+      (newState.withdrawals.rrsp + newState.withdrawals.rrif) / numPersons
+    const capitalGains = newState.realizedGains / numPersons
+    const taxableCapitalGains = capitalGains * 0.5
 
-    // Capital gains (only 50% taxable)
-    const capitalGains = isSpouse
-      ? newState.realizedGains * 0.5 // Assume 50/50 split
-      : newState.realizedGains * 0.5
-    const taxableCapitalGains = capitalGains * 0.5 // Only 50% of gains are taxable
+    const totalTaxableIncome =
+      baseIncome + registeredWithdrawals + taxableCapitalGains
 
-    return (
-      employmentIncome +
-      cppIncome +
-      oasIncome +
-      dbIncome +
-      otherIncome +
-      registeredWithdrawals +
-      taxableCapitalGains
-    )
-  }
-
-  // Calculate OAS clawback
-  function calculateOASClawback(netIncome: number, oasAmount: number): number {
-    const CLAWBACK_THRESHOLD = 86912 // 2024 threshold
+    // Apply OAS clawback
+    const CLAWBACK_THRESHOLD = 86912
     const CLAWBACK_RATE = 0.15
+    if (totalTaxableIncome > CLAWBACK_THRESHOLD) {
+      const clawback = Math.min(
+        income.oas,
+        (totalTaxableIncome - CLAWBACK_THRESHOLD) * CLAWBACK_RATE
+      )
+      person.income.oas -= clawback
+    }
 
-    if (netIncome <= CLAWBACK_THRESHOLD) return 0
+    return totalTaxableIncome
+  })
 
-    const excessIncome = netIncome - CLAWBACK_THRESHOLD
-    return Math.min(oasAmount, excessIncome * CLAWBACK_RATE)
-  }
-
-  // Calculate tax for self
-  const selfTaxableIncome = calculateTaxableIncome(
-    newState.persons.self,
-    false,
-    newState
+  // Calculate total tax
+  newState.taxPaid = taxableIncomes.reduce(
+    (total, income) => total + calculateTax(income, input.province),
+    0
   )
-  const selfOASClawback = calculateOASClawback(
-    selfTaxableIncome,
-    newState.persons.self.income.oas
-  )
-  newState.persons.self.income.oas -= selfOASClawback
-
-  // Calculate tax for spouse if exists
-  let spouseTaxableIncome = 0
-  if (newState.persons.spouse) {
-    spouseTaxableIncome = calculateTaxableIncome(
-      newState.persons.spouse,
-      true,
-      newState
-    )
-    const spouseOASClawback = calculateOASClawback(
-      spouseTaxableIncome,
-      newState.persons.spouse.income.oas
-    )
-    newState.persons.spouse.income.oas -= spouseOASClawback
-  }
-
-  // Calculate total tax using the tax calculator
-  const totalTax =
-    calculateTax(selfTaxableIncome, input.province) +
-    (newState.persons.spouse
-      ? calculateTax(spouseTaxableIncome, input.province)
-      : 0)
-
-  newState.taxPaid = totalTax
 
   return newState
 }
 
 function ageOneYear(currentState: YearState): YearState {
-  const newState = structuredClone(currentState)
+  const newState = deepClone(currentState)
   newState.year = currentState.year + 1
-  newState.persons.self.age = currentState.persons.self.age + 1
-  if ('spouse' in newState.persons && newState.persons.spouse) {
-    newState.persons.spouse.age = newState.persons.spouse.age + 1
-  }
+
+  // Age all persons
+  Object.values(newState.persons).forEach((person) => {
+    person.age += 1
+  })
+
   return newState
 }
 
@@ -611,6 +502,7 @@ function createInitialState(input: CalculatorSchemaType): YearState {
 
     return {
       age: currentAge,
+      personType: person.personType,
       accounts: {
         ...registeredAccounts,
         nonRegistered: createAccountState(
@@ -623,7 +515,7 @@ function createInitialState(input: CalculatorSchemaType): YearState {
         cpp: person.cppAmount || 0,
         oas: person.oasAmount || 0,
         definedBenefit: person.definedBenefitPensionAmount || 0,
-        other: input.otherIncomes
+        other: (input.otherIncomes || [])
           .filter((inc) => inc.personType === person.personType)
           .map((inc) => ({
             amount: inc.amount || 0,
@@ -643,8 +535,8 @@ function createInitialState(input: CalculatorSchemaType): YearState {
     realizedGains: 0,
     taxPaid: 0,
     expenses:
-      (self.annualRetirementExpenses || 0) +
-      (spouse?.annualRetirementExpenses || 0) +
+      (self.annualExpenses || 0) +
+      (spouse?.annualExpenses || 0) +
       (self.healthCareExpenses || 0) +
       (spouse?.healthCareExpenses || 0),
     withdrawals: {
@@ -699,36 +591,28 @@ export function projectNetWorth(
 ): ProjectionDataPoint[] {
   // Use our new state-based projection system
   const states = projectRetirement(data)
-  console.log(states)
 
   // Convert YearState[] to ProjectionDataPoint[]
   return states.map((state) => {
     // Sum up all assets across all accounts for both persons
     let netWorth = 0
 
-    // Add primary residence if it exists
+    // Add primary residence if it exists (assuming no appreciation/depreciation for now)
     netWorth += data.primaryResidenceValue || 0
 
-    // Add self's accounts and life insurance
-    Object.values(state.persons.self.accounts).forEach((account) => {
-      netWorth += account.marketValue
-    })
-    const self = data.persons.find((p) => p.personType === 'self')
-    if (self?.lifeInsuranceDeathBenefit) {
-      netWorth += self.lifeInsuranceDeathBenefit
-    }
-
-    // Add spouse's accounts and life insurance if they exist
-    if (state.persons.spouse) {
-      Object.values(state.persons.spouse.accounts).forEach((account) => {
+    // Add all account values from the current state
+    Object.values(state.persons).forEach((person) => {
+      Object.values(person.accounts).forEach((account) => {
         netWorth += account.marketValue
       })
-      const spouse = data.persons.find((p) => p.personType === 'spouse')
-      if (spouse?.lifeInsuranceDeathBenefit) {
-        netWorth += spouse.lifeInsuranceDeathBenefit
+    })
+
+    // Add life insurance values if they exist
+    data.persons.forEach((person) => {
+      if (person.lifeInsuranceDeathBenefit) {
+        netWorth += person.lifeInsuranceDeathBenefit
       }
-    }
-    console.log(netWorth)
+    })
 
     return {
       year: state.year,
