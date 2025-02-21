@@ -6,50 +6,50 @@ const upperYearBound = currentYear + 150
 
 const PersonSchema = z.object({
   personType: z.enum(['self', 'spouse']),
-  birthYear: z.number().min(lowerYearBound).max(currentYear).optional(),
-  lifeExpectancy: z.number().min(0).max(130).optional(),
-  primaryYearlyIncome: z.number().optional(),
+  birthYear: z.number().min(lowerYearBound).max(currentYear).nullable(),
+  lifeExpectancy: z.number().min(0).max(130).nullable(),
+  primaryYearlyIncome: z.number().nullable(),
   incomeYearStart: z
     .number()
     .min(lowerYearBound)
     .max(upperYearBound)
-    .optional(),
-  incomeYearEnd: z.number().min(lowerYearBound).max(upperYearBound).optional(),
-  incomeStartAge: z.number().optional(),
-  incomeEndAge: z.number().optional(),
-  cppStartYear: z.number().min(lowerYearBound).max(upperYearBound).optional(),
-  cppStartAge: z.number().optional(),
-  cppAmount: z.number().optional(),
-  oasStartYear: z.number().min(lowerYearBound).max(upperYearBound).optional(),
-  oasStartAge: z.number().optional(),
-  oasAmount: z.number().optional(),
+    .nullable(),
+  incomeYearEnd: z.number().min(lowerYearBound).max(upperYearBound).nullable(),
+  incomeStartAge: z.number().nullable(),
+  incomeEndAge: z.number().nullable(),
+  cppStartYear: z.number().min(lowerYearBound).max(upperYearBound).nullable(),
+  cppStartAge: z.number().nullable(),
+  cppAmount: z.number().nullable(),
+  oasStartYear: z.number().min(lowerYearBound).max(upperYearBound).nullable(),
+  oasStartAge: z.number().nullable(),
+  oasAmount: z.number().nullable(),
   definedBenefitPensionStartYear: z
     .number()
     .min(lowerYearBound)
     .max(upperYearBound)
-    .optional(),
-  definedBenefitPensionStartAge: z.number().optional(),
-  definedBenefitPensionAmount: z.number().optional(),
-  definedBenefitPensionIndexedToInflation: z.boolean().optional(),
+    .nullable(),
+  definedBenefitPensionStartAge: z.number().nullable(),
+  definedBenefitPensionAmount: z.number().nullable(),
+  definedBenefitPensionIndexedToInflation: z.boolean().nullable(),
   registeredInvestments: z
     .array(
       z.object({
         id: z.number(),
-        accountType: z.enum(['TFSA', 'RRSP', 'RRIF', 'LIRA', 'LIF']).optional(),
-        currentValue: z.number().optional(),
+        accountType: z.enum(['TFSA', 'RRSP', 'RRIF', 'LIRA', 'LIF']).nullable(),
+        currentValue: z.number().nullable(),
       })
     )
-    .optional(),
-  nonRegisteredInvestmentValue: z.number().optional(),
+    .nullable(),
+  nonRegisteredInvestmentValue: z.number().nullable(),
   nonRegisteredInvestmentOpeningYear: z
     .number()
     .min(lowerYearBound)
     .max(currentYear)
-    .optional(),
-  nonRegisteredInvestmentBookValue: z.number().optional(),
-  lifeInsuranceDeathBenefit: z.number().optional(),
-  annualExpenses: z.number().optional(),
-  healthCareExpenses: z.number().optional(),
+    .nullable(),
+  nonRegisteredInvestmentBookValue: z.number().nullable(),
+  lifeInsuranceDeathBenefit: z.number().nullable(),
+  annualExpenses: z.number().nullable(),
+  healthCareExpenses: z.number().nullable(),
 })
 
 export const CalculatorSchema = z
@@ -79,47 +79,47 @@ export const CalculatorSchema = z
         'speculative',
         'custom',
       ])
-      .optional(),
+      .nullable(),
     inflationRate: z.number().default(0.025),
-    investmentReturnRate: z.number(),
-    specifyReturn: z.boolean().optional(),
+    investmentReturnRate: z.number().nullable(),
+    specifyReturn: z.boolean().nullable(),
     persons: z.array(PersonSchema),
     otherIncomes: z.array(
       z.object({
         id: z.number(),
         personType: z.enum(['self', 'spouse']),
-        description: z.string().optional(),
-        amount: z.number().optional(),
-        startYear: z.number().optional(), // Changed from 'year'
-        endYear: z.number().optional(), // Changed from 'year'
+        description: z.string().nullable(),
+        amount: z.number().nullable(),
+        startYear: z.number().nullable(),
+        endYear: z.number().nullable(),
       })
     ),
-    expensesChangeForEachStage: z.boolean().optional(),
-    expensesChangeForEachStageSpouse: z.boolean().optional(),
+    expensesChangeForEachStage: z.boolean().nullable(),
+    expensesChangeForEachStageSpouse: z.boolean().nullable(),
     charitableDonations: z.array(
       z.object({
         id: z.number(),
         personType: z.enum(['self', 'spouse']),
-        amount: z.number().optional(),
-        startYear: z.number().optional(),
-        endYear: z.number().optional(),
+        amount: z.number().nullable(),
+        startYear: z.number().nullable(),
+        endYear: z.number().nullable(),
       })
     ),
     oneOffExpenses: z.array(
       z.object({
         id: z.number(),
         personType: z.enum(['self', 'spouse']),
-        description: z.string().optional(),
-        amount: z.number().optional(),
-        year: z.number().optional(),
+        description: z.string().nullable(),
+        amount: z.number().nullable(),
+        year: z.number().nullable(),
       })
     ),
-    primaryResidenceValue: z.number().optional(),
-    primaryResidenceSell: z.boolean().optional(),
-    primaryResidenceSellYear: z.number().optional(),
-    desiredEstateValue: z.number().optional(),
-    incomeReturnRate: z.number().optional(),
-    growthReturnRate: z.number().optional(),
+    primaryResidenceValue: z.number().nullable(),
+    primaryResidenceSell: z.boolean().nullable(),
+    primaryResidenceSellYear: z.number().nullable(),
+    desiredEstateValue: z.number().nullable(),
+    incomeReturnRate: z.number().nullable(),
+    growthReturnRate: z.number().nullable(),
   })
   .refine(
     (data) => {

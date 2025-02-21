@@ -570,19 +570,37 @@ function calculateNextYear(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  // 1. Apply investment returns
-  const withReturns = applyInvestmentReturns(currentState, input)
+  // 1. Handle house sale if applicable (moved to first step)
+  let withHouseSale = currentState
+  if (
+    input.primaryResidenceValue &&
+    input.primaryResidenceSell &&
+    input.primaryResidenceSellYear === currentState.year
+  ) {
+    withHouseSale = deepClone(currentState)
+    // Add house sale proceeds to non-registered investments, split between persons if spouse exists
+    const numPersons = Object.keys(withHouseSale.persons).length
+    const proceedsPerPerson = input.primaryResidenceValue / numPersons
 
-  // 2. Calculate income for the year
+    Object.values(withHouseSale.persons).forEach((person) => {
+      person.accounts.nonRegistered.marketValue += proceedsPerPerson
+      person.accounts.nonRegistered.bookValue += proceedsPerPerson
+    })
+  }
+
+  // 2. Apply investment returns (now includes house sale proceeds if applicable)
+  const withReturns = applyInvestmentReturns(withHouseSale, input)
+
+  // 3. Calculate income for the year
   const withIncome = calculateYearlyIncome(withReturns, input)
 
-  // 3. Calculate required withdrawals for expenses
+  // 4. Calculate required withdrawals for expenses
   const withWithdrawals = calculateRequiredWithdrawals(withIncome, input)
 
-  // 4. Apply tax implications
+  // 5. Apply tax implications
   const withTax = calculateTaxImplications(withWithdrawals, input)
 
-  // 5. Age everyone one year
+  // 6. Age everyone one year
   return ageOneYear(withTax)
 }
 
@@ -597,8 +615,18 @@ export function projectNetWorth(
     // Sum up all assets across all accounts for both persons
     let netWorth = 0
 
-    // Add primary residence if it exists (assuming no appreciation/depreciation for now)
-    netWorth += data.primaryResidenceValue || 0
+    // Add primary residence value if it exists and hasn't been sold yet
+    if (data.primaryResidenceValue) {
+      if (
+        !data.primaryResidenceSell ||
+        !data.primaryResidenceSellYear ||
+        state.year <= data.primaryResidenceSellYear
+      ) {
+        // Include house value up to and including the sale year
+        // The sale proceeds will already be in the investment accounts
+        netWorth += data.primaryResidenceValue
+      }
+    }
 
     // Add all account values from the current state
     Object.values(state.persons).forEach((person) => {

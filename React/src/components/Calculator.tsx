@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { projectNetWorth } from '@/lib/calculator/projection'
 import { yearFromBirthYearAndTargetAge } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import AssetsCard from './form-sections/Assets'
@@ -21,31 +21,32 @@ const Calculator = () => {
       calculateForSpouse: false,
       expensesChangeForEachStage: false,
       expensesChangeForEachStageSpouse: false,
+      investmentReturnRate: null,
+      province: 'ON',
       persons: [
         {
           personType: 'self',
-          birthYear: undefined,
-          lifeExpectancy: undefined,
-          primaryYearlyIncome: undefined,
-          incomeYearStart: undefined,
-          incomeYearEnd: undefined,
-          cppStartYear: undefined,
-          cppAmount: undefined,
-          oasStartYear: undefined,
-          oasAmount: undefined,
-          definedBenefitPensionStartYear: undefined,
-          definedBenefitPensionAmount: undefined,
-          definedBenefitPensionIndexedToInflation: undefined,
+          birthYear: null,
+          lifeExpectancy: null,
+          primaryYearlyIncome: null,
+          incomeYearStart: null,
+          incomeYearEnd: null,
+          cppStartYear: null,
+          cppAmount: null,
+          oasStartYear: null,
+          oasAmount: null,
+          definedBenefitPensionStartYear: null,
+          definedBenefitPensionAmount: null,
+          definedBenefitPensionIndexedToInflation: null,
           registeredInvestments: [],
-          nonRegisteredInvestmentValue: undefined,
-          nonRegisteredInvestmentOpeningYear: undefined,
-          nonRegisteredInvestmentBookValue: undefined,
-          lifeInsuranceDeathBenefit: undefined,
-          annualExpenses: undefined,
-          healthCareExpenses: undefined,
+          nonRegisteredInvestmentValue: null,
+          nonRegisteredInvestmentOpeningYear: null,
+          nonRegisteredInvestmentBookValue: null,
+          lifeInsuranceDeathBenefit: null,
+          annualExpenses: null,
+          healthCareExpenses: null,
         },
       ],
-      province: undefined,
       otherIncomes: [],
       charitableDonations: [],
       oneOffExpenses: [],
@@ -53,32 +54,15 @@ const Calculator = () => {
   })
 
   const calculateForSpouse = form.watch('calculateForSpouse')
-  const birthYearSelf = form.watch('persons.0.birthYear')
+  const birthYearSelf = form.watch('persons.0.birthYear') ?? undefined
   const birthYearSpouse = calculateForSpouse
-    ? form.watch('persons.1.birthYear')
+    ? form.watch('persons.1.birthYear') ?? undefined
     : undefined
 
   // Projection state
   const [projectionData, setProjectionData] = useState<
     { year: number; netWorth: number }[]
   >([])
-
-  // Load state from local storage on component mount
-  useEffect(() => {
-    const storedData = localStorage.getItem('calculatorState')
-    if (storedData) {
-      const parsedData = JSON.parse(storedData)
-      form.reset(parsedData)
-    }
-  }, [])
-
-  // Save state to local storage whenever form values change
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      localStorage.setItem('calculatorState', JSON.stringify(value))
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
 
   const onSubmit = (data: CalculatorSchemaType) => {
     // Use the projection module to get the data

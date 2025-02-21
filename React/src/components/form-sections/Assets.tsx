@@ -23,7 +23,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { createNumberInput } from '@/lib/form-utils'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
@@ -43,18 +42,18 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
         return {
           ...person,
           registeredInvestments: [
-            ...(person.registeredInvestments || []),
+            ...(person.registeredInvestments ?? []),
             {
               id: Date.now(),
-              accountType: undefined,
-              currentValue: undefined,
+              accountType: null,
+              currentValue: null,
             },
           ],
         }
       }
       return person
     })
-    form.setValue('persons', updatedPersons, { shouldDirty: true })
+    form.setValue('persons', updatedPersons)
   }
 
   const handleRemoveRegisteredInvestment = (
@@ -66,14 +65,15 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
       if (person.personType === personType) {
         return {
           ...person,
-          registeredInvestments: person.registeredInvestments?.filter(
-            (investment) => investment.id !== id
-          ),
+          registeredInvestments:
+            person.registeredInvestments?.filter(
+              (investment) => investment.id !== id
+            ) ?? [],
         }
       }
       return person
     })
-    form.setValue('persons', updatedPersons, { shouldDirty: true })
+    form.setValue('persons', updatedPersons)
   }
 
   const registeredInvestmentOptions = [
@@ -191,7 +191,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   </div>
                                   <Select
                                     onValueChange={field.onChange}
-                                    value={field.value}
+                                    value={field.value ?? undefined}
                                   >
                                     <FormControl>
                                       <SelectTrigger>
@@ -239,10 +239,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                                   </div>
                                   <FormControl>
                                     <Input
-                                      {...createNumberInput(field, {
-                                        isDecimal: true,
-                                      })}
-                                      placeholder="Enter current value"
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="Enter amount"
+                                      value={
+                                        field.value == null
+                                          ? ''
+                                          : field.value.toString()
+                                      }
+                                      onChange={(e) => {
+                                        const value = e.target.value
+                                        field.onChange(
+                                          value ? parseFloat(value) : null
+                                        )
+                                      }}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -323,10 +333,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  {...createNumberInput(field, {
-                                    isDecimal: true,
-                                  })}
-                                  placeholder="Enter current value"
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseFloat(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -357,10 +377,19 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  {...createNumberInput(field, {
-                                    isDecimal: true,
-                                  })}
-                                  placeholder="Enter opening year"
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -395,10 +424,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                               </div>
                               <FormControl>
                                 <Input
-                                  {...createNumberInput(field, {
-                                    isDecimal: true,
-                                  })}
-                                  placeholder="Enter book value"
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseFloat(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -464,10 +503,20 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field, {
-                                  isDecimal: true,
-                                })}
-                                placeholder="Enter death benefit"
+                                type="number"
+                                step="0.01"
+                                placeholder="Enter amount"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(
+                                    value ? parseFloat(value) : null
+                                  )
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -523,8 +572,16 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                         </div>
                         <FormControl>
                           <Input
-                            {...createNumberInput(field, { isDecimal: true })}
-                            placeholder="Enter current value"
+                            type="number"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            value={
+                              field.value == null ? '' : field.value.toString()
+                            }
+                            onChange={(e) => {
+                              const value = e.target.value
+                              field.onChange(value ? parseFloat(value) : null)
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -560,7 +617,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                         </div>
                         <FormControl>
                           <Switch
-                            checked={field.value}
+                            checked={field.value ?? false}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
@@ -592,8 +649,17 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field, { isDecimal: true })}
-                              placeholder="Enter planned sale year"
+                              type="number"
+                              placeholder="Enter amount"
+                              value={
+                                field.value == null
+                                  ? ''
+                                  : field.value.toString()
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
                             />
                           </FormControl>
                           <FormMessage />

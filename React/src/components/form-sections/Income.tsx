@@ -16,7 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { createNumberInput } from '@/lib/form-utils'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
@@ -45,9 +44,9 @@ const IncomeCard = ({
       id: Date.now(),
       personType: personType,
       description: '',
-      amount: undefined,
-      startYear: undefined,
-      endYear: undefined,
+      amount: null,
+      startYear: null,
+      endYear: null,
     }
 
     form.setValue('otherIncomes', [...currentOtherIncomes, newOtherIncome])
@@ -149,8 +148,16 @@ const IncomeCard = ({
                         <FormLabel>Your Annual Income (before tax)</FormLabel>
                         <FormControl>
                           <Input
-                            {...createNumberInput(field)}
+                            type="number"
                             placeholder="Enter income"
+                            value={
+                              field.value == null ? '' : field.value.toString()
+                            }
+                            onChange={(e) => {
+                              const value = e.target.value
+                              field.onChange(value ? parseInt(value) : null)
+                            }}
+                            onBlur={() => handlePrimaryIncomeAgeBlur('self')}
                           />
                         </FormControl>
                         <FormMessage />
@@ -169,8 +176,20 @@ const IncomeCard = ({
                           </FormLabel>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field)}
+                              type="number"
                               placeholder="Enter income"
+                              value={
+                                field.value == null
+                                  ? ''
+                                  : field.value.toString()
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
+                              onBlur={() =>
+                                handlePrimaryIncomeAgeBlur('spouse')
+                              }
                             />
                           </FormControl>
                           <FormMessage />
@@ -190,8 +209,17 @@ const IncomeCard = ({
                           <FormLabel>Your Income Start Age</FormLabel>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field)}
+                              type="number"
                               placeholder="Enter age"
+                              value={
+                                field.value == null
+                                  ? ''
+                                  : field.value.toString()
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
                               onBlur={() => handlePrimaryIncomeAgeBlur('self')}
                             />
                           </FormControl>
@@ -208,8 +236,17 @@ const IncomeCard = ({
                           <FormLabel>Your Income End Age</FormLabel>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field)}
+                              type="number"
                               placeholder="Enter age"
+                              value={
+                                field.value == null
+                                  ? ''
+                                  : field.value.toString()
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
                               onBlur={() => handlePrimaryIncomeAgeBlur('self')}
                             />
                           </FormControl>
@@ -229,8 +266,17 @@ const IncomeCard = ({
                             <FormLabel>Spouse's Income Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter age"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                                 onBlur={() =>
                                   handlePrimaryIncomeAgeBlur('spouse')
                                 }
@@ -249,8 +295,17 @@ const IncomeCard = ({
                             <FormLabel>Spouse's Income End Age</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter age"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                                 onBlur={() =>
                                   handlePrimaryIncomeAgeBlur('spouse')
                                 }
@@ -306,8 +361,17 @@ const IncomeCard = ({
                             <FormLabel>Your Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter age"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                                 onBlur={() =>
                                   handlePensionAgeBlur('self', 'cpp')
                                 }
@@ -326,10 +390,20 @@ const IncomeCard = ({
                             <FormLabel>Your Annual Amount</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field, {
-                                  isDecimal: true,
-                                })}
+                                type="number"
+                                step="0.01"
                                 placeholder="Enter amount"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(
+                                    value ? parseFloat(value) : null
+                                  )
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -348,8 +422,19 @@ const IncomeCard = ({
                               <FormLabel>Spouse's Start Age</FormLabel>
                               <FormControl>
                                 <Input
-                                  {...createNumberInput(field)}
+                                  type="number"
                                   placeholder="Enter age"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
                                   onBlur={() =>
                                     handlePensionAgeBlur('spouse', 'cpp')
                                   }
@@ -368,10 +453,20 @@ const IncomeCard = ({
                               <FormLabel>Spouse's Annual Amount</FormLabel>
                               <FormControl>
                                 <Input
-                                  {...createNumberInput(field, {
-                                    isDecimal: true,
-                                  })}
+                                  type="number"
+                                  step="0.01"
                                   placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseFloat(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -417,8 +512,17 @@ const IncomeCard = ({
                             <FormLabel>Your Start Age</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter age"
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                                 onBlur={() =>
                                   handlePensionAgeBlur('self', 'oas')
                                 }
@@ -437,19 +541,20 @@ const IncomeCard = ({
                             <FormLabel>Your Annual Amount</FormLabel>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field, {
-                                  isDecimal: true,
-                                })}
                                 type="number"
+                                step="0.01"
                                 placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
                                 }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(
+                                    value ? parseFloat(value) : null
+                                  )
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -470,16 +575,19 @@ const IncomeCard = ({
                                 <Input
                                   type="number"
                                   placeholder="Enter age"
-                                  {...field}
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
                                   onBlur={() =>
                                     handlePensionAgeBlur('spouse', 'oas')
-                                  }
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
                                   }
                                 />
                               </FormControl>
@@ -497,15 +605,19 @@ const IncomeCard = ({
                               <FormControl>
                                 <Input
                                   type="number"
+                                  step="0.01"
                                   placeholder="Enter amount"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
                                   }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseFloat(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -552,18 +664,19 @@ const IncomeCard = ({
                               <Input
                                 type="number"
                                 placeholder="Enter age"
-                                {...field}
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                                 onBlur={() =>
                                   handlePensionAgeBlur(
                                     'self',
                                     'definedBenefitPension'
-                                  )
-                                }
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
                                   )
                                 }
                               />
@@ -583,14 +696,15 @@ const IncomeCard = ({
                               <Input
                                 type="number"
                                 placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
                                 }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -611,7 +725,7 @@ const IncomeCard = ({
                             </div>
                             <FormControl>
                               <Switch
-                                checked={field.value}
+                                checked={field.value ?? false}
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
@@ -632,18 +746,21 @@ const IncomeCard = ({
                                 <Input
                                   type="number"
                                   placeholder="Enter age"
-                                  {...field}
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
                                   onBlur={() =>
                                     handlePensionAgeBlur(
                                       'spouse',
                                       'definedBenefitPension'
-                                    )
-                                  }
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
                                     )
                                   }
                                 />
@@ -663,14 +780,17 @@ const IncomeCard = ({
                                 <Input
                                   type="number"
                                   placeholder="Enter amount"
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value
-                                        ? parseInt(e.target.value)
-                                        : undefined
-                                    )
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
                                   }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -691,7 +811,7 @@ const IncomeCard = ({
                               </div>
                               <FormControl>
                                 <Switch
-                                  checked={field.value}
+                                  checked={field.value ?? false}
                                   onCheckedChange={field.onChange}
                                 />
                               </FormControl>
@@ -754,7 +874,13 @@ const IncomeCard = ({
                             <FormControl>
                               <Input
                                 placeholder="Enter description"
-                                {...field}
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
+                                }
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
                               />
                             </FormControl>
                             <FormMessage />
@@ -772,14 +898,15 @@ const IncomeCard = ({
                               <Input
                                 type="number"
                                 placeholder="Enter amount"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
                                 }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -797,14 +924,15 @@ const IncomeCard = ({
                               <Input
                                 type="number"
                                 placeholder="Enter year"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
                                 }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -822,14 +950,15 @@ const IncomeCard = ({
                               <Input
                                 type="number"
                                 placeholder="Enter year"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? parseInt(e.target.value)
-                                      : undefined
-                                  )
+                                value={
+                                  field.value == null
+                                    ? ''
+                                    : field.value.toString()
                                 }
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />

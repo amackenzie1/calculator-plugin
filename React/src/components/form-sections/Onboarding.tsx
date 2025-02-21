@@ -22,7 +22,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { createNumberInput } from '@/lib/form-utils'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
@@ -50,12 +49,11 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
   ]
 
   const investorProfiles = [
-    { label: 'Risk Averse', value: 'risk_averse', rate: 3 },
-    { label: 'Conservative', value: 'conservative', rate: 4 },
-    { label: 'Moderate', value: 'moderate', rate: 5 },
-    { label: 'Aggressive', value: 'aggressive', rate: 6 },
-    { label: 'Speculative', value: 'speculative', rate: 7 },
-    { label: 'Custom', value: 'custom' },
+    { label: 'Risk Averse (3%)', value: 'risk_averse', rate: 3 },
+    { label: 'Conservative (4%)', value: 'conservative', rate: 4 },
+    { label: 'Moderate (5%)', value: 'moderate', rate: 5 },
+    { label: 'Aggressive (6%)', value: 'aggressive', rate: 6 },
+    { label: 'Speculative (7%)', value: 'speculative', rate: 7 },
   ]
 
   useEffect(() => {
@@ -67,16 +65,16 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
         const selectedProfile = investorProfiles.find(
           (profile) => profile.value === investorProfile
         )
-        return selectedProfile ? selectedProfile.rate : 0
+        return selectedProfile ? selectedProfile.rate : null
       }
-      return specifyReturn ? 0 : 0
+      return specifyReturn ? null : null
     }
 
     const newInvestmentReturnRate = calculateInvestmentReturnRate()
     const currentInvestmentReturnRate = form.getValues('investmentReturnRate')
 
     if (newInvestmentReturnRate !== currentInvestmentReturnRate) {
-      form.setValue('investmentReturnRate', newInvestmentReturnRate ?? 0)
+      form.setValue('investmentReturnRate', newInvestmentReturnRate ?? null)
     }
   }, [form.watch('investorProfile'), form.watch('specifyReturn')])
 
@@ -86,25 +84,30 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
         if (!value.persons?.some((p) => p?.personType === 'spouse')) {
           form.setValue('persons.1', {
             personType: 'spouse',
-            birthYear: undefined,
-            lifeExpectancy: undefined,
-            primaryYearlyIncome: undefined,
-            incomeYearStart: undefined,
-            incomeYearEnd: undefined,
-            cppStartYear: undefined,
-            cppAmount: undefined,
-            oasStartYear: undefined,
-            oasAmount: undefined,
-            definedBenefitPensionStartYear: undefined,
-            definedBenefitPensionAmount: undefined,
-            definedBenefitPensionIndexedToInflation: undefined,
+            birthYear: null,
+            lifeExpectancy: null,
+            primaryYearlyIncome: null,
+            incomeStartAge: null,
+            incomeEndAge: null,
+            incomeYearStart: null,
+            incomeYearEnd: null,
+            cppStartYear: null,
+            cppStartAge: null,
+            cppAmount: null,
+            oasStartYear: null,
+            oasStartAge: null,
+            oasAmount: null,
+            definedBenefitPensionStartYear: null,
+            definedBenefitPensionStartAge: null,
+            definedBenefitPensionAmount: null,
+            definedBenefitPensionIndexedToInflation: null,
             registeredInvestments: [],
-            nonRegisteredInvestmentValue: undefined,
-            nonRegisteredInvestmentOpeningYear: undefined,
-            nonRegisteredInvestmentBookValue: undefined,
-            lifeInsuranceDeathBenefit: undefined,
-            annualExpenses: undefined,
-            healthCareExpenses: undefined,
+            nonRegisteredInvestmentValue: null,
+            nonRegisteredInvestmentOpeningYear: null,
+            nonRegisteredInvestmentBookValue: null,
+            lifeInsuranceDeathBenefit: null,
+            annualExpenses: null,
+            healthCareExpenses: null,
           })
         }
       } else if (form.getValues('persons').length > 1) {
@@ -194,8 +197,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field)}
+                              type="number"
                               placeholder="Enter birth year"
+                              value={field.value?.toString() ?? ''}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -224,8 +232,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter spouse's birth year"
+                                value={field.value?.toString() ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -264,8 +277,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           </div>
                           <FormControl>
                             <Input
-                              {...createNumberInput(field)}
+                              type="number"
                               placeholder="Enter life expectancy"
+                              value={field.value?.toString() ?? ''}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                field.onChange(value ? parseInt(value) : null)
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -298,8 +316,13 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             </div>
                             <FormControl>
                               <Input
-                                {...createNumberInput(field)}
+                                type="number"
                                 placeholder="Enter spouse's life expectancy"
+                                value={field.value?.toString() ?? ''}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  field.onChange(value ? parseInt(value) : null)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -393,20 +416,15 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         <Select
                           onValueChange={(value) => {
                             field.onChange(value)
-                            if (value === 'custom') {
-                              form.setValue('specifyReturn', true)
-                            } else {
-                              form.setValue('specifyReturn', false)
-                              const selectedProfile = investorProfiles.find(
-                                (profile) => profile.value === value
-                              )
-                              form.setValue(
-                                'investmentReturnRate',
-                                selectedProfile?.rate ?? 0
-                              )
-                            }
+                            const selectedProfile = investorProfiles.find(
+                              (profile) => profile.value === value
+                            )
+                            form.setValue(
+                              'investmentReturnRate',
+                              selectedProfile?.rate ?? 0
+                            )
                           }}
-                          value={field.value}
+                          value={field.value ?? undefined}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -456,104 +474,20 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                         </div>
                         <FormControl>
                           <Input
-                            {...createNumberInput(field)}
+                            type="number"
+                            step="0.01"
                             placeholder="Enter inflation rate"
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              field.onChange(value ? parseFloat(value) : null)
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {form.watch('specifyReturn') && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="incomeReturnRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Income Return Rate (%)</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    This is the average rate of interest income
-                                    and/or dividend income that you expect to
-                                    earn on your investments. Income earned on
-                                    non-registered investments is taxed in the
-                                    year it is earned regardless of whether or
-                                    not you receive the income or allow it to
-                                    accumulate.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                {...createNumberInput(field, {
-                                  isPercentage: true,
-                                })}
-                                placeholder="Enter income return rate"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="growthReturnRate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Growth Return Rate (%)</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    This is the capital gain appreciation you
-                                    expect from investments. Total income from
-                                    investments may consist of interest and
-                                    dividends and capital gains. Enter only the
-                                    capital gains you expect. (In Canada only
-                                    50% of Capital gains are taxable and the tax
-                                    is paid when the asset is sold). We will
-                                    calculate investment income based on the
-                                    growth rate and the size of the investment
-                                    portfolio. For example, if you assumed a
-                                    growth rate of 3% and an income/dividend
-                                    rate of 2%, and you had a $1,000,000
-                                    non-registered investment portfolio, we will
-                                    calculate and show that your investment
-                                    income for the year is $50,000.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                {...createNumberInput(field, {
-                                  isPercentage: true,
-                                })}
-                                placeholder="Enter growth return rate"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
                 </div>
               </TooltipProvider>
             </div>
