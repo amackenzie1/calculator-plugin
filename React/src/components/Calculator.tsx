@@ -25,7 +25,7 @@ const Calculator = () => {
       expensesChangeForEachStageSpouse: false,
       investmentReturnRate: null,
       province: 'ON',
-      investorProfile: null,
+      investorProfile: 'risk_averse',
       inflationRate: 2.5,
       specifyReturn: null,
       persons: [
@@ -137,7 +137,7 @@ const Calculator = () => {
   return (
     <div className="space-y-8">
       <h1 className="text-4xl font-bold text-center text-primary mb-12">
-        Financial Calculator
+        Use It Wisely
       </h1>
       <div className="max-w-6xl mx-auto">
         <Tabs defaultValue="general" className="space-y-8">
