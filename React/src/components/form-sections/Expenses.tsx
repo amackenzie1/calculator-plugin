@@ -107,68 +107,86 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               </TooltipProvider>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {form.getValues('persons').map((person, personIndex) => (
-                  <div key={personIndex} className="space-y-6">
-                    <h4 className="text-lg font-medium">
-                      {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
-                      Annual Expenses
-                    </h4>
+                {form
+                  .getValues('persons')
+                  .filter(
+                    (person) =>
+                      person.personType === 'self' || calculateForSpouse
+                  )
+                  .map((person) => (
+                    <div key={person.personType} className="space-y-6">
+                      <h4 className="text-lg font-medium">
+                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
+                        Annual Expenses
+                      </h4>
 
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.annualExpenses`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Annual Living Expenses</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name={`persons.${form
+                            .getValues('persons')
+                            .findIndex(
+                              (p) => p.personType === person.personType
+                            )}.annualExpenses`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Annual Living Expenses</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.healthCareExpenses`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Annual Healthcare Expenses</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name={`persons.${form
+                            .getValues('persons')
+                            .findIndex(
+                              (p) => p.personType === person.personType
+                            )}.healthCareExpenses`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Annual Healthcare Expenses</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Enter amount"
+                                  value={
+                                    field.value == null
+                                      ? ''
+                                      : field.value.toString()
+                                  }
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    field.onChange(
+                                      value ? parseInt(value) : null
+                                    )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
 

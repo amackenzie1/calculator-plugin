@@ -13,6 +13,36 @@ export function yearFromBirthYearAndTargetAge(
   return birthYear + targetAge
 }
 
+export function initializePerson(personType: 'self' | 'spouse') {
+  return {
+    personType,
+    birthYear: null,
+    lifeExpectancy: null,
+    primaryYearlyIncome: null,
+    incomeYearStart: null,
+    incomeYearEnd: null,
+    incomeStartAge: null,
+    incomeEndAge: null,
+    cppStartYear: null,
+    cppStartAge: null,
+    cppAmount: null,
+    oasStartYear: null,
+    oasStartAge: null,
+    oasAmount: null,
+    definedBenefitPensionStartYear: null,
+    definedBenefitPensionStartAge: null,
+    definedBenefitPensionAmount: null,
+    definedBenefitPensionIndexedToInflation: null,
+    registeredInvestments: [],
+    nonRegisteredInvestmentValue: null,
+    nonRegisteredInvestmentOpeningYear: null,
+    nonRegisteredInvestmentBookValue: null,
+    lifeInsuranceDeathBenefit: null,
+    annualExpenses: null,
+    healthCareExpenses: null,
+  }
+}
+
 export const canadianProvinces = [
   'Alberta',
   'British Columbia',

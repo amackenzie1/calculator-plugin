@@ -29,11 +29,16 @@ import { CalculatorSchema } from '../Schema'
 
 interface AssetsCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>
+  calculateForSpouse?: boolean
 }
 
-const AssetsCard = ({ form }: AssetsCardProps) => {
+const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
   const primaryResidenceSell = form.watch('primaryResidenceSell')
   const persons = form.watch('persons')
+
+  const filteredPersons = calculateForSpouse
+    ? persons
+    : persons.filter((person) => person.personType === 'self')
 
   const handleAddRegisteredInvestment = (personType: 'self' | 'spouse') => {
     const currentPersons = form.getValues('persons')
@@ -136,7 +141,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                 </Tooltip>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {persons.map((person, personIndex) => (
+                  {filteredPersons.map((person, personIndex) => (
                     <div key={personIndex} className="space-y-6">
                       <h4 className="text-lg font-medium">
                         {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
@@ -302,7 +307,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                 </Tooltip>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {persons.map((person, personIndex) => (
+                  {filteredPersons.map((person, personIndex) => (
                     <div key={personIndex} className="space-y-6">
                       <h4 className="text-lg font-medium">
                         {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
@@ -472,7 +477,7 @@ const AssetsCard = ({ form }: AssetsCardProps) => {
                 </Tooltip>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {persons.map((person, personIndex) => (
+                  {filteredPersons.map((person, personIndex) => (
                     <div key={personIndex} className="space-y-4">
                       <h4 className="text-lg font-medium">
                         {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}

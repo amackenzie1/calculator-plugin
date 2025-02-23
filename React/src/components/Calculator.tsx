@@ -1,11 +1,12 @@
 // File: src/components/Calculator.tsx
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/hooks/use-toast'
 import { projectNetWorth } from '@/lib/calculator/projection'
-import { yearFromBirthYearAndTargetAge } from '@/lib/utils'
+import { initializePerson, yearFromBirthYearAndTargetAge } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FieldErrors, useForm } from 'react-hook-form'
 import * as z from 'zod'
 import AssetsCard from './form-sections/Assets'
 import ExpensesCard from './form-sections/Expenses'
@@ -15,6 +16,7 @@ import ResultsCard from './form-sections/Results'
 import { CalculatorSchema, CalculatorSchemaType } from './Schema'
 
 const Calculator = () => {
+  const { toast } = useToast()
   const form = useForm<z.infer<typeof CalculatorSchema>>({
     resolver: zodResolver(CalculatorSchema),
     defaultValues: {
@@ -23,33 +25,22 @@ const Calculator = () => {
       expensesChangeForEachStageSpouse: false,
       investmentReturnRate: null,
       province: 'ON',
+      investorProfile: null,
+      inflationRate: 2.5,
+      specifyReturn: null,
       persons: [
-        {
-          personType: 'self',
-          birthYear: null,
-          lifeExpectancy: null,
-          primaryYearlyIncome: null,
-          incomeYearStart: null,
-          incomeYearEnd: null,
-          cppStartYear: null,
-          cppAmount: null,
-          oasStartYear: null,
-          oasAmount: null,
-          definedBenefitPensionStartYear: null,
-          definedBenefitPensionAmount: null,
-          definedBenefitPensionIndexedToInflation: null,
-          registeredInvestments: [],
-          nonRegisteredInvestmentValue: null,
-          nonRegisteredInvestmentOpeningYear: null,
-          nonRegisteredInvestmentBookValue: null,
-          lifeInsuranceDeathBenefit: null,
-          annualExpenses: null,
-          healthCareExpenses: null,
-        },
+        initializePerson('self'),
+        initializePerson('spouse'), // Initialize both people right away
       ],
       otherIncomes: [],
       charitableDonations: [],
       oneOffExpenses: [],
+      primaryResidenceValue: null,
+      primaryResidenceSell: null,
+      primaryResidenceSellYear: null,
+      desiredEstateValue: null,
+      incomeReturnRate: null,
+      growthReturnRate: null,
     },
   })
 
@@ -65,10 +56,82 @@ const Calculator = () => {
   >([])
 
   const onSubmit = (data: CalculatorSchemaType) => {
-    // Use the projection module to get the data
-    console.log('data', data)
-    const projection = projectNetWorth(data)
-    setProjectionData(projection)
+    // Check minimum required fields
+    const self = data.persons[0]
+    const requiredFields: { field: string; value: number | null }[] = [
+      { field: 'Birth Year', value: self.birthYear },
+      { field: 'Life Expectancy', value: self.lifeExpectancy },
+      { field: 'Investment Return Rate', value: data.investmentReturnRate },
+    ]
+
+    const missingFields = requiredFields
+      .filter((field) => field.value === null || field.value === undefined)
+      .map((field) => field.field)
+
+    if (missingFields.length > 0) {
+      toast({
+        title: 'Missing Required Fields',
+        description: `Please fill in the following fields: ${missingFields.join(
+          ', '
+        )}`,
+        variant: 'destructive',
+      })
+      return
+    }
+
+    // Filter out spouse data if calculateForSpouse is false
+    const formattedData = {
+      ...data,
+      persons: calculateForSpouse ? data.persons : [data.persons[0]],
+    }
+
+    try {
+      // Use the projection module to get the data
+      console.log('data', formattedData)
+      const projection = projectNetWorth(formattedData)
+      setProjectionData(projection)
+
+      // Switch to results tab after successful calculation
+      const tabsList = document.querySelector('[role="tablist"]') as HTMLElement
+      const resultsTab = tabsList?.querySelector(
+        '[value="results"]'
+      ) as HTMLElement
+      resultsTab?.click()
+
+      toast({
+        title: 'Calculation Complete',
+        description:
+          'Your financial projection has been calculated successfully.',
+      })
+    } catch (error) {
+      console.error('Projection calculation error:', error)
+      toast({
+        title: 'Calculation Error',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'There was an error calculating the projection. Please check your inputs and try again.',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const onError = (errors: FieldErrors<CalculatorSchemaType>) => {
+    console.error('Form validation errors:', errors)
+
+    // Extract error messages
+    const errorMessages = Object.entries(errors).map(([key, value]) => {
+      if (key === 'persons') {
+        return 'Personal Information: Please check birth year and life expectancy'
+      }
+      return `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value.message}`
+    })
+
+    toast({
+      title: 'Validation Error',
+      description: errorMessages.join('\n'),
+      variant: 'destructive',
+    })
   }
 
   return (
@@ -109,7 +172,7 @@ const Calculator = () => {
             />
           </TabsContent>
           <TabsContent value="assets">
-            <AssetsCard form={form} />
+            <AssetsCard form={form} calculateForSpouse={calculateForSpouse} />
           </TabsContent>
           <TabsContent value="expenses">
             <ExpensesCard form={form} calculateForSpouse={calculateForSpouse} />
@@ -120,7 +183,7 @@ const Calculator = () => {
         </Tabs>
         <div className="mt-8 flex justify-center">
           <Button
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={form.handleSubmit(onSubmit, onError)}
             size="lg"
             className="w-full max-w-xs"
           >

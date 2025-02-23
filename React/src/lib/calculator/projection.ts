@@ -35,6 +35,10 @@ interface PersonState {
       description: string
     }>
   }
+  contributionRoom: {
+    rrsp: number
+    tfsa: number
+  }
 }
 
 interface YearState {
@@ -85,6 +89,55 @@ const RRIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
   95: 0.2,
 }
 
+const BASE_YEAR = 2024 // Update this each year
+const BASE_OAS_CLAWBACK_THRESHOLD = 86912 // 2024 value
+const BASE_OAS_MAXIMUM_BENEFIT = 8000 // 2024 value - quarterly amount * 4
+const CPP_NORMAL_RETIREMENT_AGE = 65
+const CPP_EARLY_REDUCTION_RATE = 0.006 // 0.6% per month
+const CPP_LATE_INCREASE_RATE = 0.007 // 0.7% per month
+const BASE_CPP_MAXIMUM_BENEFIT = 15043 // 2024 value
+
+// Add these constants for RRSP withholding
+const RRSP_WITHHOLDING_RATES = {
+  UNDER_5000: 0.1, // 10% on first $5,000
+  UNDER_15000: 0.2, // 20% on $5,000-$15,000
+  OVER_15000: 0.3, // 30% on amounts over $15,000
+}
+
+// Add these constants for pension splitting
+// const PENSION_INCOME_SPLITTING_MAX = 0.5 // Can split up to 50% of eligible pension income
+const PENSION_INCOME_ELIGIBLE_AGE = 65 // Age at which RRIF/LIF income becomes eligible
+
+// Add these constants for contribution limits
+const BASE_TFSA_CONTRIBUTION_LIMIT = 7000 // 2024 value
+const RRSP_CONTRIBUTION_LIMIT_PERCENT = 0.18
+const BASE_RRSP_CONTRIBUTION_LIMIT = 31560 // 2024 value
+
+// Add these constants for LIRA/LIF
+const LIRA_TO_LIF_CONVERSION_AGE = 55 // Minimum age to convert LIRA to LIF
+const LIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
+  55: 0.0285,
+  56: 0.0288,
+  57: 0.0291,
+  58: 0.0295,
+  59: 0.0299,
+  60: 0.0304,
+  61: 0.0309,
+  62: 0.0314,
+  63: 0.032,
+  64: 0.0326,
+  65: 0.0333,
+  // ... rates continue similar to RRIF rates
+  90: 0.0615,
+  91: 0.0666,
+  92: 0.0726,
+  93: 0.0798,
+  94: 0.0885,
+  95: 0.0992,
+}
+
+const LIF_MAX_WITHDRAWAL_PERCENT = 0.2 // Maximum withdrawal of 20% per year
+
 function isProjectionComplete(
   states: YearState[],
   input: CalculatorSchemaType
@@ -101,13 +154,32 @@ function isProjectionComplete(
 // Helper function to process withdrawals from an account
 function withdrawFromAccount(
   account: AccountState,
-  amount: number
-): { withdrawn: number; remaining: number; realizedGains: number } {
+  amount: number,
+  accountType?: 'rrsp' | 'rrif' | 'tfsa' | 'nonRegistered'
+): {
+  withdrawn: number
+  remaining: number
+  realizedGains: number
+  withholdingTax: number
+} {
   const available = Math.min(account.marketValue, amount)
   const oldMarketValue = account.marketValue
   account.marketValue -= available
 
   let realizedGains = 0
+  let withholdingTax = 0
+
+  // Calculate withholding tax for RRSP/RRIF withdrawals
+  if (accountType === 'rrsp' || accountType === 'rrif') {
+    if (available <= 5000) {
+      withholdingTax = available * RRSP_WITHHOLDING_RATES.UNDER_5000
+    } else if (available <= 15000) {
+      withholdingTax = available * RRSP_WITHHOLDING_RATES.UNDER_15000
+    } else {
+      withholdingTax = available * RRSP_WITHHOLDING_RATES.OVER_15000
+    }
+  }
+
   if ('bookValue' in account && oldMarketValue > 0) {
     const proportion = available / oldMarketValue
     const bookValueReduced = account.bookValue * proportion
@@ -119,6 +191,7 @@ function withdrawFromAccount(
     withdrawn: available,
     remaining: amount - available,
     realizedGains,
+    withholdingTax,
   }
 }
 
@@ -187,27 +260,67 @@ function calculateYearlyIncome(
       person.income.employment = 0
     }
 
-    // 2. CPP
+    // 2. CPP with early/late retirement adjustments
     if (
       schemaPerson.cppAmount &&
       schemaPerson.cppStartYear &&
       currentYear >= schemaPerson.cppStartYear
     ) {
+      // Calculate age when CPP started
+      const cppStartAge =
+        schemaPerson.cppStartYear - (schemaPerson.birthYear || 0)
+
+      // Calculate adjustment factor
+      let adjustmentFactor = 1.0
+      const monthsFromNormal = (cppStartAge - CPP_NORMAL_RETIREMENT_AGE) * 12
+
+      if (monthsFromNormal < 0) {
+        // Early retirement reduction
+        adjustmentFactor = 1.0 + monthsFromNormal * CPP_EARLY_REDUCTION_RATE
+      } else if (monthsFromNormal > 0) {
+        // Late retirement increase
+        adjustmentFactor = 1.0 + monthsFromNormal * CPP_LATE_INCREASE_RATE
+      }
+
+      // Calculate inflation adjusted maximum
+      const inflationAdjustedMax = adjustForInflation(
+        BASE_CPP_MAXIMUM_BENEFIT,
+        BASE_YEAR
+      )
+
+      // Apply adjustments and cap at maximum
+      const baseAmount = schemaPerson.cppAmount
+      const adjustedAmount = baseAmount * adjustmentFactor
+      const finalAmount = Math.min(
+        adjustedAmount,
+        inflationAdjustedMax * adjustmentFactor
+      )
+
       person.income.cpp = adjustForInflation(
-        schemaPerson.cppAmount,
+        finalAmount,
         schemaPerson.cppStartYear
       )
     }
 
-    // 3. OAS
+    // 3. OAS with maximum benefit cap
     if (
       schemaPerson.oasAmount &&
       schemaPerson.oasStartYear &&
       currentYear >= schemaPerson.oasStartYear
     ) {
-      person.income.oas = adjustForInflation(
+      // Calculate inflation adjusted maximum
+      const inflationAdjustedMax = adjustForInflation(
+        BASE_OAS_MAXIMUM_BENEFIT,
+        BASE_YEAR
+      )
+
+      const baseAmount = Math.min(
         schemaPerson.oasAmount,
-        schemaPerson.oasStartYear
+        BASE_OAS_MAXIMUM_BENEFIT
+      )
+      person.income.oas = Math.min(
+        adjustForInflation(baseAmount, schemaPerson.oasStartYear),
+        inflationAdjustedMax
       )
     }
 
@@ -246,44 +359,64 @@ function calculateYearlyIncome(
   // Process all persons
   Object.values(newState.persons).forEach(processPersonIncome)
 
-  // Calculate total income for each person
-  function calculateTotalIncome(person: PersonState): number {
-    return (
-      person.income.employment +
-      person.income.cpp +
-      person.income.oas +
-      person.income.definedBenefit +
-      person.income.other.reduce((sum, inc) => sum + inc.amount, 0)
-    )
-  }
+  // Apply pension income splitting if there's a spouse
+  if (Object.keys(newState.persons).length === 2) {
+    const self = newState.persons.self
+    const spouse = newState.persons.spouse
 
-  // Calculate total income and expenses
-  const totalIncome = Object.values(newState.persons).reduce(
-    (sum, person) => sum + calculateTotalIncome(person),
-    0
-  )
+    // Function to get eligible pension income
+    function getEligiblePensionIncome(person: PersonState): number {
+      let eligible = person.income.definedBenefit
 
-  // Calculate inflation adjusted expenses
-  const inflationAdjustedExpenses = adjustForInflation(
-    newState.expenses,
-    currentYear
-  )
+      // RRIF/LIF income is eligible if 65 or older
+      if (person.age >= PENSION_INCOME_ELIGIBLE_AGE) {
+        eligible += newState.withdrawals.rrif / 2 // Divide by 2 since withdrawals are currently split equally
+      }
 
-  // Calculate surplus income after expenses
-  const surplusIncome = Math.max(0, totalIncome - inflationAdjustedExpenses)
+      return eligible
+    }
 
-  // Add surplus to non-registered accounts proportionally based on income contribution
-  if (surplusIncome > 0) {
-    const totalContribution = Object.values(newState.persons).reduce(
-      (sum, person) => sum + calculateTotalIncome(person),
-      0
-    )
-    Object.values(newState.persons).forEach((person) => {
-      const proportion = calculateTotalIncome(person) / totalContribution
-      const surplus = surplusIncome * proportion
-      person.accounts.nonRegistered.marketValue += surplus
-      person.accounts.nonRegistered.bookValue += surplus
+    // Calculate eligible pension income for both
+    const selfEligible = getEligiblePensionIncome(self)
+    const spouseEligible = getEligiblePensionIncome(spouse)
+
+    // Optimize splitting to minimize total tax
+    let bestTotalTax = Infinity
+    let bestSplitPercent = 0
+
+    const splitPercentages = [0, 0.25, 0.5]
+    splitPercentages.forEach((splitPercent) => {
+      // Create temporary state to test this split
+      const testState = deepClone(newState)
+      const testSelf = testState.persons.self
+      const testSpouse = testState.persons.spouse
+
+      // Apply split
+      const selfSplitAmount = selfEligible * splitPercent
+      testSelf.income.definedBenefit -= selfSplitAmount
+      testSpouse.income.definedBenefit += selfSplitAmount
+
+      const spouseSplitAmount = spouseEligible * splitPercent
+      testSpouse.income.definedBenefit -= spouseSplitAmount
+      testSelf.income.definedBenefit += spouseSplitAmount
+
+      // Calculate total tax with this split
+      const totalTax = calculateTotalTax(testState, input)
+
+      if (totalTax < bestTotalTax) {
+        bestTotalTax = totalTax
+        bestSplitPercent = splitPercent
+      }
     })
+
+    // Apply the best split
+    const selfSplitAmount = selfEligible * bestSplitPercent
+    self.income.definedBenefit -= selfSplitAmount
+    spouse.income.definedBenefit += selfSplitAmount
+
+    const spouseSplitAmount = spouseEligible * bestSplitPercent
+    spouse.income.definedBenefit -= spouseSplitAmount
+    self.income.definedBenefit += spouseSplitAmount
   }
 
   return newState
@@ -315,7 +448,7 @@ function calculateRequiredWithdrawals(
   // Total expenses needed this year
   const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear
 
-  // Process RRSP to RRIF conversions and mandatory withdrawals
+  // Process RRSP to RRIF conversions, LIRA to LIF conversions, and mandatory withdrawals
   Object.values(newState.persons).forEach((person) => {
     // Convert RRSP to RRIF at age 71
     if (person.age === 71 && person.accounts.rrsp.marketValue > 0) {
@@ -325,12 +458,43 @@ function calculateRequiredWithdrawals(
       person.accounts.rrsp.bookValue = 0
     }
 
+    // Convert LIRA to LIF at minimum age if requested
+    if (
+      person.age >= LIRA_TO_LIF_CONVERSION_AGE &&
+      person.accounts.lira.marketValue > 0
+    ) {
+      person.accounts.lif.marketValue = person.accounts.lira.marketValue
+      person.accounts.lif.bookValue = person.accounts.lira.bookValue
+      person.accounts.lira.marketValue = 0
+      person.accounts.lira.bookValue = 0
+    }
+
     // Calculate and apply mandatory RRIF withdrawal
     if (person.age >= 71 && person.accounts.rrif.marketValue > 0) {
       const rate = RRIF_MIN_WITHDRAWAL_RATES[Math.min(person.age, 95)] || 0.2
       const mandatoryWithdrawal = person.accounts.rrif.marketValue * rate
       person.accounts.rrif.marketValue -= mandatoryWithdrawal
       newState.withdrawals.rrif += mandatoryWithdrawal
+    }
+
+    // Calculate and apply mandatory LIF withdrawal
+    if (
+      person.age >= LIRA_TO_LIF_CONVERSION_AGE &&
+      person.accounts.lif.marketValue > 0
+    ) {
+      const minRate =
+        LIF_MIN_WITHDRAWAL_RATES[Math.min(person.age, 95)] || 0.0992
+      const maxRate = LIF_MAX_WITHDRAWAL_PERCENT
+
+      // Take minimum required withdrawal, but cap at maximum allowed
+      const lifWithdrawal = Math.min(
+        person.accounts.lif.marketValue * minRate,
+        person.accounts.lif.marketValue * maxRate
+      )
+
+      person.accounts.lif.marketValue -= lifWithdrawal
+      // Add to RRIF withdrawals since they're treated similarly for tax purposes
+      newState.withdrawals.rrif += lifWithdrawal
     }
   })
 
@@ -356,7 +520,8 @@ function calculateRequiredWithdrawals(
     for (const person of Object.values(newState.persons)) {
       const { withdrawn, remaining } = withdrawFromAccount(
         person.accounts.tfsa,
-        remainingNeeded
+        remainingNeeded,
+        'tfsa'
       )
       newState.withdrawals.tfsa += withdrawn
       remainingNeeded = remaining
@@ -368,7 +533,8 @@ function calculateRequiredWithdrawals(
       for (const person of Object.values(newState.persons)) {
         const { withdrawn, remaining, realizedGains } = withdrawFromAccount(
           person.accounts.nonRegistered,
-          remainingNeeded
+          remainingNeeded,
+          'nonRegistered'
         )
         newState.withdrawals.nonRegistered += withdrawn
         newState.realizedGains += realizedGains
@@ -377,15 +543,33 @@ function calculateRequiredWithdrawals(
       }
     }
 
-    // 3. RRSP Withdrawals
+    // 3. RRSP/RRIF Withdrawals (now with withholding tax)
     if (remainingNeeded > 0) {
       for (const person of Object.values(newState.persons)) {
-        const { withdrawn, remaining } = withdrawFromAccount(
-          person.accounts.rrsp,
-          remainingNeeded
-        )
-        newState.withdrawals.rrsp += withdrawn
-        remainingNeeded = remaining
+        // Try RRSP first if under 71
+        if (person.age < 71) {
+          const { withdrawn, remaining, withholdingTax } = withdrawFromAccount(
+            person.accounts.rrsp,
+            remainingNeeded,
+            'rrsp'
+          )
+          newState.withdrawals.rrsp += withdrawn
+          newState.taxPaid += withholdingTax // Add withholding tax
+          remainingNeeded = remaining
+        }
+
+        // Then RRIF if needed
+        if (remainingNeeded > 0) {
+          const { withdrawn, remaining, withholdingTax } = withdrawFromAccount(
+            person.accounts.rrif,
+            remainingNeeded,
+            'rrif'
+          )
+          newState.withdrawals.rrif += withdrawn
+          newState.taxPaid += withholdingTax // Add withholding tax
+          remainingNeeded = remaining
+        }
+
         if (remainingNeeded === 0) break
       }
     }
@@ -400,6 +584,13 @@ function calculateTaxImplications(
 ): YearState {
   const newState = deepClone(currentState)
   const numPersons = Object.keys(newState.persons).length
+  const inflationRate = (input.inflationRate || 2.5) / 100
+
+  // Calculate inflation adjusted clawback threshold
+  const yearsSinceBase = currentState.year - BASE_YEAR
+  const clawbackThreshold =
+    BASE_OAS_CLAWBACK_THRESHOLD * Math.pow(1 + inflationRate, yearsSinceBase)
+  const CLAWBACK_RATE = 0.15
 
   // Calculate taxable income and apply OAS clawback for each person
   const taxableIncomes = Object.values(newState.persons).map((person) => {
@@ -420,13 +611,11 @@ function calculateTaxImplications(
     const totalTaxableIncome =
       baseIncome + registeredWithdrawals + taxableCapitalGains
 
-    // Apply OAS clawback
-    const CLAWBACK_THRESHOLD = 86912
-    const CLAWBACK_RATE = 0.15
-    if (totalTaxableIncome > CLAWBACK_THRESHOLD) {
+    // Apply OAS clawback with inflation-adjusted threshold
+    if (totalTaxableIncome > clawbackThreshold) {
       const clawback = Math.min(
         income.oas,
-        (totalTaxableIncome - CLAWBACK_THRESHOLD) * CLAWBACK_RATE
+        (totalTaxableIncome - clawbackThreshold) * CLAWBACK_RATE
       )
       person.income.oas -= clawback
     }
@@ -522,6 +711,10 @@ function createInitialState(input: CalculatorSchemaType): YearState {
             description: inc.description || '',
           })),
       },
+      contributionRoom: {
+        rrsp: 0, // Will be updated in first year
+        tfsa: 0, // Will be updated in first year
+      },
     }
   }
 
@@ -594,14 +787,54 @@ function calculateNextYear(
   // 3. Calculate income for the year
   const withIncome = calculateYearlyIncome(withReturns, input)
 
-  // 4. Calculate required withdrawals for expenses
-  const withWithdrawals = calculateRequiredWithdrawals(withIncome, input)
+  // 4. Update contribution room before withdrawals
+  const withUpdatedRoom = updateContributionRoom(withIncome, input)
 
-  // 5. Apply tax implications
+  // 5. Calculate required withdrawals for expenses
+  const withWithdrawals = calculateRequiredWithdrawals(withUpdatedRoom, input)
+
+  // 6. Apply tax implications
   const withTax = calculateTaxImplications(withWithdrawals, input)
 
-  // 6. Age everyone one year
+  // 7. Age everyone one year
   return ageOneYear(withTax)
+}
+
+function updateContributionRoom(
+  currentState: YearState,
+  input: CalculatorSchemaType
+): YearState {
+  const newState = deepClone(currentState)
+  const inflationRate = (input.inflationRate || 2.5) / 100
+  const yearsSinceBase = currentState.year - BASE_YEAR
+
+  // Calculate inflation adjusted limits
+  const tfsaLimit =
+    BASE_TFSA_CONTRIBUTION_LIMIT * Math.pow(1 + inflationRate, yearsSinceBase)
+  const rrspMaxLimit =
+    BASE_RRSP_CONTRIBUTION_LIMIT * Math.pow(1 + inflationRate, yearsSinceBase)
+
+  Object.values(newState.persons).forEach((person) => {
+    // Update TFSA room
+    // Add annual limit and any withdrawals from previous year
+    person.contributionRoom.tfsa +=
+      tfsaLimit +
+      currentState.withdrawals.tfsa / Object.keys(currentState.persons).length
+
+    // Update RRSP room based on previous year's earned income
+    const earnedIncome = person.income.employment
+    const newRrspRoom = Math.min(
+      earnedIncome * RRSP_CONTRIBUTION_LIMIT_PERCENT,
+      rrspMaxLimit
+    )
+
+    // Add new room and any withdrawals (which can be recontributed next year)
+    person.contributionRoom.rrsp +=
+      newRrspRoom +
+      currentState.withdrawals.rrsp / Object.keys(currentState.persons).length
+  })
+
+  return newState
 }
 
 export function projectNetWorth(
@@ -647,4 +880,34 @@ export function projectNetWorth(
       netWorth: Math.round(netWorth),
     }
   })
+}
+
+// Helper function to calculate total income for a person
+function calculateTotalIncome(person: PersonState): number {
+  return (
+    person.income.employment +
+    person.income.cpp +
+    person.income.oas +
+    person.income.definedBenefit +
+    person.income.other.reduce((sum, inc) => sum + inc.amount, 0)
+  )
+}
+
+// Helper function to calculate total tax for a state
+function calculateTotalTax(
+  state: YearState,
+  input: CalculatorSchemaType
+): number {
+  const taxableIncomes = Object.values(state.persons).map((person) => {
+    const income = calculateTotalIncome(person)
+    const withdrawals =
+      (state.withdrawals.rrsp + state.withdrawals.rrif) /
+      Object.keys(state.persons).length
+    return income + withdrawals
+  })
+
+  return taxableIncomes.reduce(
+    (total, income) => total + calculateTax(income, input.province),
+    0
+  )
 }

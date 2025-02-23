@@ -78,46 +78,6 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
     }
   }, [form.watch('investorProfile'), form.watch('specifyReturn')])
 
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      if (value.calculateForSpouse) {
-        if (!value.persons?.some((p) => p?.personType === 'spouse')) {
-          form.setValue('persons.1', {
-            personType: 'spouse',
-            birthYear: null,
-            lifeExpectancy: null,
-            primaryYearlyIncome: null,
-            incomeStartAge: null,
-            incomeEndAge: null,
-            incomeYearStart: null,
-            incomeYearEnd: null,
-            cppStartYear: null,
-            cppStartAge: null,
-            cppAmount: null,
-            oasStartYear: null,
-            oasStartAge: null,
-            oasAmount: null,
-            definedBenefitPensionStartYear: null,
-            definedBenefitPensionStartAge: null,
-            definedBenefitPensionAmount: null,
-            definedBenefitPensionIndexedToInflation: null,
-            registeredInvestments: [],
-            nonRegisteredInvestmentValue: null,
-            nonRegisteredInvestmentOpeningYear: null,
-            nonRegisteredInvestmentBookValue: null,
-            lifeInsuranceDeathBenefit: null,
-            annualExpenses: null,
-            healthCareExpenses: null,
-          })
-        }
-      } else if (form.getValues('persons').length > 1) {
-        form.setValue('persons', [form.getValues('persons')[0]])
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [form.watch('calculateForSpouse')])
-
   return (
     <Card className="form-card">
       <CardHeader className="form-card-header">
