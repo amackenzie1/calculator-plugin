@@ -3,6 +3,7 @@ import {
   projectNetWorth,
   projectRetirement,
 } from '../lib/calculator/projection'
+import { initializePerson } from '../lib/utils'
 
 describe('Retirement Projection', () => {
   const currentYear = new Date().getFullYear()
@@ -11,7 +12,7 @@ describe('Retirement Projection', () => {
   const basicInput: CalculatorSchemaType = {
     persons: [
       {
-        personType: 'self',
+        ...initializePerson('self'),
         birthYear: currentYear - 30,
         lifeExpectancy: 90,
         annualExpenses: 50000,
@@ -24,6 +25,16 @@ describe('Retirement Projection', () => {
     otherIncomes: [],
     charitableDonations: [],
     oneOffExpenses: [],
+    investorProfile: null,
+    specifyReturn: null,
+    primaryResidenceValue: null,
+    primaryResidenceSell: null,
+    primaryResidenceSellYear: null,
+    desiredEstateValue: null,
+    incomeReturnRate: null,
+    growthReturnRate: null,
+    expensesChangeForEachStage: null,
+    expensesChangeForEachStageSpouse: null,
   }
 
   describe('Input Validation', () => {
@@ -74,7 +85,7 @@ describe('Retirement Projection', () => {
       const inputWithAssets: CalculatorSchemaType = {
         persons: [
           {
-            personType: 'self',
+            ...initializePerson('self'),
             birthYear: currentYear - 30,
             lifeExpectancy: 90,
             registeredInvestments: [
@@ -96,6 +107,15 @@ describe('Retirement Projection', () => {
         otherIncomes: [],
         charitableDonations: [],
         oneOffExpenses: [],
+        investorProfile: null,
+        specifyReturn: null,
+        primaryResidenceSell: null,
+        primaryResidenceSellYear: null,
+        desiredEstateValue: null,
+        incomeReturnRate: null,
+        growthReturnRate: null,
+        expensesChangeForEachStage: null,
+        expensesChangeForEachStageSpouse: null,
       }
 
       const projection = projectNetWorth(inputWithAssets)
@@ -140,6 +160,42 @@ describe('Retirement Projection', () => {
 
       // Allow for small rounding differences (within $1)
       expect(finalPoint.netWorth).toBe(expectedFinalNetWorth)
+    })
+  })
+
+  describe('Registered Investments', () => {
+    test('handles registered investments correctly', () => {
+      const input: CalculatorSchemaType = {
+        ...basicInput,
+        persons: [
+          {
+            ...initializePerson('self'),
+            birthYear: currentYear - 30,
+            lifeExpectancy: 90,
+            registeredInvestments: [
+              {
+                id: 1,
+                accountType: 'TFSA',
+                currentValue: 50000,
+              },
+            ],
+            nonRegisteredInvestmentValue: 100000,
+            nonRegisteredInvestmentBookValue: 80000,
+          },
+        ],
+      }
+
+      const states = projectRetirement(input)
+      expect(states.length).toBeGreaterThan(0)
+
+      const initialState = states[0]
+      expect(initialState.persons.self.accounts.tfsa.marketValue).toBe(50000)
+      expect(initialState.persons.self.accounts.nonRegistered.marketValue).toBe(
+        100000
+      )
+      expect(initialState.persons.self.accounts.nonRegistered.bookValue).toBe(
+        80000
+      )
     })
   })
 })

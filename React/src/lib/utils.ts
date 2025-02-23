@@ -1,6 +1,7 @@
-import { Province } from '@/components/Schema'
+import { CalculatorSchema, Province } from '@/components/Schema'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { z } from 'zod'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -13,7 +14,9 @@ export function yearFromBirthYearAndTargetAge(
   return birthYear + targetAge
 }
 
-export function initializePerson(personType: 'self' | 'spouse') {
+type Person = z.infer<typeof CalculatorSchema>['persons'][number]
+
+export function initializePerson(personType: 'self' | 'spouse'): Person {
   return {
     personType,
     birthYear: null,
