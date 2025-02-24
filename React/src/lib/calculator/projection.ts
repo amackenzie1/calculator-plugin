@@ -58,6 +58,24 @@ type SchemaPerson = NonNullable<CalculatorSchemaType['persons'][number]>
 
 // Add these constants at the top with other interfaces
 const RRIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
+  // Early conversion rates (before 71)
+  55: 0.0286,
+  56: 0.0288,
+  57: 0.029,
+  58: 0.0292,
+  59: 0.0294,
+  60: 0.0296,
+  61: 0.0298,
+  62: 0.0304,
+  63: 0.031,
+  64: 0.0317,
+  65: 0.0322,
+  66: 0.033,
+  67: 0.0338,
+  68: 0.0348,
+  69: 0.0358,
+  70: 0.0365,
+  // Standard RRIF rates (71+)
   71: 0.0528,
   72: 0.054,
   73: 0.0553,
@@ -83,6 +101,12 @@ const RRIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
   93: 0.1634,
   94: 0.1879,
   95: 0.2,
+  // Maximum rate for ages 95+
+  96: 0.2,
+  97: 0.2,
+  98: 0.2,
+  99: 0.2,
+  100: 0.2,
 }
 
 // Add these constants for government benefits
@@ -139,7 +163,22 @@ function withdrawFromAccount(
 }
 
 function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => deepClone(item)) as unknown as T
+  }
+
+  const clonedObj = {} as T
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      clonedObj[key] = deepClone(obj[key])
+    }
+  }
+
+  return clonedObj
 }
 
 function applyInvestmentReturns(
@@ -147,7 +186,7 @@ function applyInvestmentReturns(
   input: CalculatorSchemaType
 ): YearState {
   const newState = deepClone(currentState)
-  const r = (input.investmentReturnRate || 0) / 100
+  const r = (input.investmentReturnRate ?? 0) / 100
 
   function growAccounts(person: PersonState): PersonState {
     const newAccounts = { ...person.accounts }
@@ -176,7 +215,7 @@ function calculateYearlyIncome(
 ): YearState {
   const newState = deepClone(currentState)
   const currentYear = newState.year
-  const inflationRate = (input.inflationRate || 2.5) / 100
+  const inflationRate = (input.inflationRate ?? 2.5) / 100
 
   // Helper to calculate inflation adjusted amount
   function adjustForInflation(baseAmount: number, startYear: number): number {
@@ -198,7 +237,7 @@ function calculateYearlyIncome(
       currentYear >= schemaPerson.incomeYearStart &&
       currentYear <= schemaPerson.incomeYearEnd
     ) {
-      person.income.employment = schemaPerson.primaryYearlyIncome || 0
+      person.income.employment = schemaPerson.primaryYearlyIncome ?? 0
     } else {
       person.income.employment = 0
     }
@@ -210,7 +249,7 @@ function calculateYearlyIncome(
       currentYear >= schemaPerson.cppStartYear
     ) {
       let cppAmount = schemaPerson.cppAmount
-      const startAge = schemaPerson.cppStartYear - (schemaPerson.birthYear || 0)
+      const startAge = schemaPerson.cppStartYear - (schemaPerson.birthYear ?? 0)
 
       // Apply early/late CPP adjustments
       if (startAge < GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) {
@@ -257,7 +296,7 @@ function calculateYearlyIncome(
     }
 
     // 5. Other Income
-    person.income.other = (input.otherIncomes || [])
+    person.income.other = (input.otherIncomes ?? [])
       .filter(
         (inc) =>
           inc.personType === schemaPerson.personType &&
@@ -267,8 +306,8 @@ function calculateYearlyIncome(
           currentYear <= inc.endYear
       )
       .map((inc) => ({
-        amount: inc.amount || 0,
-        description: inc.description || '',
+        amount: inc.amount ?? 0,
+        description: inc.description ?? '',
       }))
   }
 
@@ -322,7 +361,15 @@ function calculateYearlyIncome(
 function getRRIFMinimumRate(age: number, spouseAge?: number): number {
   // Always use the younger age if spouse exists
   const effectiveAge = spouseAge ? Math.min(age, spouseAge) : age
-  return RRIF_MIN_WITHDRAWAL_RATES[Math.min(effectiveAge, 95)] || 0.2
+
+  // No withdrawals required before age 55
+  if (effectiveAge < 55) return 0
+
+  // Maximum rate for ages above our table
+  if (effectiveAge > 100) return 0.2
+
+  // Return the rate from our table, or default to 0.2 if not found
+  return RRIF_MIN_WITHDRAWAL_RATES[effectiveAge] || 0.2
 }
 
 function calculateRequiredWithdrawals(
@@ -330,21 +377,24 @@ function calculateRequiredWithdrawals(
   input: CalculatorSchemaType
 ): YearState {
   const newState = deepClone(currentState)
-  const inflationRate = (input.inflationRate || 2.5) / 100
+  const inflationRate = (input.inflationRate ?? 2.5) / 100
   const currentYear = newState.year
   const startYear = new Date().getFullYear()
 
   // Helper to calculate inflation adjusted expenses
-  function adjustForInflation(baseAmount: number): number {
-    const yearsSinceStart = currentYear - startYear
+  function adjustForInflation(baseAmount: number, fromYear: number): number {
+    const yearsSinceStart = currentYear - fromYear
     return baseAmount * Math.pow(1 + inflationRate, yearsSinceStart)
   }
 
   // Calculate regular expenses (inflation adjusted)
-  const inflationAdjustedExpenses = adjustForInflation(newState.expenses)
+  const inflationAdjustedExpenses = adjustForInflation(
+    newState.expenses,
+    startYear
+  )
 
   // Add one-off expenses for the current year
-  const oneOffExpensesForYear = (input.oneOffExpenses || [])
+  const oneOffExpensesForYear = (input.oneOffExpenses ?? [])
     .filter((expense) => expense.year === currentYear && expense.amount)
     .reduce((total, expense) => total + expense.amount!, 0)
 
@@ -365,7 +415,7 @@ function calculateRequiredWithdrawals(
     }
 
     // Calculate and apply mandatory RRIF withdrawal
-    if (person.age >= 71 && person.accounts.rrif.marketValue > 0) {
+    if (person.age >= 55 && person.accounts.rrif.marketValue > 0) {
       // Automatically use spouse's age if younger
       const rate = getRRIFMinimumRate(person.age, spouseAge)
 
@@ -433,6 +483,32 @@ function calculateRequiredWithdrawals(
         if (remainingNeeded === 0) break
       }
     }
+
+    // 4. LIF/LIRA Withdrawals (if needed and available)
+    if (remainingNeeded > 0) {
+      let lifWithdrawals = 0
+
+      for (const person of Object.values(newState.persons)) {
+        // Try LIF first
+        if (person.accounts.lif.marketValue > 0) {
+          const { withdrawn, remaining } = withdrawFromAccount(
+            person.accounts.lif,
+            remainingNeeded
+          )
+          // Track LIF withdrawals for reporting purposes
+          lifWithdrawals += withdrawn
+          remainingNeeded = remaining
+          if (remainingNeeded === 0) break
+        }
+      }
+
+      // Log LIF withdrawals for debugging/reporting
+      if (lifWithdrawals > 0) {
+        console.log(
+          `Year ${currentYear}: LIF withdrawals: $${lifWithdrawals.toFixed(2)}`
+        )
+      }
+    }
   }
 
   return newState
@@ -444,13 +520,25 @@ function calculateTaxImplications(
 ): YearState {
   const newState = deepClone(currentState)
   const numPersons = Object.keys(newState.persons).length
-  const inflationRate = (input.inflationRate || 2.5) / 100
+  const inflationRate = (input.inflationRate ?? 2.5) / 100
   const yearsSinceStart = currentState.year - new Date().getFullYear()
+  const currentYear = currentState.year
 
   // Calculate inflation adjusted OAS clawback threshold
   const clawbackThreshold =
     GOVERNMENT_BENEFITS.OAS.CLAWBACK_THRESHOLD_2024 *
     Math.pow(1 + inflationRate, yearsSinceStart)
+
+  // Calculate charitable donations for the current year
+  const charitableDonations = (input.charitableDonations ?? [])
+    .filter(
+      (donation) =>
+        donation.startYear &&
+        donation.endYear &&
+        currentYear >= donation.startYear &&
+        currentYear <= donation.endYear
+    )
+    .reduce((total, donation) => total + (donation.amount ?? 0), 0)
 
   // Calculate taxable income and apply OAS clawback for each person
   const taxableIncomes = Object.values(newState.persons).map((person) => {
@@ -484,9 +572,11 @@ function calculateTaxImplications(
     return totalTaxableIncome
   })
 
-  // Calculate total tax
+  // Calculate total tax, distributing charitable donations equally among persons
+  const donationsPerPerson = charitableDonations / numPersons
   newState.taxPaid = taxableIncomes.reduce(
-    (total, income) => total + calculateTax(income, input.province),
+    (total, income) =>
+      total + calculateTax(income, input.province, donationsPerPerson),
     0
   )
 
@@ -565,11 +655,11 @@ function createInitialState(input: CalculatorSchemaType): YearState {
         cpp: person.cppAmount || 0,
         oas: person.oasAmount || 0,
         definedBenefit: person.definedBenefitPensionAmount || 0,
-        other: (input.otherIncomes || [])
+        other: (input.otherIncomes ?? [])
           .filter((inc) => inc.personType === person.personType)
           .map((inc) => ({
-            amount: inc.amount || 0,
-            description: inc.description || '',
+            amount: inc.amount ?? 0,
+            description: inc.description ?? '',
           })),
       },
     }
@@ -657,6 +747,31 @@ function calculateNextYear(
 export function projectNetWorth(
   data: CalculatorSchemaType
 ): ProjectionDataPoint[] {
+  // Validate required inputs
+  if (!data.persons || data.persons.length === 0) {
+    throw new Error('No persons provided for projection')
+  }
+
+  const self = data.persons.find((p) => p.personType === 'self')
+  if (!self) {
+    throw new Error("Must have a person of type 'self'")
+  }
+
+  if (self.birthYear === null || self.birthYear === undefined) {
+    throw new Error('Birth year is required for projection')
+  }
+
+  if (self.lifeExpectancy === null || self.lifeExpectancy === undefined) {
+    throw new Error('Life expectancy is required for projection')
+  }
+
+  if (
+    data.investmentReturnRate === null ||
+    data.investmentReturnRate === undefined
+  ) {
+    throw new Error('Investment return rate is required for projection')
+  }
+
   // Use our new state-based projection system
   const states = projectRetirement(data)
 

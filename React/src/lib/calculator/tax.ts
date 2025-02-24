@@ -90,13 +90,38 @@ function calculateProvincialTax(province: Province, income: number): number {
 
 /**
  * Calculates total combined federal and provincial tax
+ * @param income Taxable income
+ * @param province Province/territory for tax calculation
+ * @param charitableDonations Optional charitable donations amount
  */
-export function calculateTax(income: number, province: Province): number {
+export function calculateTax(
+  income: number,
+  province: Province,
+  charitableDonations: number = 0
+): number {
   if (income <= 0) return 0
 
-  const fedTax = calculateFederalTax(province, income)
-  const provTax = calculateProvincialTax(province, income)
-  return fedTax + provTax
+  // Apply charitable donation tax credit if applicable
+  let taxableIncome = income
+  let taxCredit = 0
+
+  if (charitableDonations > 0) {
+    // Simplified charitable donation tax credit calculation
+    // First $200 gets ~15% federal credit
+    const firstTier = Math.min(charitableDonations, 200)
+    // Remainder gets ~29% federal credit
+    const secondTier = Math.max(0, charitableDonations - 200)
+
+    // Approximate combined federal/provincial tax credit
+    // (actual calculation varies by province)
+    taxCredit = firstTier * 0.15 + secondTier * 0.29
+  }
+
+  const fedTax = calculateFederalTax(province, taxableIncome)
+  const provTax = calculateProvincialTax(province, taxableIncome)
+
+  // Apply tax credit, but don't go below zero
+  return Math.max(0, fedTax + provTax - taxCredit)
 }
 
 /**
