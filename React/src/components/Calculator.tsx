@@ -55,6 +55,11 @@ const Calculator = () => {
     { year: number; netWorth: number }[]
   >([])
 
+  // Store the submitted data for CSV export
+  const [submittedData, setSubmittedData] = useState<
+    CalculatorSchemaType | undefined
+  >(undefined)
+
   const onSubmit = (data: CalculatorSchemaType) => {
     // Check minimum required fields
     const self = data.persons[0]
@@ -90,6 +95,9 @@ const Calculator = () => {
       console.log('data', formattedData)
       const projection = projectNetWorth(formattedData)
       setProjectionData(projection)
+
+      // Store the submitted data for CSV export
+      setSubmittedData(formattedData)
 
       // Switch to results tab after successful calculation
       const tabsList = document.querySelector('[role="tablist"]') as HTMLElement
@@ -178,7 +186,10 @@ const Calculator = () => {
             <ExpensesCard form={form} calculateForSpouse={calculateForSpouse} />
           </TabsContent>
           <TabsContent value="results">
-            <ResultsCard projectionData={projectionData} />
+            <ResultsCard
+              projectionData={projectionData}
+              calculatorData={submittedData}
+            />
           </TabsContent>
         </Tabs>
         <div className="mt-8 flex justify-center">
