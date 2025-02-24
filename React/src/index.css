@@ -200,7 +200,11 @@
 
 /* Navigation buttons */
 .form-navigation {
-  @apply flex justify-between mt-8;
+  @apply flex justify-between mt-8 gap-4 items-center;
+}
+
+.form-navigation button {
+  @apply h-10;
 }
 
 /* Improved graph styling */
