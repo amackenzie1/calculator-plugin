@@ -51,17 +51,18 @@ function applyProgressiveBrackets(
  * Gets the federal Basic Personal Amount based on income
  */
 export function getFederalBPA(income: number): number {
-  const fullBPA = 15705
+  const fullBPA = 16129 // Updated for 2025
+  const baseBPA = 14538 // Indexed base amount for 2025
   const lowerThreshold = 177882
   const upperThreshold = 253414
 
   if (income <= lowerThreshold) return fullBPA
-  if (income >= upperThreshold) return 0
+  if (income >= upperThreshold) return baseBPA
 
   const portionIntoPhaseout = income - lowerThreshold
   const phaseoutRange = upperThreshold - lowerThreshold
   const fraction = portionIntoPhaseout / phaseoutRange
-  return fullBPA * (1 - fraction)
+  return fullBPA - (fullBPA - baseBPA) * fraction
 }
 
 /**
@@ -73,7 +74,7 @@ function calculateFederalTax(province: Province, income: number): number {
   let federalTaxOwed = applyProgressiveBrackets(federalTaxable, federalBrackets)
 
   if (province === 'QC') {
-    federalTaxOwed *= 1 - 0.165
+    federalTaxOwed *= 1 - 0.165 // Quebec abatement
   }
 
   return federalTaxOwed
@@ -102,25 +103,19 @@ export function calculateTax(
   if (income <= 0) return 0
 
   // Apply charitable donation tax credit if applicable
-  let taxableIncome = income
+  const taxableIncome = income
   let taxCredit = 0
 
   if (charitableDonations > 0) {
     // Simplified charitable donation tax credit calculation
-    // First $200 gets ~15% federal credit
     const firstTier = Math.min(charitableDonations, 200)
-    // Remainder gets ~29% federal credit
     const secondTier = Math.max(0, charitableDonations - 200)
-
-    // Approximate combined federal/provincial tax credit
-    // (actual calculation varies by province)
-    taxCredit = firstTier * 0.15 + secondTier * 0.29
+    taxCredit = firstTier * 0.15 + secondTier * 0.29 // Federal approximation
   }
 
   const fedTax = calculateFederalTax(province, taxableIncome)
   const provTax = calculateProvincialTax(province, taxableIncome)
 
-  // Apply tax credit, but don't go below zero
   return Math.max(0, fedTax + provTax - taxCredit)
 }
 
@@ -136,7 +131,7 @@ export const provincialTaxData: Record<
   }
 > = {
   AB: {
-    personalAmount: 21885, // 2024 AB
+    personalAmount: 22476, // Approx. 2025 (indexed from 2024 $21,885)
     brackets: [
       { rate: 0.1, upTo: 148269 },
       { rate: 0.12, upTo: 177922 },
@@ -146,7 +141,7 @@ export const provincialTaxData: Record<
     ],
   },
   BC: {
-    personalAmount: 12932, // 2025 BC
+    personalAmount: 12932, // Confirmed for 2025
     brackets: [
       { rate: 0.0506, upTo: 49279 },
       { rate: 0.077, upTo: 98560 },
@@ -158,24 +153,24 @@ export const provincialTaxData: Record<
     ],
   },
   MB: {
-    personalAmount: 10000, // Placeholder
+    personalAmount: 15780, // Confirmed for 2025
     brackets: [
-      { rate: 0.108, upTo: 47000 },
-      { rate: 0.1275, upTo: 100000 },
+      { rate: 0.108, upTo: 51108 },
+      { rate: 0.1275, upTo: 109520 },
       { rate: 0.174 },
     ],
   },
   NB: {
-    personalAmount: 11500, // Placeholder
+    personalAmount: 13651, // Approx. 2025 (indexed from $13,292 in 2024)
     brackets: [
-      { rate: 0.094, upTo: 49958 },
-      { rate: 0.14, upTo: 99916 },
-      { rate: 0.16, upTo: 185064 },
+      { rate: 0.094, upTo: 51330 },
+      { rate: 0.14, upTo: 102660 },
+      { rate: 0.16, upTo: 190148 },
       { rate: 0.195 },
     ],
   },
   NL: {
-    personalAmount: 11067, // 2025 NL
+    personalAmount: 11067, // Confirmed for 2025
     brackets: [
       { rate: 0.087, upTo: 44192 },
       { rate: 0.145, upTo: 88382 },
@@ -188,7 +183,7 @@ export const provincialTaxData: Record<
     ],
   },
   NS: {
-    personalAmount: 11481, // 2024 NS
+    personalAmount: 11790, // Approx. 2025 (indexed from $11,481)
     brackets: [
       { rate: 0.0879, upTo: 29590 },
       { rate: 0.1495, upTo: 59180 },
@@ -198,7 +193,7 @@ export const provincialTaxData: Record<
     ],
   },
   NT: {
-    personalAmount: 17842, // 2025 NT
+    personalAmount: 17842, // Confirmed for 2025
     brackets: [
       { rate: 0.059, upTo: 51964 },
       { rate: 0.086, upTo: 103930 },
@@ -207,7 +202,7 @@ export const provincialTaxData: Record<
     ],
   },
   NU: {
-    personalAmount: 19274, // 2025 NU
+    personalAmount: 19274, // Confirmed for 2025
     brackets: [
       { rate: 0.04, upTo: 54707 },
       { rate: 0.07, upTo: 109413 },
@@ -216,17 +211,17 @@ export const provincialTaxData: Record<
     ],
   },
   ON: {
-    personalAmount: 12399, // Approx. for 2025
+    personalAmount: 12732, // Approx. 2025 (indexed from $12,399)
     brackets: [
-      { rate: 0.0505, upTo: 52886 },
-      { rate: 0.0915, upTo: 105775 },
+      { rate: 0.0505, upTo: 52884 },
+      { rate: 0.0915, upTo: 105771 },
       { rate: 0.1116, upTo: 150000 },
       { rate: 0.1216, upTo: 220000 },
       { rate: 0.1316 },
     ],
   },
   PE: {
-    personalAmount: 14250, // 2025 PE
+    personalAmount: 14250, // Confirmed for 2025
     brackets: [
       { rate: 0.095, upTo: 33328 },
       { rate: 0.1347, upTo: 64656 },
@@ -236,7 +231,7 @@ export const provincialTaxData: Record<
     ],
   },
   QC: {
-    personalAmount: 18571, // 2025 QC
+    personalAmount: 18571, // Confirmed for 2025
     brackets: [
       { rate: 0.14, upTo: 53255 },
       { rate: 0.19, upTo: 106495 },
@@ -245,7 +240,7 @@ export const provincialTaxData: Record<
     ],
   },
   SK: {
-    personalAmount: 19491, // 2025 SK
+    personalAmount: 19491, // Confirmed for 2025
     brackets: [
       { rate: 0.105, upTo: 53463 },
       { rate: 0.125, upTo: 152750 },
@@ -253,7 +248,7 @@ export const provincialTaxData: Record<
     ],
   },
   YT: {
-    personalAmount: 15705, // 2025 YT
+    personalAmount: 16129, // Aligned with federal BPA for 2025
     brackets: [
       { rate: 0.064, upTo: 57375 },
       { rate: 0.09, upTo: 114750 },
@@ -264,6 +259,9 @@ export const provincialTaxData: Record<
   },
 }
 
+/**
+ * Calculates tax with income splitting between spouses
+ */
 export function calculateSplitTax(
   householdIncome: number,
   spouseIncomeSplit: number,

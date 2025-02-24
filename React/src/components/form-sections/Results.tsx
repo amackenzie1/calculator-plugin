@@ -69,16 +69,6 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
   
   const metrics = getKeyMetrics()
   
-  // Format currency values
-  const formatCurrency = (value: number | undefined) => {
-    if (value === undefined) return 'N/A'
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(value)
-  }
-  
   // Format compact currency (for large numbers)
   const formatCompactCurrency = (value: number | undefined) => {
     if (value === undefined) return 'N/A'

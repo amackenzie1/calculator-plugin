@@ -1,0 +1,84 @@
+// File: src/lib/calculator/projection/utils.ts
+import { CalculatorSchemaType } from '@/components/Schema'
+import { YearState } from './types'
+
+/**
+ * Checks if the projection has reached the target lifespan
+ */
+export function isProjectionComplete(
+  states: YearState[],
+  input: CalculatorSchemaType
+): boolean {
+  const currentState = states[states.length - 1]
+  const self = input.persons.find((p) => p.personType === 'self')
+
+  if (!self || !self.lifeExpectancy) return true
+
+  const targetAge = self.lifeExpectancy
+  return currentState.persons.self.age >= targetAge
+}
+
+/**
+ * Creates a deep clone of an object
+ */
+export function deepClone<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => deepClone(item)) as unknown as T
+  }
+
+  const clonedObj = {} as T
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      clonedObj[key] = deepClone(obj[key])
+    }
+  }
+
+  return clonedObj
+}
+
+/**
+ * Adjusts an amount for inflation over a number of years
+ */
+export function adjustForInflation(
+  baseAmount: number,
+  startYear: number, 
+  currentYear: number,
+  inflationRate: number
+): number {
+  const yearsSinceStart = currentYear - startYear
+  return baseAmount * Math.pow(1 + inflationRate, yearsSinceStart)
+}
+
+/**
+ * Validates inputs required for projection calculations
+ */
+export function validateInputs(data: CalculatorSchemaType): void {
+  // Validate required inputs
+  if (!data.persons || data.persons.length === 0) {
+    throw new Error("Must have a person of type 'self'")
+  }
+
+  const self = data.persons.find((p) => p.personType === 'self')
+  if (!self) {
+    throw new Error("Must have a person of type 'self'")
+  }
+
+  if (self.birthYear === null || self.birthYear === undefined) {
+    throw new Error('Birth year is required for projection')
+  }
+
+  if (self.lifeExpectancy === null || self.lifeExpectancy === undefined) {
+    throw new Error('Life expectancy is required for projection')
+  }
+
+  if (
+    data.investmentReturnRate === null ||
+    data.investmentReturnRate === undefined
+  ) {
+    throw new Error('Investment return rate is required for projection')
+  }
+}
