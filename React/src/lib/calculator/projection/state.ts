@@ -43,33 +43,22 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
             description: inc.description ?? '',
           })),
       },
+      taxPaid: 0,
+      realizedGains: 0,
+      expenses: (person.annualExpenses ?? 0) + (person.healthCareExpenses ?? 0),
+      withdrawals: {
+        nonRegistered: 0,
+        tfsa: 0,
+        rrsp: 0,
+        rrif: 0,
+      },
     }
   }
 
   // Create the initial year state
   const yearState: YearState = {
     year: currentYear,
-    persons: {
-      self: createPersonState(self),
-      ...(spouse ? { spouse: createPersonState(spouse) } : {}),
-    },
-    realizedGains: 0,
-    taxPaid: 0,
-    taxPaidByPerson: {
-      self: 0,
-      ...(spouse ? { spouse: 0 } : {}),
-    },
-    expenses:
-      (self.annualExpenses || 0) +
-      (spouse?.annualExpenses || 0) +
-      (self.healthCareExpenses || 0) +
-      (spouse?.healthCareExpenses || 0),
-    withdrawals: {
-      nonRegistered: 0,
-      tfsa: 0,
-      rrsp: 0,
-      rrif: 0,
-    },
+    persons: [createPersonState(self), ...(spouse ? [createPersonState(spouse)] : [])],
   }
 
   return yearState
@@ -83,7 +72,7 @@ export function ageOneYear(currentState: YearState): YearState {
   newState.year = currentState.year + 1
 
   // Age all persons
-  Object.values(newState.persons).forEach((person) => {
+  newState.persons.forEach((person) => {
     person.age += 1
   })
 
@@ -109,10 +98,10 @@ export function processHouseSale(
   const newState = deepClone(currentState)
   
   // Add house sale proceeds to non-registered investments, split between persons if spouse exists
-  const numPersons = Object.keys(newState.persons).length
+  const numPersons = newState.persons.length
   const proceedsPerPerson = input.primaryResidenceValue / numPersons
 
-  Object.values(newState.persons).forEach((person) => {
+  newState.persons.forEach((person) => {
     person.accounts.nonRegistered.marketValue += proceedsPerPerson
     person.accounts.nonRegistered.bookValue += proceedsPerPerson
   })

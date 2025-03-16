@@ -116,17 +116,17 @@ export function calculateYearlyIncome(
   }
 
   // Process all persons
-  Object.values(newState.persons).forEach(processPersonIncome)
+  newState.persons.forEach(processPersonIncome)
 
   // Calculate total income and expenses
-  const totalIncome = Object.values(newState.persons).reduce(
+  const totalIncome = newState.persons.reduce(
     (sum, person) => sum + calculateTotalIncome(person),
     0
   )
 
   // Calculate inflation adjusted expenses
   const inflationAdjustedExpenses = adjustForInflation(
-    newState.expenses,
+    newState.persons.reduce((sum, person) => sum + person.expenses, 0),
     currentYear,
     currentYear,
     inflationRate
@@ -141,7 +141,7 @@ export function calculateYearlyIncome(
       (sum, person) => sum + calculateTotalIncome(person),
       0
     )
-    Object.values(newState.persons).forEach((person) => {
+    newState.persons.forEach((person) => {
       const proportion = calculateTotalIncome(person) / totalContribution
       const surplus = surplusIncome * proportion
       person.accounts.nonRegistered.marketValue += surplus

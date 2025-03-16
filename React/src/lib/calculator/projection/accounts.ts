@@ -87,9 +87,7 @@ export function applyInvestmentReturns(
   }
 
   // Process all persons
-  Object.keys(newState.persons).forEach((personType) => {
-    newState.persons[personType] = growAccounts(newState.persons[personType])
-  })
+  newState.persons = newState.persons.map((person) => growAccounts(person))
 
   return newState
 }

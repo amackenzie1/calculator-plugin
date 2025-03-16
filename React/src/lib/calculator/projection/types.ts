@@ -33,18 +33,8 @@ export interface PersonState {
       description: string
     }>
   }
-}
-
-export interface YearState {
-  year: number
-  persons: {
-    [key: string]: PersonState // Allow any number of people
-  }
-  realizedGains: number
   taxPaid: number
-  taxPaidByPerson: {
-    [personType: string]: number
-  }
+  realizedGains: number
   expenses: number
   withdrawals: {
     nonRegistered: number
@@ -52,6 +42,11 @@ export interface YearState {
     rrsp: number
     rrif: number
   }
+}
+
+export interface YearState {
+  year: number
+  persons: PersonState[]
 }
 
 // Helper type for a person from the schema

@@ -30,11 +30,8 @@ export function calculateNextYear(
   // 5. Calculate required withdrawals for expenses and taxes
   const withWithdrawals = calculateRequiredWithdrawals(withInitialTax, input)
 
-  // 6. Recalculate final tax implications after withdrawals
-  const withTax = calculateTaxImplications(withWithdrawals, input)
-
-  // 7. Subtract taxes from available funds
-  const finalState = subtractTaxesFromInvestments(withTax)
+  // 6. Subtract taxes from available funds
+  const finalState = subtractTaxesFromInvestments(withWithdrawals)
 
   // 8. Age everyone one year
   return ageOneYear(finalState)
@@ -72,8 +69,8 @@ export function projectRetirementInternal(input: CalculatorSchemaType): YearStat
  * This ensures that taxes are actually paid from the available funds
  */
 function subtractTaxesFromInvestments(state: YearState): YearState {
-  const newState = JSON.parse(JSON.stringify(state)); // Deep clone
-  const taxAmount = state.taxPaid;
+  const newState = JSON.parse(JSON.stringify(state)) as YearState
+  const taxAmount = state.persons.reduce((sum, person) => sum + person.taxPaid, 0)
   
   if (taxAmount <= 0) return newState;
   
@@ -83,21 +80,21 @@ function subtractTaxesFromInvestments(state: YearState): YearState {
   
   // 1. Non-registered Withdrawals (most tax efficient)
   if (remainingTax > 0) {
-    for (const person of Object.values(newState.persons)) {
+    for (const person of newState.persons) {
       const { withdrawn, remaining, realizedGains } = withdrawFromAccount(
         person.accounts.nonRegistered,
         remainingTax
       );
       remainingTax = remaining;
       // Add to realized gains (might trigger more tax next year, but that's realistic)
-      newState.realizedGains += realizedGains;
+      person.realizedGains += realizedGains;
       if (remainingTax === 0) break;
     }
   }
   
   // 2. TFSA Withdrawals 
   if (remainingTax > 0) {
-    for (const person of Object.values(newState.persons)) {
+    for (const person of newState.persons) {
       const { withdrawn, remaining } = withdrawFromAccount(
         person.accounts.tfsa,
         remainingTax
@@ -109,7 +106,7 @@ function subtractTaxesFromInvestments(state: YearState): YearState {
   
   // 3. RRSP/RRIF Withdrawals (least tax efficient, but might be necessary)
   if (remainingTax > 0) {
-    for (const person of Object.values(newState.persons)) {
+    for (const person of newState.persons) {
       // Try RRSP first
       if (person.accounts.rrsp.marketValue > 0) {
         const { withdrawn, remaining } = withdrawFromAccount(
@@ -159,7 +156,7 @@ export function calculateNetWorth(
   }
 
   // Add all account values from the current state
-  Object.values(state.persons).forEach((person) => {
+  state.persons.forEach((person) => {
     Object.values(person.accounts).forEach((account) => {
       netWorth += account.marketValue
     })

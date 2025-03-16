@@ -65,16 +65,16 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
 
   // Add data rows
   projectionStates.forEach((state) => {
-    const selfPerson = state.persons.self
-    const spousePerson = state.persons.spouse
+    const selfPerson = state.persons.find((person) => person.personType === 'self')
+    const spousePerson = state.persons.find((person) => person.personType === 'spouse')
 
     // Calculate total income for each person
     const selfIncome = {
-      employment: selfPerson.income.employment,
-      cpp: selfPerson.income.cpp,
-      oas: selfPerson.income.oas,
-      pension: selfPerson.income.definedBenefit,
-      other: selfPerson.income.other.reduce((sum, inc) => sum + inc.amount, 0),
+      employment: selfPerson?.income.employment ?? 0,
+      cpp: selfPerson?.income.cpp ?? 0,
+      oas: selfPerson?.income.oas ?? 0,
+      pension: selfPerson?.income.definedBenefit ?? 0,
+      other: selfPerson?.income.other.reduce((sum, inc) => sum + inc.amount, 0) ?? 0,
       total: 0
     }
     selfIncome.total = selfIncome.employment + selfIncome.cpp + selfIncome.oas + 
@@ -131,7 +131,7 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
     // Create row data
     const rowData = [
       state.year.toString(),
-      selfPerson.age.toString(),
+      selfPerson?.age.toString() ?? '',
     ]
     
     // Add spouse age if applicable
@@ -173,14 +173,14 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
     
     // Add remaining financial data
     rowData.push(
-      formatCurrency(state.expenses),
-      formatCurrency(state.taxPaid),
-      formatCurrency(state.taxPaidByPerson?.self || 0)
+      formatCurrency(state.persons.reduce((sum, person) => sum + person.expenses, 0)),
+      formatCurrency(state.persons.reduce((sum, person) => sum + person.taxPaid, 0)),
+      formatCurrency(selfPerson?.taxPaid ?? 0)
     )
     
     // Add spouse tax paid if applicable
-    if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(state.taxPaidByPerson?.spouse || 0))
+    if (data.calculateForSpouse && spousePerson) {
+      rowData.push(formatCurrency(spousePerson?.taxPaid ?? 0))
     }
     
     // Add account values and withdrawals
@@ -189,11 +189,11 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
       formatCurrency(rrspValue),
       formatCurrency(rrifValue),
       formatCurrency(nonRegisteredValue),
-      formatCurrency(state.withdrawals.tfsa),
-      formatCurrency(state.withdrawals.rrsp),
-      formatCurrency(state.withdrawals.rrif),
-      formatCurrency(state.withdrawals.nonRegistered),
-      formatCurrency(state.realizedGains)
+      formatCurrency(selfPerson?.withdrawals.tfsa ?? 0),
+      formatCurrency(selfPerson?.withdrawals.rrsp ?? 0),
+      formatCurrency(selfPerson?.withdrawals.rrif ?? 0),
+      formatCurrency(selfPerson?.withdrawals.nonRegistered ?? 0),
+      formatCurrency(selfPerson?.realizedGains ?? 0)
     )
     
     csvContent += rowData.join(',') + '\n'

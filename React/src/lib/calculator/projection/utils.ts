@@ -11,11 +11,12 @@ export function isProjectionComplete(
 ): boolean {
   const currentState = states[states.length - 1]
   const self = input.persons.find((p) => p.personType === 'self')
+  const selfState = currentState.persons.find((p) => p.personType === 'self')
 
   if (!self || !self.lifeExpectancy) return true
 
   const targetAge = self.lifeExpectancy
-  return currentState.persons.self.age >= targetAge
+  return selfState?.age! >= targetAge
 }
 
 /**

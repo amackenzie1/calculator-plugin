@@ -45,9 +45,8 @@ export function calculateTaxImplications(
       income.other.reduce((sum, inc) => sum + inc.amount, 0)
 
     // Split registered withdrawals and capital gains equally
-    const registeredWithdrawals =
-      (newState.withdrawals.rrsp + newState.withdrawals.rrif) / numPersons
-    const capitalGains = newState.realizedGains / numPersons
+    const registeredWithdrawals = person.withdrawals.rrsp + person.withdrawals.rrif
+    const capitalGains = person.realizedGains
     const taxableCapitalGains = capitalGains * 0.5
 
     const totalTaxableIncome =
@@ -69,25 +68,17 @@ export function calculateTaxImplications(
   // Calculate tax for each person, distributing charitable donations equally among persons
   const donationsPerPerson = charitableDonations / numPersons
   
-  // Initialize taxPaidByPerson if it doesn't exist
-  if (!newState.taxPaidByPerson) {
-    newState.taxPaidByPerson = {}
-  }
-  
   // Calculate tax for each person individually
   let totalTax = 0
-  Object.values(newState.persons).forEach((person, index) => {
+  newState.persons.forEach((person, index) => {
     const personTax = calculateTax(
       taxableIncomes[index], 
       input.province, 
       donationsPerPerson
     )
-    // Store tax paid by person type (self or spouse)
-    newState.taxPaidByPerson[person.personType] = personTax
+    person.taxPaid = personTax
     totalTax += personTax
   })
-  
-  newState.taxPaid = totalTax
   
   return newState
 }

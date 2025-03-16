@@ -36,12 +36,12 @@ export function calculateRequiredWithdrawals(
   const startYear = new Date().getFullYear()
 
   // Calculate regular expenses (inflation adjusted)
-  const inflationAdjustedExpenses = adjustForInflation(
-    newState.expenses,
+  const  inflationAdjustedExpenses = adjustForInflation(
+    newState.persons.reduce((sum, person) => sum + person.expenses, 0),
     startYear,
     currentYear,
     inflationRate
-  )
+  ) 
 
   // Add one-off expenses for the current year
   const oneOffExpensesForYear = (input.oneOffExpenses ?? [])
@@ -52,10 +52,10 @@ export function calculateRequiredWithdrawals(
   const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear
 
   // Get spouse's age if exists for RRIF calculations
-  const spouseAge = newState.persons.spouse?.age
+  const spouseAge = newState.persons.find((person) => person.personType === 'spouse')?.age
 
   // Process RRSP to RRIF conversions and mandatory withdrawals
-  Object.values(newState.persons).forEach((person) => {
+  newState.persons.forEach((person) => {
     // Convert RRSP to RRIF at age 71
     if (person.age === 71 && person.accounts.rrsp.marketValue > 0) {
       person.accounts.rrif.marketValue = person.accounts.rrsp.marketValue
@@ -74,19 +74,19 @@ export function calculateRequiredWithdrawals(
 
       // Apply the withdrawal
       person.accounts.rrif.marketValue -= mandatoryWithdrawal
-      newState.withdrawals.rrif += mandatoryWithdrawal
+      person.withdrawals.rrif += mandatoryWithdrawal
     }
   })
 
   // Calculate total available income including RRIF withdrawals
   const totalIncome =
-    Object.values(newState.persons).reduce(
+    newState.persons.reduce(
       (sum, person) => sum + calculateTotalIncome(person),
       0
-    ) + newState.withdrawals.rrif
+    ) + newState.persons.reduce((sum, person) => sum + person.withdrawals.rrif, 0)
 
   // Add estimated tax to expenses (using the tax amount calculated in the initial tax estimation step)
-  const totalNeeded = totalExpensesNeeded + newState.taxPaid
+  const totalNeeded = totalExpensesNeeded + newState.persons.reduce((sum, person) => sum + person.taxPaid, 0)
 
   // Calculate required additional withdrawals
   let remainingNeeded = Math.max(0, totalNeeded - totalIncome)
@@ -99,7 +99,7 @@ export function calculateRequiredWithdrawals(
         person.accounts.tfsa,
         remainingNeeded
       )
-      newState.withdrawals.tfsa += withdrawn
+      person.withdrawals.tfsa += withdrawn
       remainingNeeded = remaining
       if (remainingNeeded === 0) break
     }
@@ -111,8 +111,8 @@ export function calculateRequiredWithdrawals(
           person.accounts.nonRegistered,
           remainingNeeded
         )
-        newState.withdrawals.nonRegistered += withdrawn
-        newState.realizedGains += realizedGains
+        person.withdrawals.nonRegistered += withdrawn
+        person.realizedGains += realizedGains
         remainingNeeded = remaining
         if (remainingNeeded === 0) break
       }
@@ -125,7 +125,7 @@ export function calculateRequiredWithdrawals(
           person.accounts.rrsp,
           remainingNeeded
         )
-        newState.withdrawals.rrsp += withdrawn
+        person.withdrawals.rrsp += withdrawn
         remainingNeeded = remaining
         if (remainingNeeded === 0) break
       }
