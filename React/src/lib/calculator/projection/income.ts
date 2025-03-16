@@ -56,19 +56,29 @@ export function calculateYearlyIncome(
           1 + monthsLate * GOVERNMENT_BENEFITS.CPP.INCREASE_RATE_AFTER_65
       }
 
-      // CPP is already indexed to inflation by the government, so we don't need to adjust it
-      person.income.cpp = cppAmount
+      // Apply inflation adjustment to CPP
+      person.income.cpp = adjustForInflation(
+        cppAmount,
+        schemaPerson.cppStartYear,
+        currentYear,
+        inflationRate
+      )
     }
 
-    // 3. OAS with inflation adjustment (OAS is indexed quarterly by the government)
+    // 3. OAS with inflation adjustment
     if (
       schemaPerson.oasAmount &&
       schemaPerson.oasStartYear &&
       currentYear >= schemaPerson.oasStartYear &&
       person.age >= GOVERNMENT_BENEFITS.OAS.MIN_AGE
     ) {
-      // OAS is already indexed to inflation by the government
-      person.income.oas = schemaPerson.oasAmount
+      // Apply inflation adjustment to OAS
+      person.income.oas = adjustForInflation(
+        schemaPerson.oasAmount,
+        schemaPerson.oasStartYear,
+        currentYear,
+        inflationRate
+      )
     }
 
     // 4. Defined Benefit Pension
