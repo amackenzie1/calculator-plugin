@@ -66,13 +66,28 @@ export function calculateTaxImplications(
     return totalTaxableIncome
   })
 
-  // Calculate total tax, distributing charitable donations equally among persons
+  // Calculate tax for each person, distributing charitable donations equally among persons
   const donationsPerPerson = charitableDonations / numPersons
-  newState.taxPaid = taxableIncomes.reduce(
-    (total, income) =>
-      total + calculateTax(income, input.province, donationsPerPerson),
-    0
-  )
-
+  
+  // Initialize taxPaidByPerson if it doesn't exist
+  if (!newState.taxPaidByPerson) {
+    newState.taxPaidByPerson = {}
+  }
+  
+  // Calculate tax for each person individually
+  let totalTax = 0
+  Object.values(newState.persons).forEach((person, index) => {
+    const personTax = calculateTax(
+      taxableIncomes[index], 
+      input.province, 
+      donationsPerPerson
+    )
+    // Store tax paid by person type (self or spouse)
+    newState.taxPaidByPerson[person.personType] = personTax
+    totalTax += personTax
+  })
+  
+  newState.taxPaid = totalTax
+  
   return newState
 }

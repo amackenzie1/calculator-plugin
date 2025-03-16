@@ -55,6 +55,10 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
     },
     realizedGains: 0,
     taxPaid: 0,
+    taxPaidByPerson: {
+      self: 0,
+      ...(spouse ? { spouse: 0 } : {}),
+    },
     expenses:
       (self.annualExpenses || 0) +
       (spouse?.annualExpenses || 0) +

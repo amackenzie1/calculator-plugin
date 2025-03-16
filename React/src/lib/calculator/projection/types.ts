@@ -42,6 +42,9 @@ export interface YearState {
   }
   realizedGains: number
   taxPaid: number
+  taxPaidByPerson: {
+    [personType: string]: number
+  }
   expenses: number
   withdrawals: {
     nonRegistered: number

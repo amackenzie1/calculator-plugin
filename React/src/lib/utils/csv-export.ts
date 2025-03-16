@@ -17,14 +17,17 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
     'Net Worth',
     // Income breakdown
     'Total Income',
-    'Employment Income',
-    'CPP Income',
-    'OAS Income',
-    'Pension Income',
-    'Other Income',
+    'Total Income (Self)',
+    // Self income details
+    'Employment Income (Self)',
+    'CPP Income (Self)',
+    'OAS Income (Self)',
+    'Pension Income (Self)',
+    'Other Income (Self)',
     // Expenses
     'Annual Expenses',
     'Tax Paid',
+    'Tax Paid (Self)',
     // Account values
     'TFSA Value',
     'RRSP Value',
@@ -43,12 +46,18 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
     // Insert spouse age after self age
     headers.splice(2, 0, 'Age (Spouse)')
     
-    // Insert spouse income details after total income
-    headers.splice(5, 0, 'Employment Income (Spouse)')
-    headers.splice(7, 0, 'CPP Income (Spouse)')
-    headers.splice(9, 0, 'OAS Income (Spouse)')
-    headers.splice(11, 0, 'Pension Income (Spouse)')
-    headers.splice(13, 0, 'Other Income (Spouse)')
+    // Insert spouse total income after self total income
+    headers.splice(6, 0, 'Total Income (Spouse)')
+    
+    // Insert spouse income details after self income details
+    headers.splice(12, 0, 'Employment Income (Spouse)')
+    headers.splice(13, 0, 'CPP Income (Spouse)')
+    headers.splice(14, 0, 'OAS Income (Spouse)')
+    headers.splice(15, 0, 'Pension Income (Spouse)')
+    headers.splice(16, 0, 'Other Income (Spouse)')
+    
+    // Insert spouse tax paid after self tax paid
+    headers.splice(19, 0, 'Tax Paid (Spouse)')
   }
 
   // Create CSV content
@@ -130,50 +139,52 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
       rowData.push(spousePerson.age.toString())
     }
     
-    // Add financial data
+    // Add total income data
     rowData.push(
       formatCurrency(investmentsNetWorth), // Net Worth (just investments)
       formatCurrency(totalIncome),
-      formatCurrency(selfIncome.employment),
+      formatCurrency(selfIncome.total)
     )
     
-    // Add spouse employment income if applicable
+    // Add spouse total income if applicable
     if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(spouseIncome.employment))
+      rowData.push(formatCurrency(spouseIncome.total))
     }
     
-    rowData.push(formatCurrency(selfIncome.cpp))
+    // Add self income details
+    rowData.push(
+      formatCurrency(selfIncome.employment),
+      formatCurrency(selfIncome.cpp),
+      formatCurrency(selfIncome.oas),
+      formatCurrency(selfIncome.pension),
+      formatCurrency(selfIncome.other)
+    )
     
-    // Add spouse CPP if applicable
+    // Add spouse income details if applicable
     if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(spouseIncome.cpp))
-    }
-    
-    rowData.push(formatCurrency(selfIncome.oas))
-    
-    // Add spouse OAS if applicable
-    if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(spouseIncome.oas))
-    }
-    
-    rowData.push(formatCurrency(selfIncome.pension))
-    
-    // Add spouse pension if applicable
-    if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(spouseIncome.pension))
-    }
-    
-    rowData.push(formatCurrency(selfIncome.other))
-    
-    // Add spouse other income if applicable
-    if (data.calculateForSpouse) {
-      rowData.push(formatCurrency(spouseIncome.other))
+      rowData.push(
+        formatCurrency(spouseIncome.employment),
+        formatCurrency(spouseIncome.cpp),
+        formatCurrency(spouseIncome.oas),
+        formatCurrency(spouseIncome.pension),
+        formatCurrency(spouseIncome.other)
+      )
     }
     
     // Add remaining financial data
     rowData.push(
       formatCurrency(state.expenses),
       formatCurrency(state.taxPaid),
+      formatCurrency(state.taxPaidByPerson?.self || 0)
+    )
+    
+    // Add spouse tax paid if applicable
+    if (data.calculateForSpouse) {
+      rowData.push(formatCurrency(state.taxPaidByPerson?.spouse || 0))
+    }
+    
+    // Add account values and withdrawals
+    rowData.push(
       formatCurrency(tfsaValue),
       formatCurrency(rrspValue),
       formatCurrency(rrifValue),
