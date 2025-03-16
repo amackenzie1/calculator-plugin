@@ -85,8 +85,11 @@ export function calculateRequiredWithdrawals(
       0
     ) + newState.withdrawals.rrif
 
+  // Add estimated tax to expenses (using the tax amount calculated in the initial tax estimation step)
+  const totalNeeded = totalExpensesNeeded + newState.taxPaid
+
   // Calculate required additional withdrawals
-  let remainingNeeded = Math.max(0, totalExpensesNeeded - totalIncome)
+  let remainingNeeded = Math.max(0, totalNeeded - totalIncome)
 
   // Withdrawal strategy (in order of tax efficiency)
   if (remainingNeeded > 0) {
