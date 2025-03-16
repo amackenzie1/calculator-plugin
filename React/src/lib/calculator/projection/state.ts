@@ -1,7 +1,7 @@
 // File: src/lib/calculator/projection/state.ts
 import { CalculatorSchemaType } from '@/components/Schema'
 import { PersonState, SchemaPerson, YearState } from './types'
-import { deepClone } from './utils'
+import { adjustForInflation, deepClone } from './utils'
 import { createAccountState, createRegisteredAccounts } from './accounts'
 
 /**
@@ -67,13 +67,18 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
 /**
  * Ages all persons by one year
  */
-export function ageOneYear(currentState: YearState): YearState {
+export function ageOneYear(currentState: YearState, input: CalculatorSchemaType): YearState {
+  const inflationRate = (input.inflationRate ?? 2.5) / 100
   const newState = deepClone(currentState)
   newState.year = currentState.year + 1
 
   // Age all persons
   newState.persons.forEach((person) => {
     person.age += 1
+  })
+  // adjust expenses for inflation
+  newState.persons.forEach((person) => {
+    person.expenses = adjustForInflation(person.expenses, currentState.year, newState.year, inflationRate)
   })
 
   return newState

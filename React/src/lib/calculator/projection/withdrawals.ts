@@ -1,7 +1,7 @@
 // File: src/lib/calculator/projection/withdrawals.ts
 import { CalculatorSchemaType } from '@/components/Schema'
 import { YearState } from './types'
-import { deepClone, adjustForInflation } from './utils'
+import { deepClone } from './utils'
 import { RRIF_MIN_WITHDRAWAL_RATES } from './constants'
 import { withdrawFromAccount } from './accounts'
 import { calculateTotalIncome } from './income'
@@ -31,17 +31,10 @@ export function calculateRequiredWithdrawals(
   input: CalculatorSchemaType
 ): YearState {
   const newState = deepClone(currentState)
-  const inflationRate = (input.inflationRate ?? 2.5) / 100
   const currentYear = newState.year
-  const startYear = new Date().getFullYear()
 
   // Calculate regular expenses (inflation adjusted)
-  const  inflationAdjustedExpenses = adjustForInflation(
-    newState.persons.reduce((sum, person) => sum + person.expenses, 0),
-    startYear,
-    currentYear,
-    inflationRate
-  ) 
+  const inflationAdjustedExpenses = newState.persons.reduce((sum, person) => sum + person.expenses, 0)
 
   // Add one-off expenses for the current year
   const oneOffExpensesForYear = (input.oneOffExpenses ?? [])

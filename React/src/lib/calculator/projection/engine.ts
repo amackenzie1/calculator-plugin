@@ -34,7 +34,7 @@ export function calculateNextYear(
   const finalState = subtractTaxesFromInvestments(withWithdrawals)
 
   // 8. Age everyone one year
-  return ageOneYear(finalState)
+  return ageOneYear(finalState, input)
 }
 
 /**
