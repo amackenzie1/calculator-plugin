@@ -323,14 +323,14 @@ const Calculator = () => {
               onClick={handleNext}
               className="flex items-center gap-2 ml-auto"
             >
-              <span>{currentTab === "expenses" ? "Calculate & View Results" : "Next"}</span>
+              <span>{currentTab !== "expenses" ? "Next" : "Calculate & View Results"}</span>
               {currentTab === "expenses" ? <CheckIcon size={16} /> : <ArrowRightIcon size={16} />}
             </Button>
           ) : (
             <div></div>
           )}
           
-          {!isResultsTab && currentTab !== "expenses" && currentTab !== "income" && currentTab !== "assets" && (
+          {!isResultsTab && currentTab !== "expenses" && (
             <Button
               onClick={form.handleSubmit(onSubmit, onError)}
               size="lg"

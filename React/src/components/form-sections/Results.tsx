@@ -3,7 +3,7 @@ import { CalculatorSchemaType } from '@/components/Schema'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { downloadCSV, generateProjectionCSV } from '@/lib/utils/csv-export'
-import { ArrowRightIcon, ChevronRightIcon, DownloadIcon } from 'lucide-react'
+import { ArrowRightIcon, CheckIcon, ChevronRightIcon, DownloadIcon } from 'lucide-react'
 import React from 'react'
 import ProjectionGraph from '../ProjectionGraph'
 
@@ -128,7 +128,19 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
             {/* Graph section */}
             <ProjectionGraph data={projectionData} />
             
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex justify-center gap-4 flex-col sm:flex-row">
+              <Button
+                onClick={() => {
+                  // This will trigger form recalculation from Calculator component
+                  document.querySelector('[value="expenses"]')?.dispatchEvent(new Event('click'))
+                }}
+                className="flex items-center gap-2"
+                size="lg"
+                variant="secondary"
+              >
+                <CheckIcon size={16} />
+                <span>Recalculate Results</span>
+              </Button>
               <Button
                 onClick={handleDownloadCSV}
                 className="flex items-center gap-2"
