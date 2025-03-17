@@ -56,10 +56,10 @@ describe('Retirement Projection', () => {
 
       const initialState = states[0]
       expect(initialState.year).toBe(currentYear)
-      expect(initialState.persons.self.age).toBe(30)
-      expect(initialState.expenses).toBe(50000)
-      expect(initialState.realizedGains).toBe(0)
-      expect(initialState.taxPaid).toBe(0)
+      expect(initialState.persons[0].age).toBe(30)
+      expect(initialState.persons[0].expenses).toBe(50000)
+      expect(initialState.persons[0].realizedGains).toBe(0)
+      expect(initialState.persons[0].taxPaid).toBe(0)
     })
   })
 
@@ -70,12 +70,12 @@ describe('Retirement Projection', () => {
 
       const secondYear = states[1]
       expect(secondYear.year).toBe(currentYear + 1)
-      expect(secondYear.persons.self.age).toBe(31)
+      expect(secondYear.persons[0].age).toBe(31)
 
       // With no income or assets, expenses should trigger withdrawals
-      expect(secondYear.withdrawals.tfsa).toBe(0) // No TFSA to withdraw from
-      expect(secondYear.withdrawals.rrsp).toBe(0) // No RRSP to withdraw from
-      expect(secondYear.withdrawals.nonRegistered).toBe(0) // No non-registered to withdraw from
+      expect(secondYear.persons[0].accounts.tfsa.marketValue).toBe(0) // No TFSA to withdraw from
+      expect(secondYear.persons[0].accounts.rrsp.marketValue).toBe(0) // No RRSP to withdraw from
+      expect(secondYear.persons[0].accounts.nonRegistered.marketValue).toBe(0) // No non-registered to withdraw from
     })
   })
 
@@ -189,11 +189,11 @@ describe('Retirement Projection', () => {
       expect(states.length).toBeGreaterThan(0)
 
       const initialState = states[0]
-      expect(initialState.persons.self.accounts.tfsa.marketValue).toBe(50000)
-      expect(initialState.persons.self.accounts.nonRegistered.marketValue).toBe(
+      expect(initialState.persons[0].accounts.tfsa.marketValue).toBe(50000)
+      expect(initialState.persons[0].accounts.nonRegistered.marketValue).toBe(
         100000
       )
-      expect(initialState.persons.self.accounts.nonRegistered.bookValue).toBe(
+      expect(initialState.persons[0].accounts.nonRegistered.bookValue).toBe(
         80000
       )
     })
