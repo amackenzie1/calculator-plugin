@@ -31,12 +31,12 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
     useState(0)
 
   const handleAddOneOffExpense = (personType: 'self' | 'spouse') => {
-    setOneOffExpenseIdCounter((prev) => prev + 1)
     const currentExpenses = form.getValues('oneOffExpenses') || []
+    const newId = Math.max(...currentExpenses.map(e => e.id), -1) + 1
     form.setValue('oneOffExpenses', [
       ...currentExpenses,
       {
-        id: oneOffExpenseIdCounter,
+        id: newId,
         personType,
         description: '',
         amount: null,
@@ -212,134 +212,19 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium">Your One-Off Expenses</h4>
-                  {form
-                    .watch('oneOffExpenses')
-                    ?.filter((expense) => expense.personType === 'self')
-                    .map((expense, index) => (
-                      <div
-                        key={expense.id}
-                        className="border rounded-lg p-4 space-y-4 mb-4"
-                      >
-                        <div className="flex justify-between items-center">
-                          <h5 className="font-medium">
-                            One-Off Expense {index + 1}
-                          </h5>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleRemoveOneOffExpense(expense.id)
-                            }
-                          >
-                            Remove
-                          </Button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                            control={form.control}
-                            name={`oneOffExpenses.${index}.description`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Enter description"
-                                    value={field.value ?? ''}
-                                    onChange={field.onChange}
-                                    onBlur={field.onBlur}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`oneOffExpenses.${index}.amount`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Amount</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="Enter amount"
-                                    value={
-                                      field.value == null
-                                        ? ''
-                                        : field.value.toString()
-                                    }
-                                    onChange={(e) => {
-                                      const value = e.target.value
-                                      field.onChange(
-                                        value ? parseFloat(value) : null
-                                      )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`oneOffExpenses.${index}.year`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Year</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="Enter year"
-                                    value={
-                                      field.value == null
-                                        ? ''
-                                        : field.value.toString()
-                                    }
-                                    onChange={(e) => {
-                                      const value = e.target.value
-                                      field.onChange(
-                                        value ? parseInt(value) : null
-                                      )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleAddOneOffExpense('self')}
-                  >
-                    Add One-Off Expense
-                  </Button>
-                </div>
-
-                {calculateForSpouse && (
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-medium">
-                      Spouse's One-Off Expenses
-                    </h4>
-                    {form
-                      .watch('oneOffExpenses')
-                      ?.filter((expense) => expense.personType === 'spouse')
-                      .map((expense, index) => (
+                  {(form.watch('oneOffExpenses') || [])
+                    .filter((expense) => expense.personType === 'self')
+                    .map((expense) => {
+                      // Get the index once for all fields
+                      const expenseIndex = form.getValues('oneOffExpenses').findIndex(e => e.id === expense.id)
+                      return (
                         <div
                           key={expense.id}
                           className="border rounded-lg p-4 space-y-4 mb-4"
                         >
                           <div className="flex justify-between items-center">
                             <h5 className="font-medium">
-                              One-Off Expense {index + 1}
+                              One-Off Expense
                             </h5>
                             <Button
                               type="button"
@@ -356,14 +241,14 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                               control={form.control}
-                              name={`oneOffExpenses.${index}.description`}
+                              name={`oneOffExpenses.${expenseIndex}.description`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Description</FormLabel>
                                   <FormControl>
                                     <Input
                                       placeholder="Enter description"
-                                      value={field.value ?? ''}
+                                      value={field.value || ''}
                                       onChange={field.onChange}
                                       onBlur={field.onBlur}
                                     />
@@ -375,7 +260,7 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
 
                             <FormField
                               control={form.control}
-                              name={`oneOffExpenses.${index}.amount`}
+                              name={`oneOffExpenses.${expenseIndex}.amount`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Amount</FormLabel>
@@ -384,16 +269,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                       type="number"
                                       step="0.01"
                                       placeholder="Enter amount"
-                                      value={
-                                        field.value == null
-                                          ? ''
-                                          : field.value.toString()
-                                      }
+                                      value={field.value ?? ''}
                                       onChange={(e) => {
                                         const value = e.target.value
-                                        field.onChange(
-                                          value ? parseFloat(value) : null
-                                        )
+                                        field.onChange(value ? parseFloat(value) : null)
                                       }}
                                     />
                                   </FormControl>
@@ -404,7 +283,7 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
 
                             <FormField
                               control={form.control}
-                              name={`oneOffExpenses.${index}.year`}
+                              name={`oneOffExpenses.${expenseIndex}.year`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Year</FormLabel>
@@ -412,16 +291,10 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                                     <Input
                                       type="number"
                                       placeholder="Enter year"
-                                      value={
-                                        field.value == null
-                                          ? ''
-                                          : field.value.toString()
-                                      }
+                                      value={field.value ?? ''}
                                       onChange={(e) => {
                                         const value = e.target.value
-                                        field.onChange(
-                                          value ? parseInt(value) : null
-                                        )
+                                        field.onChange(value ? parseInt(value) : null)
                                       }}
                                     />
                                   </FormControl>
@@ -431,7 +304,116 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                             />
                           </div>
                         </div>
-                      ))}
+                      )
+                    })}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleAddOneOffExpense('self')}
+                  >
+                    Add One-Off Expense
+                  </Button>
+                </div>
+
+                {calculateForSpouse && (
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-medium">
+                      Spouse's One-Off Expenses
+                    </h4>
+                    {(form.watch('oneOffExpenses') || [])
+                      .filter((expense) => expense.personType === 'spouse')
+                      .map((expense) => {
+                        // Get the index once for all fields
+                        const expenseIndex = form.getValues('oneOffExpenses').findIndex(e => e.id === expense.id)
+                        return (
+                          <div
+                            key={expense.id}
+                            className="border rounded-lg p-4 space-y-4 mb-4"
+                          >
+                            <div className="flex justify-between items-center">
+                              <h5 className="font-medium">
+                                One-Off Expense
+                              </h5>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleRemoveOneOffExpense(expense.id)
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name={`oneOffExpenses.${expenseIndex}.description`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="Enter description"
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`oneOffExpenses.${expenseIndex}.amount`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Amount</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="Enter amount"
+                                        value={field.value ?? ''}
+                                        onChange={(e) => {
+                                          const value = e.target.value
+                                          field.onChange(value ? parseFloat(value) : null)
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`oneOffExpenses.${expenseIndex}.year`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Year</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        placeholder="Enter year"
+                                        value={field.value ?? ''}
+                                        onChange={(e) => {
+                                          const value = e.target.value
+                                          field.onChange(value ? parseInt(value) : null)
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
                     <Button
                       type="button"
                       variant="outline"

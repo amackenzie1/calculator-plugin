@@ -23,6 +23,14 @@ export function getRRIFMinimumRate(age: number, spouseAge?: number): number {
   return RRIF_MIN_WITHDRAWAL_RATES[effectiveAge] || 0.2
 }
 
+export function getAllExpenses(currentState: YearState, input: CalculatorSchemaType): number {
+  const inflationAdjustedExpenses = currentState.persons.reduce((sum, person) => sum + person.expenses, 0)
+  const oneOffExpensesForYear = (input.oneOffExpenses ?? [])
+    .filter((expense) => expense.year === currentState.year && expense.amount)
+    .reduce((total, expense) => total + expense.amount!, 0)
+  return inflationAdjustedExpenses + oneOffExpensesForYear
+}
+
 /**
  * Calculates required withdrawals based on expenses and rules
  */
@@ -40,6 +48,7 @@ export function calculateRequiredWithdrawals(
   const oneOffExpensesForYear = (input.oneOffExpenses ?? [])
     .filter((expense) => expense.year === currentYear && expense.amount)
     .reduce((total, expense) => total + expense.amount!, 0)
+  console.log('oneOffExpensesForYear', oneOffExpensesForYear)
 
   // Total expenses needed this year
   const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear
