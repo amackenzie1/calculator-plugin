@@ -171,9 +171,11 @@ export function generateProjectionCSV(data: CalculatorSchemaType): string {
       )
     }
     
+    const oneOffExpenses = (data.oneOffExpenses ?? []).filter((expense) => expense.year === state.year).reduce((sum, expense) => sum + (expense.amount ?? 0), 0)
+    const charitableDonations = (data.charitableDonations ?? []).filter((donation) => donation.startYear && donation.endYear && state.year >= donation.startYear && state.year <= donation.endYear).reduce((sum, donation) => sum + (donation.amount ?? 0), 0)
     // Add remaining financial data
     rowData.push(
-      formatCurrency(state.persons.reduce((sum, person) => sum + person.expenses, 0)),
+      formatCurrency(state.persons.reduce((sum, person) => sum + person.expenses, 0) + oneOffExpenses + charitableDonations),
       formatCurrency(state.persons.reduce((sum, person) => sum + person.taxPaid, 0)),
       formatCurrency(selfPerson?.taxPaid ?? 0)
     )

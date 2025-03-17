@@ -33,7 +33,7 @@ const Calculator = () => {
       expensesChangeForEachStage: false,
       expensesChangeForEachStageSpouse: false,
       investmentReturnRate: null,
-      province: 'ON',
+      province: 'QC',
       investorProfile: 'risk_averse',
       inflationRate: 2.5,
       specifyReturn: null,

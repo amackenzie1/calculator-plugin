@@ -6,7 +6,16 @@ interface TaxBracket {
   upTo?: number
 }
 
-/** Federal tax brackets for 2025 */
+// Constants for federal amounts
+const FEDERAL_AMOUNTS = {
+  BPA_2024: 15075,
+  AGE_AMOUNT_2024: 8790,
+  AGE_AMOUNT_THRESHOLD_2024: 44000,
+  AGE_AMOUNT_REDUCTION_RATE: 0.15,
+  LOWEST_RATE: 0.15 // Federal lowest tax rate for credits
+}
+
+/** Federal tax brackets for 2024 */
 const federalBrackets: TaxBracket[] = [
   { rate: 0.15, upTo: 57375 },
   { rate: 0.205, upTo: 114750 },
@@ -51,27 +60,41 @@ function applyProgressiveBrackets(
  * Gets the federal Basic Personal Amount based on income
  */
 export function getFederalBPA(income: number): number {
-  const fullBPA = 16129 // Updated for 2025
-  const baseBPA = 14538 // Indexed base amount for 2025
-  const lowerThreshold = 177882
-  const upperThreshold = 253414
-
-  if (income <= lowerThreshold) return fullBPA
-  if (income >= upperThreshold) return baseBPA
-
-  const portionIntoPhaseout = income - lowerThreshold
-  const phaseoutRange = upperThreshold - lowerThreshold
-  const fraction = portionIntoPhaseout / phaseoutRange
-  return fullBPA - (fullBPA - baseBPA) * fraction
+  return FEDERAL_AMOUNTS.BPA_2024 // Using 2024 amount
 }
 
 /**
- * Calculates federal tax including BPA and Quebec abatement
+ * Calculates the age amount credit for individuals 65 and older
  */
-function calculateFederalTax(province: Province, income: number): number {
-  const federalBPA = getFederalBPA(income)
-  const federalTaxable = Math.max(0, income - federalBPA)
-  let federalTaxOwed = applyProgressiveBrackets(federalTaxable, federalBrackets)
+export function calculateAgeAmount(age: number, income: number): number {
+  if (age < 65) return 0
+
+  if (income <= FEDERAL_AMOUNTS.AGE_AMOUNT_THRESHOLD_2024) {
+    return FEDERAL_AMOUNTS.AGE_AMOUNT_2024
+  }
+
+  // Reduce age amount by 15% of income over threshold
+  const reduction = Math.min(
+    FEDERAL_AMOUNTS.AGE_AMOUNT_2024,
+    (income - FEDERAL_AMOUNTS.AGE_AMOUNT_THRESHOLD_2024) * FEDERAL_AMOUNTS.AGE_AMOUNT_REDUCTION_RATE
+  )
+  
+  return Math.max(0, FEDERAL_AMOUNTS.AGE_AMOUNT_2024 - reduction)
+}
+
+/**
+ * Calculates federal tax including BPA, age amount, and Quebec abatement
+ */
+function calculateFederalTax(province: Province, income: number, age: number): number {
+  // Calculate base tax on total income
+  const baseTax = applyProgressiveBrackets(income, federalBrackets)
+
+  // Calculate tax credits
+  const bpaCredit = getFederalBPA(income) * FEDERAL_AMOUNTS.LOWEST_RATE
+  const ageCredit = calculateAgeAmount(age, income) * FEDERAL_AMOUNTS.LOWEST_RATE
+  
+  // Apply credits to get net federal tax
+  let federalTaxOwed = Math.max(0, baseTax - bpaCredit - ageCredit)
 
   if (province === 'QC') {
     federalTaxOwed *= 1 - 0.165 // Quebec abatement
@@ -85,8 +108,14 @@ function calculateFederalTax(province: Province, income: number): number {
  */
 function calculateProvincialTax(province: Province, income: number): number {
   const { personalAmount, brackets } = provincialTaxData[province]
-  const taxableIncome = Math.max(0, income - personalAmount)
-  return applyProgressiveBrackets(taxableIncome, brackets)
+  
+  // Calculate base provincial tax
+  const baseTax = applyProgressiveBrackets(income, brackets)
+  
+  // Calculate provincial basic personal amount credit
+  const provincialBPACredit = personalAmount * brackets[0].rate // Use lowest provincial rate
+  
+  return Math.max(0, baseTax - provincialBPACredit)
 }
 
 /**
@@ -94,11 +123,13 @@ function calculateProvincialTax(province: Province, income: number): number {
  * @param income Taxable income
  * @param province Province/territory for tax calculation
  * @param charitableDonations Optional charitable donations amount
+ * @param age Age of the taxpayer (needed for age amount calculation)
  */
 export function calculateTax(
   income: number,
   province: Province,
-  charitableDonations: number = 0
+  charitableDonations: number = 0,
+  age: number = 0
 ): number {
   if (income <= 0) return 0
 
@@ -113,7 +144,7 @@ export function calculateTax(
     taxCredit = firstTier * 0.15 + secondTier * 0.29 // Federal approximation
   }
 
-  const fedTax = calculateFederalTax(province, taxableIncome)
+  const fedTax = calculateFederalTax(province, taxableIncome, age)
   const provTax = calculateProvincialTax(province, taxableIncome)
 
   return Math.max(0, fedTax + provTax - taxCredit)

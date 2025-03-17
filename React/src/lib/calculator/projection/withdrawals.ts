@@ -5,6 +5,7 @@ import { deepClone } from './utils'
 import { RRIF_MIN_WITHDRAWAL_RATES } from './constants'
 import { withdrawFromAccount } from './accounts'
 import { calculateTotalIncome } from './income'
+import { getCharitableDonationsForYear } from './tax'
 
 /**
  * Gets the appropriate RRIF minimum withdrawal rate based on age
@@ -49,9 +50,10 @@ export function calculateRequiredWithdrawals(
     .filter((expense) => expense.year === currentYear && expense.amount)
     .reduce((total, expense) => total + expense.amount!, 0)
   console.log('oneOffExpensesForYear', oneOffExpensesForYear)
+  const charitableDonations = getCharitableDonationsForYear(input.charitableDonations ?? [], currentYear).reduce((sum, donation) => sum + (donation.amount ?? 0), 0)
 
   // Total expenses needed this year
-  const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear
+  const totalExpensesNeeded = inflationAdjustedExpenses + oneOffExpensesForYear + charitableDonations
 
   // Get spouse's age if exists for RRIF calculations
   const spouseAge = newState.persons.find((person) => person.personType === 'spouse')?.age
