@@ -102,14 +102,37 @@ export function processHouseSale(
 
   const newState = deepClone(currentState)
   
-  // Add house sale proceeds to non-registered investments, split between persons if spouse exists
-  const numPersons = newState.persons.length
-  const proceedsPerPerson = input.primaryResidenceValue / numPersons
-
-  newState.persons.forEach((person) => {
-    person.accounts.nonRegistered.marketValue += proceedsPerPerson
-    person.accounts.nonRegistered.bookValue += proceedsPerPerson
-  })
+  // Distribute house sale proceeds based on home ownership setting
+  const houseValue = input.primaryResidenceValue
+  const homeOwnership = input.homeOwnership || 'joint'
+  
+  if (homeOwnership === 'joint') {
+    // Split proceeds equally between all persons
+    const numPersons = newState.persons.length
+    const proceedsPerPerson = houseValue / numPersons
+    
+    newState.persons.forEach((person) => {
+      person.accounts.nonRegistered.marketValue += proceedsPerPerson
+      person.accounts.nonRegistered.bookValue += proceedsPerPerson
+    })
+  } else {
+    // Assign proceeds to the specified owner (self or spouse)
+    const owner = newState.persons.find(person => person.personType === homeOwnership)
+    
+    if (owner) {
+      owner.accounts.nonRegistered.marketValue += houseValue
+      owner.accounts.nonRegistered.bookValue += houseValue
+    } else {
+      // Fallback to joint ownership if owner not found
+      const numPersons = newState.persons.length
+      const proceedsPerPerson = houseValue / numPersons
+      
+      newState.persons.forEach((person) => {
+        person.accounts.nonRegistered.marketValue += proceedsPerPerson
+        person.accounts.nonRegistered.bookValue += proceedsPerPerson
+      })
+    }
+  }
 
   return newState
 }

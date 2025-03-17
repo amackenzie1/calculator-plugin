@@ -117,6 +117,7 @@ export const CalculatorSchema = z
     primaryResidenceValue: z.number().nullable(),
     primaryResidenceSell: z.boolean().nullable(),
     primaryResidenceSellYear: z.number().nullable(),
+    homeOwnership: z.enum(['self', 'spouse', 'joint']).default('joint'),
     desiredEstateValue: z.number().nullable(),
     incomeReturnRate: z.number().nullable(),
     growthReturnRate: z.number().nullable(),

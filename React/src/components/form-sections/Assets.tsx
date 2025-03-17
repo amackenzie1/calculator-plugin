@@ -630,6 +630,48 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                     )}
                   />
 
+                  {calculateForSpouse && (
+                  <FormField
+                    control={form.control}
+                    name="homeOwnership"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Home Ownership</FormLabel>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help text-muted-foreground">
+                                (?)
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                Select who owns the home and will receive proceeds when sold.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          defaultValue="joint"
+                        >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select home ownership" />
+                          </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="joint">Joint Ownership</SelectItem>
+                            <SelectItem value="self">Self Only</SelectItem>
+                            <SelectItem value="spouse">Spouse Only</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  /> )}
+
                   {primaryResidenceSell && (
                     <FormField
                       control={form.control}

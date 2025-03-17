@@ -47,6 +47,7 @@ const Calculator = () => {
       primaryResidenceValue: null,
       primaryResidenceSell: null,
       primaryResidenceSellYear: null,
+      homeOwnership: 'joint',
       desiredEstateValue: null,
       incomeReturnRate: null,
       growthReturnRate: null,
