@@ -80,18 +80,13 @@ export function calculateRequiredWithdrawals(
     }
   })
 
-  // Calculate total available income including RRIF withdrawals
-  const totalIncome =
-    newState.persons.reduce(
-      (sum, person) => sum + calculateTotalIncome(person),
-      0
-    ) + newState.persons.reduce((sum, person) => sum + person.withdrawals.rrif, 0)
-
   // Add estimated tax to expenses (using the tax amount calculated in the initial tax estimation step)
-  const totalNeeded = totalExpensesNeeded + newState.persons.reduce((sum, person) => sum + person.taxPaid, 0)
+  const totalTaxPaid = newState.persons.reduce((sum, person) => sum + person.taxPaid, 0)
+  const totalNeeded = totalExpensesNeeded + totalTaxPaid
+  console.log('totalTaxPaid', totalTaxPaid, 'totalNeeded', totalNeeded)
 
   // Calculate required additional withdrawals
-  let remainingNeeded = Math.max(0, totalNeeded - totalIncome)
+  let remainingNeeded = Math.max(0, totalNeeded)
 
   // Withdrawal strategy (in order of tax efficiency)
   if (remainingNeeded > 0) {

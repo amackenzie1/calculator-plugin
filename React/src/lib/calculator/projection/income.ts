@@ -124,28 +124,11 @@ export function calculateYearlyIncome(
     0
   )
 
-  // Calculate inflation adjusted expenses
-  const inflationAdjustedExpenses = adjustForInflation(
-    newState.persons.reduce((sum, person) => sum + person.expenses, 0),
-    currentYear,
-    currentYear,
-    inflationRate
-  )
-
-  // Calculate surplus income after expenses
-  const surplusIncome = Math.max(0, totalIncome - inflationAdjustedExpenses)
-
   // Add surplus to non-registered accounts proportionally based on income contribution
-  if (surplusIncome > 0) {
-    const totalContribution = Object.values(newState.persons).reduce(
-      (sum, person) => sum + calculateTotalIncome(person),
-      0
-    )
+  if (totalIncome > 0) {
     newState.persons.forEach((person) => {
-      const proportion = calculateTotalIncome(person) / totalContribution
-      const surplus = surplusIncome * proportion
-      person.accounts.nonRegistered.marketValue += surplus
-      person.accounts.nonRegistered.bookValue += surplus
+      person.accounts.nonRegistered.marketValue += totalIncome
+      person.accounts.nonRegistered.bookValue += totalIncome
     })
   }
 
