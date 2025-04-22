@@ -22,77 +22,104 @@ export function calculateYearlyIncome(
     )
     if (!schemaPerson) return
 
+    // Derive employment start and end years (fallback to ages if provided)
+    let startYr = schemaPerson.incomeYearStart
+    if (startYr == null && schemaPerson.incomeStartAge != null && schemaPerson.birthYear != null) {
+      startYr = schemaPerson.birthYear + schemaPerson.incomeStartAge
+    }
+    let endYr = schemaPerson.incomeYearEnd
+    if (endYr == null && schemaPerson.incomeEndAge != null && schemaPerson.birthYear != null) {
+      endYr = schemaPerson.birthYear + schemaPerson.incomeEndAge
+    }
     // 1. Employment Income
-    if (
-      schemaPerson.incomeYearStart &&
-      schemaPerson.incomeYearEnd &&
-      currentYear >= schemaPerson.incomeYearStart &&
-      currentYear <= schemaPerson.incomeYearEnd
-    ) {
-      person.income.employment = schemaPerson.primaryYearlyIncome ?? 0
+    if (schemaPerson.primaryYearlyIncome != null) {
+      let include = true
+      if (startYr != null && currentYear < startYr) include = false
+      if (endYr != null && currentYear > endYr) include = false
+      person.income.employment = include ? schemaPerson.primaryYearlyIncome : 0
     } else {
       person.income.employment = 0
     }
 
-    // 2. CPP with age adjustments
-    if (
-      schemaPerson.cppAmount &&
-      schemaPerson.cppStartYear &&
-      currentYear >= schemaPerson.cppStartYear
-    ) {
+    // 2. CPP with age or year start
+    // Derive start year for CPP
+    let cppStart = schemaPerson.cppStartYear
+    if (cppStart == null && schemaPerson.cppStartAge != null && schemaPerson.birthYear != null) {
+      cppStart = schemaPerson.birthYear + schemaPerson.cppStartAge
+    }
+    if (cppStart == null && schemaPerson.birthYear != null) {
+      cppStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.CPP.STANDARD_AGE
+    }
+    if (schemaPerson.cppAmount != null && cppStart != null && currentYear >= cppStart) {
       let cppAmount = schemaPerson.cppAmount
-      const startAge = schemaPerson.cppStartYear - (schemaPerson.birthYear ?? 0)
-
+      const startAge = cppStart - (schemaPerson.birthYear ?? 0)
       // Apply early/late CPP adjustments
       if (startAge < GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) {
-        const monthsEarly =
-          (GOVERNMENT_BENEFITS.CPP.STANDARD_AGE - startAge) * 12
-        cppAmount *=
-          1 - monthsEarly * GOVERNMENT_BENEFITS.CPP.REDUCTION_RATE_BEFORE_65
+        const monthsEarly = (GOVERNMENT_BENEFITS.CPP.STANDARD_AGE - startAge) * 12
+        cppAmount *= 1 - monthsEarly * GOVERNMENT_BENEFITS.CPP.REDUCTION_RATE_BEFORE_65
       } else if (startAge > GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) {
-        const monthsLate =
-          (startAge - GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) * 12
-        cppAmount *=
-          1 + monthsLate * GOVERNMENT_BENEFITS.CPP.INCREASE_RATE_AFTER_65
+        const monthsLate = (startAge - GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) * 12
+        cppAmount *= 1 + monthsLate * GOVERNMENT_BENEFITS.CPP.INCREASE_RATE_AFTER_65
       }
-
       // Apply inflation adjustment to CPP
       person.income.cpp = adjustForInflation(
         cppAmount,
-        schemaPerson.cppStartYear,
+        cppStart,
         currentYear,
         inflationRate
       )
     }
 
-    // 3. OAS with inflation adjustment
+    // 3. OAS with age or year start and minimum age
+    let oasStart = schemaPerson.oasStartYear
+    if (oasStart == null && schemaPerson.oasStartAge != null && schemaPerson.birthYear != null) {
+      oasStart = schemaPerson.birthYear + schemaPerson.oasStartAge
+    }
+    if (oasStart == null && schemaPerson.birthYear != null) {
+      oasStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.OAS.MIN_AGE
+    }
     if (
-      schemaPerson.oasAmount &&
-      schemaPerson.oasStartYear &&
-      currentYear >= schemaPerson.oasStartYear &&
+      schemaPerson.oasAmount != null &&
+      oasStart != null &&
+      currentYear >= oasStart &&
       person.age >= GOVERNMENT_BENEFITS.OAS.MIN_AGE
     ) {
-      // Apply inflation adjustment to OAS
       person.income.oas = adjustForInflation(
         schemaPerson.oasAmount,
-        schemaPerson.oasStartYear,
+        oasStart,
         currentYear,
         inflationRate
       )
     }
 
-    // 4. Defined Benefit Pension
+    // 4. Defined Benefit Pension with age or year start
+    let dbStart = schemaPerson.definedBenefitPensionStartYear
     if (
-      schemaPerson.definedBenefitPensionAmount &&
-      schemaPerson.definedBenefitPensionStartYear &&
-      currentYear >= schemaPerson.definedBenefitPensionStartYear
+      dbStart == null &&
+      schemaPerson.definedBenefitPensionStartAge != null &&
+      schemaPerson.birthYear != null
+    ) {
+      dbStart = schemaPerson.birthYear + schemaPerson.definedBenefitPensionStartAge
+    }
+    if (
+      dbStart == null &&
+      schemaPerson.definedBenefitPensionAmount != null &&
+      schemaPerson.birthYear != null
+    ) {
+      // Default pension start aligns with OAS
+      dbStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.OAS.MIN_AGE
+    }
+    if (
+      schemaPerson.definedBenefitPensionAmount != null &&
+      dbStart != null &&
+      currentYear >= dbStart
     ) {
       const baseAmount = schemaPerson.definedBenefitPensionAmount
       person.income.definedBenefit =
         schemaPerson.definedBenefitPensionIndexedToInflation
           ? adjustForInflation(
               baseAmount,
-              schemaPerson.definedBenefitPensionStartYear,
+              dbStart,
               currentYear,
               inflationRate
             )

@@ -1,50 +1,76 @@
-# React + TypeScript + Vite
+# Financial Projection Calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application that helps users project their financial future based on various inputs.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Financial projections based on user inputs
+- Tax calculations for different provinces
+- Multiple account types (TFSA, RRSP, RRIF, LIRA, LIF)
+- CSV export of projection data
+- Visualization of financial projections
+- Anonymous data logging to DynamoDB
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Installation
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Development Server
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+### Testing
+
+```bash
+npm test
+```
+
+## DynamoDB Data Logging
+
+This project includes anonymous data logging to AWS DynamoDB. The logging infrastructure is defined in the `cdk` directory and deployed using the AWS CDK.
+
+### Deployment
+
+1. Navigate to the CDK directory:
+   ```bash
+   cd cdk
+   ```
+
+2. Build the CDK project:
+   ```bash
+   npm run build
+   ```
+
+3. Deploy the stack:
+   ```bash
+   npm run deploy
+   ```
+
+4. After deployment, the API Gateway URL will be shown in the outputs. This value is already configured in the `.env` file.
+
+### Environment Configuration
+
+- `.env`: Contains production environment variables (checked into git)
+- `.env.local`: Local overrides (not checked into git)
+- `.env.example`: Example configuration
+
+### Data Structure
+
+The DynamoDB table has minimal structure by design:
+- `id`: UUID for each record
+- `timestamp`: When the data was recorded
+- `data`: JSON string containing calculator input data
+
+This allows for flexibility as the calculator evolves over time.

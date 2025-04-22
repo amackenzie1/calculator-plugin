@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { projectNetWorth } from '@/lib/calculator/projection'
 import { initializePerson, yearFromBirthYearAndTargetAge } from '@/lib/utils'
+import { logCalculatorData } from '@/lib/utils/dynamo-logger'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, InfoIcon, PercentIcon, SaveIcon, UserIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -168,6 +169,17 @@ const Calculator = () => {
 
       // Store the submitted data for CSV export
       setSubmittedData(formattedData)
+
+      // Log calculator data to DynamoDB
+      logCalculatorData(formattedData)
+        .then(success => {
+          if (!success) {
+            console.log('Data logging to DynamoDB failed, but continuing with calculation')
+          }
+        })
+        .catch(error => {
+          console.error('Error logging data to DynamoDB:', error)
+        })
 
       // Switch to results tab after successful calculation
       setCurrentTab('results')

@@ -1,0 +1,9 @@
+{
+  "name": "calculator-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function for Calculator app",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1485.0"
+  }
+}

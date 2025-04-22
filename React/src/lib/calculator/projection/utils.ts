@@ -83,3 +83,49 @@ export function validateInputs(data: CalculatorSchemaType): void {
     throw new Error('Investment return rate is required for projection')
   }
 }
+
+// Default return rates (percent) if user does not specify
+const DEFAULT_RETURN_RATE = 5
+// Mapping of investor profiles to default return rates (percent)
+const PROFILE_RETURN_RATES: Record<NonNullable<CalculatorSchemaType['investorProfile']>, number> = {
+  risk_averse: 4,
+  conservative: 5,
+  moderate: 7,
+  aggressive: 9,
+  speculative: 12,
+  custom: DEFAULT_RETURN_RATE,
+}
+
+/**
+ * Determine the annual return rate (percent) for a given year
+ * - If specifyReturn is true, use growthReturnRate before pivotYear and incomeReturnRate after
+ * - Else if investmentReturnRate provided, use that
+ * - Else if investorProfile provided and not 'custom', use PROFILE_RETURN_RATES
+ * - Else fallback to DEFAULT_RETURN_RATE
+ */
+export function getAnnualReturnRate(
+  input: CalculatorSchemaType,
+  currentYear: number,
+  pivotYear: number
+): number {
+  // If user specified separate return rates for growth vs income
+  if (input.specifyReturn) {
+    if (currentYear <= pivotYear && input.growthReturnRate != null) {
+      return input.growthReturnRate
+    }
+    if (currentYear > pivotYear && input.incomeReturnRate != null) {
+      return input.incomeReturnRate
+    }
+    // If one of the rates missing, fall back to single rate below
+  }
+  // Single specified return rate
+  if (input.investmentReturnRate != null) {
+    return input.investmentReturnRate
+  }
+  // Use profile defaults if provided
+  if (input.investorProfile != null && input.investorProfile !== 'custom') {
+    return PROFILE_RETURN_RATES[input.investorProfile]
+  }
+  // Fallback
+  return DEFAULT_RETURN_RATE
+}

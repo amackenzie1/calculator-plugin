@@ -1,7 +1,7 @@
 // File: src/lib/calculator/projection/accounts.ts
 import { CalculatorSchemaType } from '@/components/Schema'
 import { AccountState, PersonState, SchemaPerson, YearState } from './types'
-import { deepClone } from './utils'
+import { deepClone, getAnnualReturnRate } from './utils'
 
 /**
  * Process a withdrawal from an account, handling market value and book value adjustments
@@ -71,7 +71,17 @@ export function applyInvestmentReturns(
   input: CalculatorSchemaType
 ): YearState {
   const newState = deepClone(currentState)
-  const r = (input.investmentReturnRate ?? 0) / 100
+  // Determine pivot year (last employment year) for growth vs income returns
+  const pivotYear = Math.max(
+    ...input.persons.map((p) => {
+      if (p.incomeYearEnd != null) return p.incomeYearEnd
+      if (p.incomeEndAge != null && p.birthYear != null) return p.birthYear + p.incomeEndAge
+      return Number.POSITIVE_INFINITY
+    })
+  )
+  // Get annual return rate (percent) and convert to decimal
+  const ratePercent = getAnnualReturnRate(input, newState.year, pivotYear)
+  const r = ratePercent / 100
 
   function growAccounts(person: PersonState): PersonState {
     const newAccounts = { ...person.accounts }
