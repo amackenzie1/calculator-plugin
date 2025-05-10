@@ -1,5 +1,5 @@
 import { CalculatorSchemaType } from "@/components/Schema";
-import { YearState } from "@/lib/calculator/projection";
+import { YearState, getAllExpenses } from "@/lib/calculator/projection";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver"; // Utility to trigger browser download
 
@@ -70,6 +70,76 @@ export async function generateExcelReport(
   if (detailedProjectionStates.length === 0) {
     console.error("No projection data to export.");
     return;
+  }
+
+  // Determine active registered accounts
+  const activeRegisteredAccounts: {
+    self: { [key: string]: boolean };
+    spouse: { [key: string]: boolean };
+  } = {
+    self: { tfsa: false, rrsp: false, rrif: false, lira: false, lif: false },
+    spouse: { tfsa: false, rrsp: false, rrif: false, lira: false, lif: false },
+  };
+  const accountTypes = ["tfsa", "rrsp", "rrif", "lira", "lif"] as const;
+  detailedProjectionStates.forEach((yearState) => {
+    yearState.persons.forEach((person) => {
+      const personTypeKey = person.personType as "self" | "spouse";
+      accountTypes.forEach((accType) => {
+        if (person.accounts[accType]?.marketValue > 0) {
+          activeRegisteredAccounts[personTypeKey][accType] = true;
+        }
+      });
+    });
+  });
+
+  const dynamicallyAddedRegisteredRows: ReportRow[] = [];
+  const accountTypeToLabelMap: { [key: string]: string } = {
+    tfsa: "TFSA",
+    rrsp: "RRSP",
+    rrif: "RRIF",
+    lira: "LIRA",
+    lif: "LIF",
+  };
+  let anyRegisteredPortfolioActive = false;
+
+  (["self", "spouse"] as const).forEach((personType) => {
+    if (personType === "spouse" && !input.calculateForSpouse) return;
+
+    let personHasActiveRegisteredAccount = false;
+    accountTypes.forEach((accType) => {
+      if (activeRegisteredAccounts[personType][accType]) {
+        anyRegisteredPortfolioActive = true;
+        personHasActiveRegisteredAccount = true;
+      }
+    });
+
+    if (personHasActiveRegisteredAccount) {
+      accountTypes.forEach((accType) => {
+        if (activeRegisteredAccounts[personType][accType]) {
+          dynamicallyAddedRegisteredRows.push({
+            label: `${accountTypeToLabelMap[accType]} (${
+              personType.charAt(0).toUpperCase() + personType.slice(1)
+            })`,
+            subCategory: "Registered Portfolios",
+            getValue: (ys) =>
+              ys.persons.find((p) => p.personType === personType)?.accounts[
+                accType
+              ].marketValue || 0,
+            isCurrency: true,
+            parentCategory: "Assets",
+          });
+        }
+      });
+    }
+  });
+
+  if (anyRegisteredPortfolioActive) {
+    dynamicallyAddedRegisteredRows.unshift({
+      label: "Registered Portfolios",
+      category: "Assets",
+      getValue: () => null,
+      fill: assetFill,
+    });
   }
 
   // --- Define Report Structure ---
@@ -212,7 +282,7 @@ export async function generateExcelReport(
     {
       label: "General Expenses",
       subCategory: "Lifestyle Expenses",
-      getValue: (ys) => ys.persons.reduce((sum, p) => sum + p.expenses, 0),
+      getValue: (ys, _, inp) => getAllExpenses(ys, inp),
       isCurrency: true,
       parentCategory: "Cash Uses",
     },
@@ -284,6 +354,7 @@ export async function generateExcelReport(
         ]
       : []),
     // Add other account types (TFSA, RRSP etc.) here if desired
+    ...dynamicallyAddedRegisteredRows,
     {
       label: "Total Assets",
       isBold: true,

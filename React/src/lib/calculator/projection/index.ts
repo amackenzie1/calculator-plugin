@@ -6,6 +6,7 @@ import {
 } from "./engine";
 import { ProjectionDataPoint, YearState } from "./types";
 import { validateInputs } from "./utils";
+import { getAllExpenses } from "./withdrawals";
 
 /**
  * Projects retirement finances year by year
@@ -53,3 +54,5 @@ export function projectNetWorth(
 
 // Re-export types that should be publicly accessible
 export * from "./types";
+
+export { getAllExpenses };
