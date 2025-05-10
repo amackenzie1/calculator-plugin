@@ -78,6 +78,66 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
     }
   }, [form.watch('investorProfile'), form.watch('specifyReturn')])
 
+  useEffect(() => {
+    // TODO: Remove this useEffect for production - for development autofill
+    // This effect is intended to run only once on mount for development purposes.
+    const autoFillFlag = 'formAutoFilled_Onboarding';
+    if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
+      // console.log('Autofilling OnboardingCard form for development...'); // Uncomment for debugging
+
+      form.setValue('calculateForSpouse', true);
+      form.setValue('persons.0.birthYear', 1946);
+      form.setValue('persons.1.birthYear', 1945);
+      form.setValue('persons.0.lifeExpectancy', 99);
+      form.setValue('persons.1.lifeExpectancy', 99);
+
+      // No changes to province, investor profile, or inflation rate in this component as per request.
+
+      // For other form sections, the following values need to be set in their respective components.
+      // PLEASE VERIFY these field paths against your `CalculatorSchema` as they are examples.
+      // You would add a similar useEffect block in the components handling those sections.
+      //
+      // --- Income Information (Example field paths) ---
+      // My CPP 15000, spouse CPP 10,000 (Start at age 65 for both)
+      // My OAS 9000, spouse OAS 9000 (Start at 65 for both)
+      // Example:
+      // form.setValue('persons.0.cppPension.annualAmount', 15000);
+      // form.setValue('persons.0.cppPension.startAge', 65);
+      // form.setValue('persons.1.cppPension.annualAmount', 10000);
+      // form.setValue('persons.1.cppPension.startAge', 65);
+      // form.setValue('persons.0.oasPension.annualAmount', 9000);
+      // form.setValue('persons.0.oasPension.startAge', 65);
+      // form.setValue('persons.1.oasPension.annualAmount', 9000);
+      // form.setValue('persons.1.oasPension.startAge', 65);
+      //
+      // --- Asset Page (Example field paths) ---
+      // My non-RRSP investments $300,123 (Start year 2024, Cost 200123)
+      // Example (assuming nonRegisteredAssets is an array, possibly under a general 'assets' object for each person):
+      // form.setValue('persons.0.assets.nonRegistered.0.currentValue', 300123);
+      // form.setValue('persons.0.assets.nonRegistered.0.startYear', 2024);
+      // form.setValue('persons.0.assets.nonRegistered.0.costBase', 200123);
+      //
+      // Primary Residence: Current market value $950,000, Plan to sell in 2026, Spouse owned
+      // Example (assuming primaryResidence is a top-level object or nested, e.g., under 'assets'):
+      // form.setValue('assets.primaryResidence.currentMarketValue', 950000);
+      // form.setValue('assets.primaryResidence.planToSellYear', 2026);
+      // // For 'ownedBy', the value depends on your schema (e.g., 'person1_id', 'spouse', an index like 1).
+      // form.setValue('assets.primaryResidence.ownedBy', 'value_representing_spouse_ownership');
+      //
+      // --- Annual Expenses (Example field paths) ---
+      // My expenses $100,123 (No expenses for spouse)
+      // Desired estate $10,123
+      // Example:
+      // form.setValue('persons.0.expenses.annualLivingExpenses', 100123);
+      // // If spouse expenses are explicitly zero or not applicable, you might set them or omit.
+      // // form.setValue('persons.1.expenses.annualLivingExpenses', 0);
+      // form.setValue('financialGoals.desiredEstate', 10123);
+
+      sessionStorage.setItem(autoFillFlag, 'true');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
+
   return (
     <Card className="form-card">
       <CardHeader className="form-card-header">

@@ -1,22 +1,23 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { UseFormReturn } from 'react-hook-form'
+import { useEffect } from 'react'
+import { UseFormReturn, useFieldArray } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
 
@@ -38,6 +39,47 @@ const IncomeCard = ({
   birthYearSpouse,
   yearFromBirthYearAndTargetAge,
 }: IncomeCardProps) => {
+  const {
+    fields: otherIncomeFields,
+    append: appendOtherIncome,
+    remove: removeOtherIncome,
+  } = useFieldArray({
+    control: form.control,
+    name: 'persons.0.otherIncomes',
+  })
+
+  const {
+    fields: spouseOtherIncomeFields,
+    append: appendSpouseOtherIncome,
+    remove: removeSpouseOtherIncome,
+  } = useFieldArray({
+    control: form.control,
+    name: 'persons.1.otherIncomes',
+  })
+
+  // Autofill for development
+  useEffect(() => {
+    // TODO: Remove this useEffect for production - for development autofill
+    const autoFillFlag = 'formAutoFilled_Income';
+    if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
+      // My CPP 15000 spouse CPP 10,000 (Start at age 65 for both)
+      form.setValue('persons.0.cppAmount', 15000);
+      form.setValue('persons.0.cppStartAge', 65);
+      form.setValue('persons.1.cppAmount', 10000);
+      form.setValue('persons.1.cppStartAge', 65);
+
+      // My OAS 9000 spouse OAS also 9000 (Start at 65 for both)
+      form.setValue('persons.0.oasAmount', 9000);
+      form.setValue('persons.0.oasStartAge', 65);
+      form.setValue('persons.1.oasAmount', 9000);
+      form.setValue('persons.1.oasStartAge', 65);
+
+      // No other entries on this page - so ensure otherIncomes arrays are empty or not set if not needed.
+      sessionStorage.setItem(autoFillFlag, 'true');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
+
   const handleAddOtherIncome = (personType: 'self' | 'spouse') => {
     const currentOtherIncomes = form.getValues('otherIncomes') || []
     const newOtherIncome = {

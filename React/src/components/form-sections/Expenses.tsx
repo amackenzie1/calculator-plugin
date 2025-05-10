@@ -1,21 +1,21 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
@@ -75,6 +75,27 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
       shouldDirty: true,
     })
   }
+
+  // Autofill for development
+  useEffect(() => {
+    // TODO: Remove this useEffect for production - for development autofill
+    const autoFillFlag = 'formAutoFilled_Expenses';
+    if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
+      // My expenses $100,123
+      form.setValue('persons.0.annualExpenses' as any, 100123);
+
+      // No expenses for spouse
+      if (calculateForSpouse) {
+        form.setValue('persons.1.annualExpenses' as any, 0);
+      }
+
+      // Desired estate 10123
+      form.setValue('desiredEstateValue' as any, 10123);
+
+      sessionStorage.setItem(autoFillFlag, 'true');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculateForSpouse]);
 
   return (
     <Card className="form-card">

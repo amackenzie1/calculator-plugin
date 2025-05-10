@@ -1,28 +1,29 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
@@ -88,6 +89,27 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
     { value: 'LIRA', label: 'LIRA' },
     { value: 'LIF', label: 'LIF' },
   ]
+
+  // Autofill for development
+  useEffect(() => {
+    // TODO: Remove this useEffect for production - for development autofill
+    const autoFillFlag = 'formAutoFilled_Assets';
+    if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
+      // My non-RRSP investments $300,123 (Start year 2024, Cost 200123)
+      form.setValue('persons.0.nonRegisteredInvestmentValue' as any, 300123);
+      form.setValue('persons.0.nonRegisteredInvestmentOpeningYear' as any, 2024);
+      form.setValue('persons.0.nonRegisteredInvestmentBookValue' as any, 200123);
+
+      // Primary Residence: Current market value $950,000, Plan to sell in 2026, Spouse owned
+      form.setValue('primaryResidenceValue' as any, 950000);
+      form.setValue('primaryResidenceSell' as any, true); // To make sell year visible
+      form.setValue('primaryResidenceSellYear' as any, 2026);
+      form.setValue('homeOwnership' as any, 'spouse');
+
+      sessionStorage.setItem(autoFillFlag, 'true');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.getValues('investmentReturnRate')]);
 
   return (
     <Card className="form-card">
