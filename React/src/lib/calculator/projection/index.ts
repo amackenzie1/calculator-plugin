@@ -1,16 +1,29 @@
 // File: src/lib/calculator/projection/index.ts
-import { CalculatorSchemaType } from '@/components/Schema'
-import { YearState, ProjectionDataPoint } from './types'
-import { projectRetirementInternal, calculateNetWorth } from './engine'
-import { validateInputs } from './utils'
+import { CalculatorSchemaType } from "@/components/Schema";
+import {
+  calculateNetWorth as calculateNetWorthEngine,
+  projectRetirementInternal,
+} from "./engine";
+import { ProjectionDataPoint, YearState } from "./types";
+import { validateInputs } from "./utils";
 
 /**
  * Projects retirement finances year by year
  * This is the main public API function for detailed projection
  */
 export function projectRetirement(input: CalculatorSchemaType): YearState[] {
-  validateInputs(input)
-  return projectRetirementInternal(input)
+  validateInputs(input);
+  return projectRetirementInternal(input);
+}
+
+/**
+ * Helper to calculate net worth for a given state, useful externally.
+ */
+export function calculateNetWorth(
+  state: YearState,
+  data: CalculatorSchemaType
+): number {
+  return calculateNetWorthEngine(state, data);
 }
 
 /**
@@ -21,21 +34,22 @@ export function projectNetWorth(
   data: CalculatorSchemaType
 ): ProjectionDataPoint[] {
   // Validate inputs
-  validateInputs(data)
-  
+  validateInputs(data);
+
   // Use our state-based projection system
-  const states = projectRetirementInternal(data)
+  const states = projectRetirementInternal(data);
 
   // Convert YearState[] to ProjectionDataPoint[]
   return states.map((state) => {
-    const netWorth = calculateNetWorth(state, data)
-    
+    // Calculate net worth for each state
+    const netWorth = calculateNetWorthEngine(state, data);
+
     return {
       year: state.year,
       netWorth: Math.round(netWorth),
-    }
-  })
+    };
+  });
 }
 
 // Re-export types that should be publicly accessible
-export * from './types'
+export * from "./types";

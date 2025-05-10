@@ -2,7 +2,12 @@
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
-import { projectNetWorth } from '@/lib/calculator/projection'
+import {
+  ProjectionDataPoint,
+  projectRetirement,
+  YearState
+} from '@/lib/calculator/projection'
+import { calculateNetWorth } from '@/lib/calculator/projection/engine'
 import { initializePerson, yearFromBirthYearAndTargetAge } from '@/lib/utils'
 import { logCalculatorData } from '@/lib/utils/dynamo-logger'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,7 +19,7 @@ import AssetsCard from './form-sections/Assets'
 import ExpensesCard from './form-sections/Expenses'
 import IncomeCard from './form-sections/Income'
 import OnboardingCard from './form-sections/Onboarding'
-import ResultsCard from './form-sections/Results'
+import ResultsCard from './form-sections/ResultsCard'
 import { CalculatorSchema, CalculatorSchemaType } from './Schema'
 
 const steps = [
@@ -61,12 +66,12 @@ const Calculator = () => {
     ? form.watch('persons.1.birthYear') ?? undefined
     : undefined
 
-  // Projection state
-  const [projectionData, setProjectionData] = useState<
-    { year: number; netWorth: number }[]
-  >([])
+  // Projection state for the graph
+  const [projectionDataForGraph, setProjectionDataForGraph] = useState<ProjectionDataPoint[]>([])
+  // Detailed projection state for XLSX export
+  const [detailedProjectionStates, setDetailedProjectionStates] = useState<YearState[]>([])
 
-  // Store the submitted data for CSV export
+  // Store the submitted data for CSV export and XLSX
   const [submittedData, setSubmittedData] = useState<
     CalculatorSchemaType | undefined
   >(undefined)
@@ -162,10 +167,16 @@ const Calculator = () => {
     }
 
     try {
-      // Use the projection module to get the data
-      console.log('data', formattedData)
-      const projection = projectNetWorth(formattedData)
-      setProjectionData(projection)
+      // Get detailed projection states
+      const detailedStates = projectRetirement(formattedData)
+      setDetailedProjectionStates(detailedStates)
+
+      // Derive projection data for the graph from detailed states
+      const graphData = detailedStates.map(state => ({
+        year: state.year,
+        netWorth: Math.round(calculateNetWorth(state, formattedData))
+      }))
+      setProjectionDataForGraph(graphData)
 
       // Store the submitted data for CSV export
       setSubmittedData(formattedData)
@@ -299,8 +310,9 @@ const Calculator = () => {
           </TabsContent>
           <TabsContent value="results">
             <ResultsCard
-              projectionData={projectionData}
-              calculatorData={submittedData}
+              projectionData={projectionDataForGraph}
+              calculatorInput={submittedData}
+              detailedProjectionStates={detailedProjectionStates}
             />
           </TabsContent>
         </Tabs>
