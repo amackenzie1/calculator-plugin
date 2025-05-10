@@ -49,6 +49,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
   ]
 
   const investorProfiles = [
+    { label: 'None (0%)', value: 'none', rate: 0 },
     { label: 'Risk Averse (3%)', value: 'risk_averse', rate: 3 },
     { label: 'Conservative (4%)', value: 'conservative', rate: 4 },
     { label: 'Moderate (5%)', value: 'moderate', rate: 5 },

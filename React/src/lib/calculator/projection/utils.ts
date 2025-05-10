@@ -87,15 +87,6 @@ export function validateInputs(data: CalculatorSchemaType): void {
 // Default return rates (percent) if user does not specify
 const DEFAULT_RETURN_RATE = 5
 // Mapping of investor profiles to default return rates (percent)
-const PROFILE_RETURN_RATES: Record<NonNullable<CalculatorSchemaType['investorProfile']>, number> = {
-  risk_averse: 4,
-  conservative: 5,
-  moderate: 7,
-  aggressive: 9,
-  speculative: 12,
-  custom: DEFAULT_RETURN_RATE,
-}
-
 /**
  * Determine the annual return rate (percent) for a given year
  * - If specifyReturn is true, use growthReturnRate before pivotYear and incomeReturnRate after

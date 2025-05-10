@@ -50,7 +50,6 @@ export function calculateYearlyIncome(
     }
 
     // 2. CPP with age or year start
-    // Derive start year for CPP
     let cppStart = schemaPerson.cppStartYear;
     if (
       cppStart == null &&
@@ -62,32 +61,22 @@ export function calculateYearlyIncome(
     if (cppStart == null && schemaPerson.birthYear != null) {
       cppStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.CPP.STANDARD_AGE;
     }
+
     if (
       schemaPerson.cppAmount != null &&
       cppStart != null &&
       currentYear >= cppStart
     ) {
-      let cppAmount = schemaPerson.cppAmount;
-      const startAge = cppStart - (schemaPerson.birthYear ?? 0);
-      // Apply early/late CPP adjustments
-      if (startAge < GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) {
-        const monthsEarly =
-          (GOVERNMENT_BENEFITS.CPP.STANDARD_AGE - startAge) * 12;
-        cppAmount *=
-          1 - monthsEarly * GOVERNMENT_BENEFITS.CPP.REDUCTION_RATE_BEFORE_65;
-      } else if (startAge > GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) {
-        const monthsLate =
-          (startAge - GOVERNMENT_BENEFITS.CPP.STANDARD_AGE) * 12;
-        cppAmount *=
-          1 + monthsLate * GOVERNMENT_BENEFITS.CPP.INCREASE_RATE_AFTER_65;
-      }
-      // Apply inflation adjustment to CPP
+      const baseCppAmountForStartYear = schemaPerson.cppAmount;
+
       person.income.cpp = adjustForInflation(
-        cppAmount,
+        baseCppAmountForStartYear,
         cppStart,
         currentYear,
         inflationRate
       );
+    } else {
+      person.income.cpp = 0;
     }
 
     // 3. OAS with age or year start and minimum age
@@ -114,6 +103,8 @@ export function calculateYearlyIncome(
         currentYear,
         inflationRate
       );
+    } else {
+      person.income.oas = 0;
     }
 
     // 4. Defined Benefit Pension with age or year start

@@ -72,6 +72,7 @@ export const CalculatorSchema = z
     ]),
     investorProfile: z
       .enum([
+        'none',
         'risk_averse',
         'conservative',
         'moderate',
