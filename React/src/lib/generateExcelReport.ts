@@ -429,25 +429,31 @@ export async function generateExcelReport(
       ? `  ${rowConfig.label}`
       : rowConfig.label;
     if (rowConfig.isBold) labelCell.font = boldFont;
-    if (rowConfig.fill) labelCell.fill = rowConfig.fill;
-    else if (rowConfig.subCategory)
-      labelCell.fill =
-        rowConfig.category === "Cash Sources"
-          ? cashSourceFill
-          : rowConfig.category === "Cash Uses"
-          ? cashUseFill
-          : rowConfig.category === "Assets"
-          ? assetFill
-          : undefined;
-    else if (rowConfig.category)
-      labelCell.fill =
-        rowConfig.category === "Cash Sources"
-          ? cashSourceFill
-          : rowConfig.category === "Cash Uses"
-          ? cashUseFill
-          : rowConfig.category === "Assets"
-          ? assetFill
-          : undefined;
+
+    let determinedFill: ExcelJS.Fill | undefined = undefined;
+    if (rowConfig.fill) {
+      determinedFill = rowConfig.fill;
+    } else if (rowConfig.subCategory) {
+      if (rowConfig.category === "Cash Sources") {
+        determinedFill = cashSourceFill;
+      } else if (rowConfig.category === "Cash Uses") {
+        determinedFill = cashUseFill;
+      } else if (rowConfig.category === "Assets") {
+        determinedFill = assetFill;
+      }
+    } else if (rowConfig.category) {
+      if (rowConfig.category === "Cash Sources") {
+        determinedFill = cashSourceFill;
+      } else if (rowConfig.category === "Cash Uses") {
+        determinedFill = cashUseFill;
+      } else if (rowConfig.category === "Assets") {
+        determinedFill = assetFill;
+      }
+    }
+
+    if (determinedFill) {
+      labelCell.fill = determinedFill;
+    }
 
     if (rowConfig.category && !categorySubtotals[rowConfig.category]) {
       categorySubtotals[rowConfig.category] = {};

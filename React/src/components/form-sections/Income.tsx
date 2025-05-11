@@ -17,7 +17,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useEffect } from 'react'
-import { UseFormReturn, useFieldArray } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import { CalculatorSchema } from '../Schema'
 
@@ -39,24 +39,6 @@ const IncomeCard = ({
   birthYearSpouse,
   yearFromBirthYearAndTargetAge,
 }: IncomeCardProps) => {
-  const {
-    fields: otherIncomeFields,
-    append: appendOtherIncome,
-    remove: removeOtherIncome,
-  } = useFieldArray({
-    control: form.control,
-    name: 'persons.0.otherIncomes',
-  })
-
-  const {
-    fields: spouseOtherIncomeFields,
-    append: appendSpouseOtherIncome,
-    remove: removeSpouseOtherIncome,
-  } = useFieldArray({
-    control: form.control,
-    name: 'persons.1.otherIncomes',
-  })
-
   // Autofill for development
   useEffect(() => {
     // TODO: Remove this useEffect for production - for development autofill
