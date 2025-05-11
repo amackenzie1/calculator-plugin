@@ -1,27 +1,28 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
@@ -168,9 +169,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             <FormLabel>Calculate for Spouse</FormLabel>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
+                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
@@ -204,9 +203,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             <FormLabel>Your Birth Year</FormLabel>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
+                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
@@ -242,9 +239,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               <FormLabel>Spouse's Birth Year</FormLabel>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
+                                  <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Enter the year your spouse was born.</p>
@@ -279,9 +274,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                             <FormLabel>Your Life Expectancy</FormLabel>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
+                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
@@ -322,9 +315,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                               <FormLabel>Spouse's Life Expectancy</FormLabel>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
+                                  <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>
@@ -362,9 +353,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           <FormLabel>Province</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="cursor-help text-muted-foreground">
-                                (?)
-                              </span>
+                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>Select your province of residence.</p>
@@ -413,9 +402,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           <FormLabel>Investment Risk Profile</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="cursor-help text-muted-foreground">
-                                (?)
-                              </span>
+                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>
@@ -477,9 +464,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                           <FormLabel>Inflation Rate (%)</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="cursor-help text-muted-foreground">
-                                (?)
-                              </span>
+                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>

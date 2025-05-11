@@ -23,6 +23,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
@@ -128,9 +129,9 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                 <h3 className="form-section-title">Registered Investments</h3>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Details about your registered investment accounts (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Details about your registered investment accounts <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <p>
@@ -204,9 +205,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                                     <FormLabel>Account Type</FormLabel>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="cursor-help text-muted-foreground">
-                                          (?)
-                                        </span>
+                                        <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                       </TooltipTrigger>
                                       <TooltipContent>
                                         <p>
@@ -252,9 +251,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                                     <FormLabel>Current Value</FormLabel>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="cursor-help text-muted-foreground">
-                                          (?)
-                                        </span>
+                                        <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                       </TooltipTrigger>
                                       <TooltipContent>
                                         <p>
@@ -311,9 +308,9 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                 </h3>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Details about your non-registered investments (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Details about your non-registered investments <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <p>
@@ -346,9 +343,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                                 <FormLabel>Current Value</FormLabel>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span className="cursor-help text-muted-foreground">
-                                      (?)
-                                    </span>
+                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>
@@ -390,9 +385,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                                 <FormLabel>Opening Year</FormLabel>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span className="cursor-help text-muted-foreground">
-                                      (?)
-                                    </span>
+                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>
@@ -433,9 +426,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                                 <FormLabel>Book Value</FormLabel>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span className="cursor-help text-muted-foreground">
-                                      (?)
-                                    </span>
+                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>
@@ -482,9 +473,9 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                 <h3 className="form-section-title">Life Insurance</h3>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Details about your life insurance policies (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Details about your life insurance policies <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-sm">
                     <p>
@@ -515,9 +506,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                               <FormLabel>Death Benefit Amount</FormLabel>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="cursor-help text-muted-foreground">
-                                    (?)
-                                  </span>
+                                  <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>
@@ -560,9 +549,9 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                 <h3 className="form-section-title">Primary Residence</h3>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Details about your primary residence (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Details about your primary residence <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -585,9 +574,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                           <FormLabel>Current Market Value</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="cursor-help text-muted-foreground">
-                                (?)
-                              </span>
+                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>
@@ -626,9 +613,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                             <FormLabel>Plan to Sell</FormLabel>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
+                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
@@ -662,9 +647,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                           <FormLabel>Home Ownership</FormLabel>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="cursor-help text-muted-foreground">
-                                (?)
-                              </span>
+                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>
@@ -704,9 +687,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                             <FormLabel>Planned Sale Year</FormLabel>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help text-muted-foreground">
-                                  (?)
-                                </span>
+                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>

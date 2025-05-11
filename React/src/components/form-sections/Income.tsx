@@ -16,6 +16,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
@@ -148,9 +149,9 @@ const IncomeCard = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter your annual employment income (before tax) (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter your annual employment income (before tax) <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -357,9 +358,7 @@ const IncomeCard = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help text-muted-foreground">
-                            (?)
-                          </span>
+                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>
@@ -511,9 +510,7 @@ const IncomeCard = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help text-muted-foreground">
-                            (?)
-                          </span>
+                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>
@@ -662,9 +659,7 @@ const IncomeCard = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help text-muted-foreground">
-                            (?)
-                          </span>
+                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>
@@ -855,9 +850,9 @@ const IncomeCard = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter any additional sources of income (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter any additional sources of income <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>

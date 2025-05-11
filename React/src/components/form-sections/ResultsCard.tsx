@@ -2,9 +2,11 @@ import ProjectionGraph from "@/components/ProjectionGraph"; // Import the dedica
 import { CalculatorSchemaType } from "@/components/Schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { ProjectionDataPoint, YearState } from "@/lib/calculator/projection"; // Assuming YearState is exported
 import { generateExcelReport } from "@/lib/generateExcelReport"; // Ensure this is a static import for now
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export interface ResultsCardProps {
   projectionData: ProjectionDataPoint[];
@@ -17,16 +19,24 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
   calculatorInput, 
   detailedProjectionStates 
 }) => {
+  const { toast } = useToast();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadXLSX = async () => {
     console.log("[ResultsCard] handleDownloadXLSX triggered");
 
     if (!calculatorInput || !detailedProjectionStates || detailedProjectionStates.length === 0) {
       console.error("[ResultsCard] Data not available for Excel export. Input valid:", !!calculatorInput, "States valid:", !!detailedProjectionStates, "States length:", detailedProjectionStates?.length);
+      toast({
+        title: "Export Error",
+        description: "Projection data is not available for export. Please calculate first.",
+        variant: "destructive",
+      });
       return;
     }
     
     console.log("[ResultsCard] Data seems available. Proceeding to generate report.");
+    setIsDownloading(true);
 
     try {
       console.log("[ResultsCard] Attempting to call generateExcelReport with:", { 
@@ -35,8 +45,20 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
       });
       await generateExcelReport(detailedProjectionStates, calculatorInput);
       console.log("[ResultsCard] Excel report generation call completed.");
+      toast({
+        title: "Export Successful",
+        description: "Your XLSX report has been downloaded.",
+        variant: "default",
+      });
     } catch (error) {
       console.error("[ResultsCard] Error during generateExcelReport call:", error);
+      toast({
+        title: "Export Failed",
+        description: "Could not generate the XLSX report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -55,9 +77,13 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
           <p className="text-center text-muted-foreground">No projection data available. Please complete the previous steps and calculate.</p>
         )}
         <div className="flex justify-center mt-6">
-          <Button onClick={handleDownloadXLSX} variant="default" size="lg" className="flex items-center gap-2">
-            <DownloadIcon size={18} />
-            Download XLSX Report
+          <Button onClick={handleDownloadXLSX} variant="default" size="lg" className="flex items-center gap-2" disabled={isDownloading}>
+            {isDownloading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <DownloadIcon size={18} />
+            )}
+            {isDownloading ? "Generating Report..." : "Download XLSX Report"}
           </Button>
         </div>
       </CardContent>

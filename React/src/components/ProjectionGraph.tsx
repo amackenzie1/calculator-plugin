@@ -1,21 +1,20 @@
 import React, { useState } from 'react'
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Line,
+    LineChart,
+    ReferenceLine,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
 } from 'recharts'
-import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
 
 interface ProjectionDataPoint {
   year: number
@@ -34,9 +33,9 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
   
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', { 
+    return new Intl.NumberFormat('en-CA', {
       style: 'currency', 
-      currency: 'USD',
+      currency: 'CAD',
       notation: 'compact',
       maximumFractionDigits: 1
     }).format(value)
@@ -94,6 +93,7 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip content={<CustomTooltip />} />
+              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Line
                 type="monotone"
                 dataKey="netWorth"
@@ -102,11 +102,6 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 strokeWidth={3}
                 dot={{ r: 2, fill: 'hsl(var(--primary))' }}
                 activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
-              />
-              {/* Reference line for current year */}
-              <CartesianGrid 
-                vertical={false} 
-                horizontal={true} 
               />
             </LineChart>
           </ResponsiveContainer>
@@ -131,6 +126,7 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 width={80}
               />
               <Tooltip content={<CustomTooltip />} />
+              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Area
                 type="monotone"
                 dataKey="netWorth"
@@ -161,6 +157,7 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip content={<CustomTooltip />} />
+              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Bar
                 dataKey="netWorth"
                 name="Net Worth"

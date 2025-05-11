@@ -15,6 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
@@ -114,9 +115,9 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter your expected annual expenses (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter your expected annual expenses <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -217,9 +218,9 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter any one-time expenses you anticipate (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter any one-time expenses you anticipate <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -453,9 +454,9 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter your planned charitable donations (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter your planned charitable donations <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -727,9 +728,9 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-muted-foreground mb-4 cursor-help">
-                      Enter the amount you wish to leave to your heirs (?)
-                    </p>
+                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
+                      Enter the amount you wish to leave to your heirs <InfoIcon className="h-4 w-4 ml-1" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
