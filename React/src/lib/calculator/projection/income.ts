@@ -22,6 +22,8 @@ export function calculateYearlyIncome(
     );
     if (!schemaPerson) return;
 
+    const simulationEpochYear = new Date().getFullYear(); // Defined for use in CPP/OAS
+
     // Derive employment start and end years (fallback to ages if provided)
     let startYr = schemaPerson.incomeYearStart;
     if (
@@ -68,10 +70,12 @@ export function calculateYearlyIncome(
       currentYear >= cppStart
     ) {
       const baseCppAmountForStartYear = schemaPerson.cppAmount;
+      const yearToInflateFrom =
+        cppStart <= simulationEpochYear ? simulationEpochYear : cppStart;
 
       person.income.cpp = adjustForInflation(
         baseCppAmountForStartYear,
-        cppStart,
+        yearToInflateFrom,
         currentYear,
         inflationRate
       );
@@ -97,9 +101,13 @@ export function calculateYearlyIncome(
       currentYear >= oasStart &&
       person.age >= GOVERNMENT_BENEFITS.OAS.MIN_AGE
     ) {
+      const baseOasAmountForStartYear = schemaPerson.oasAmount;
+      const yearToInflateFrom =
+        oasStart <= simulationEpochYear ? simulationEpochYear : oasStart;
+
       person.income.oas = adjustForInflation(
-        schemaPerson.oasAmount,
-        oasStart,
+        baseOasAmountForStartYear,
+        yearToInflateFrom,
         currentYear,
         inflationRate
       );
