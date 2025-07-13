@@ -1,4 +1,4 @@
-import { Province } from '@/components/Schema'
+import { Province } from '@/lib/schema/calculator'
 
 // Interface for tax brackets
 interface TaxBracket {

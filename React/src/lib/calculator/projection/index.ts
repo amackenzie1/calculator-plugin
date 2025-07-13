@@ -1,5 +1,5 @@
 // File: src/lib/calculator/projection/index.ts
-import { CalculatorSchemaType } from "@/components/Schema";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import {
   calculateNetWorth as calculateNetWorthEngine,
   projectRetirementInternal,

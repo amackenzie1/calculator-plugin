@@ -1,26 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { InfoIcon } from 'lucide-react'
+import { Form } from '@/components/ui/form'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
-import { CalculatorSchema } from '../Schema'
+import { CalculatorSchema } from '@/lib/schema/calculator'
+import { NumberInput, TextInput, FormSection, SelfSpouseFields, FormFieldWithTooltip, SwitchField } from '@/components/form'
+import { useFormList } from '@/hooks/useFormList'
+import { fieldPath } from '@/lib/form-helpers'
 
 interface IncomeCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>
@@ -40,6 +27,8 @@ const IncomeCard = ({
   birthYearSpouse,
   yearFromBirthYearAndTargetAge,
 }: IncomeCardProps) => {
+  const { handleAdd: handleAddOtherIncome, handleRemove: handleRemoveOtherIncome } = useFormList(form, 'otherIncomes')
+
   // Autofill for development
   useEffect(() => {
     // TODO: Remove this useEffect for production - for development autofill
@@ -63,25 +52,15 @@ const IncomeCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run once on mount
 
-  const handleAddOtherIncome = (personType: 'self' | 'spouse') => {
-    const currentOtherIncomes = form.getValues('otherIncomes') || []
-    const newOtherIncome = {
+  const addOtherIncome = (personType: 'self' | 'spouse') => {
+    handleAddOtherIncome({
       id: Date.now(),
       personType: personType,
       description: '',
       amount: null,
       startYear: null,
       endYear: null,
-    }
-
-    form.setValue('otherIncomes', [...currentOtherIncomes, newOtherIncome])
-  }
-
-  const handleRemoveOtherIncome = (id: number) => {
-    const updatedOtherIncomes = form
-      .getValues('otherIncomes')
-      .filter((income) => income.id !== id)
-    form.setValue('otherIncomes', updatedOtherIncomes)
+    })
   }
 
   const handlePrimaryIncomeAgeBlur = (personType: 'self' | 'spouse') => {
@@ -143,728 +122,248 @@ const IncomeCard = ({
       <CardContent className="form-card-content">
         <Form {...form}>
           <form className="space-y-8">
-            {/* Primary Income Section */}
-            <div className="form-section">
-              <h3 className="form-section-title">Primary Income</h3>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Enter your annual employment income (before tax) <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      Include income from employment, consulting, small
-                      business, or other sources. Do not include investment
-                      income, pension income, RRSP, or RRIF withdrawals.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="persons.0.primaryYearlyIncome"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Your Annual Income (before tax)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Enter income"
-                            value={
-                              field.value == null ? '' : field.value.toString()
-                            }
-                            onChange={(e) => {
-                              const value = e.target.value
-                              field.onChange(value ? parseInt(value) : null)
-                            }}
-                            onBlur={() => handlePrimaryIncomeAgeBlur('self')}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {calculateForSpouse && (
-                    <FormField
-                      control={form.control}
-                      name="persons.1.primaryYearlyIncome"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            Spouse's Annual Income (before tax)
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter income"
-                              value={
-                                field.value == null
-                                  ? ''
-                                  : field.value.toString()
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value
-                                field.onChange(value ? parseInt(value) : null)
-                              }}
-                              onBlur={() =>
-                                handlePrimaryIncomeAgeBlur('spouse')
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="persons.0.incomeStartAge"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Income Start Age</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter age"
-                              value={
-                                field.value == null
-                                  ? ''
-                                  : field.value.toString()
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value
-                                field.onChange(value ? parseInt(value) : null)
-                              }}
-                              onBlur={() => handlePrimaryIncomeAgeBlur('self')}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="persons.0.incomeEndAge"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Income End Age</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter age"
-                              value={
-                                field.value == null
-                                  ? ''
-                                  : field.value.toString()
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value
-                                field.onChange(value ? parseInt(value) : null)
-                              }}
-                              onBlur={() => handlePrimaryIncomeAgeBlur('self')}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {calculateForSpouse && (
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="persons.1.incomeStartAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Spouse's Income Start Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter age"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                                onBlur={() =>
-                                  handlePrimaryIncomeAgeBlur('spouse')
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="persons.1.incomeEndAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Spouse's Income End Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter age"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                                onBlur={() =>
-                                  handlePrimaryIncomeAgeBlur('spouse')
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             {/* Government Benefits Section */}
-            <div className="form-section">
-              <h3 className="form-section-title">Government Benefits</h3>
-
-              {/* CPP/QPP */}
+            <FormSection title="Government Benefits">
               <div className="space-y-6">
+                {/* CPP/QPP */}
                 <div className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center gap-2">
+                  <FormFieldWithTooltip
+                    label="CPP/QPP"
+                    tooltip="The age you start your pension, how long you contributed, and your average earnings throughout your life determine how much CPP or QPP you receive. In 2023 the maximum annual pension for someone retiring at age 65 is $15,678.84 ($1,306.57 per month)."
+                  >
                     <h4 className="text-lg font-medium">CPP/QPP</h4>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            The age you start your pension, how long you
-                            contributed, and your average earnings throughout
-                            your life determine how much CPP or QPP you receive.
-                            In 2023 the maximum annual pension for someone
-                            retiring at age 65 is $15,678.84 ($1,306.57 per
-                            month).
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  </FormFieldWithTooltip>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="persons.0.cppStartAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Start Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter age"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                                onBlur={() =>
-                                  handlePensionAgeBlur('self', 'cpp')
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="persons.0.cppAmount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Annual Amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(
-                                    value ? parseFloat(value) : null
-                                  )
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {calculateForSpouse && (
+                  <SelfSpouseFields
+                    calculateForSpouse={calculateForSpouse}
+                    selfContent={
                       <div className="space-y-4">
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.cppStartAge"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Start Age</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter age"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseInt(value) : null
-                                    )
-                                  }}
-                                  onBlur={() =>
-                                    handlePensionAgeBlur('spouse', 'cpp')
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.cppStartAge"
+                          label="Your Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('self', 'cpp')}
                         />
-
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.cppAmount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Annual Amount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseFloat(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.cppAmount"
+                          label="Your Annual Amount"
+                          placeholder="Enter amount"
+                          type="decimal"
                         />
                       </div>
-                    )}
-                  </div>
+                    }
+                    spouseContent={
+                      <div className="space-y-4">
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.cppStartAge"
+                          label="Spouse's Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('spouse', 'cpp')}
+                        />
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.cppAmount"
+                          label="Spouse's Annual Amount"
+                          placeholder="Enter amount"
+                          type="decimal"
+                        />
+                      </div>
+                    }
+                  />
                 </div>
 
                 {/* OAS */}
                 <div className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-lg font-medium">
-                      Old Age Security (OAS)
-                    </h4>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            The maximum pension is $8,292 for 2023. The amount
-                            you receive for OAS depends on how many years you
-                            have lived in Canada.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <FormFieldWithTooltip
+                    label="Old Age Security (OAS)"
+                    tooltip="The maximum pension is $8,292 for 2023. The amount you receive for OAS depends on how many years you have lived in Canada."
+                  >
+                    <h4 className="text-lg font-medium">Old Age Security (OAS)</h4>
+                  </FormFieldWithTooltip>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="persons.0.oasStartAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Start Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter age"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                                onBlur={() =>
-                                  handlePensionAgeBlur('self', 'oas')
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="persons.0.oasAmount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Annual Amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(
-                                    value ? parseFloat(value) : null
-                                  )
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {calculateForSpouse && (
+                  <SelfSpouseFields
+                    calculateForSpouse={calculateForSpouse}
+                    selfContent={
                       <div className="space-y-4">
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.oasStartAge"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Start Age</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter age"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseInt(value) : null
-                                    )
-                                  }}
-                                  onBlur={() =>
-                                    handlePensionAgeBlur('spouse', 'oas')
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.oasStartAge"
+                          label="Your Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('self', 'oas')}
                         />
-
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.oasAmount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Annual Amount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseFloat(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.oasAmount"
+                          label="Your Annual Amount"
+                          placeholder="Enter amount"
+                          type="decimal"
                         />
                       </div>
-                    )}
-                  </div>
+                    }
+                    spouseContent={
+                      <div className="space-y-4">
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.oasStartAge"
+                          label="Spouse's Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('spouse', 'oas')}
+                        />
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.oasAmount"
+                          label="Spouse's Annual Amount"
+                          placeholder="Enter amount"
+                          type="decimal"
+                        />
+                      </div>
+                    }
+                  />
                 </div>
 
                 {/* Defined Benefit Pension */}
                 <div className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-lg font-medium">
-                      Defined Benefit Pension
-                    </h4>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            Include any private pension from a government or
-                            private company.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <FormFieldWithTooltip
+                    label="Defined Benefit Pension"
+                    tooltip="Include any private pension from a government or private company."
+                  >
+                    <h4 className="text-lg font-medium">Defined Benefit Pension</h4>
+                  </FormFieldWithTooltip>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="persons.0.definedBenefitPensionStartAge"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Start Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter age"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                                onBlur={() =>
-                                  handlePensionAgeBlur(
-                                    'self',
-                                    'definedBenefitPension'
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="persons.0.definedBenefitPensionAmount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Annual Amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="persons.0.definedBenefitPensionIndexedToInflation"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel>Indexed to Inflation</FormLabel>
-                              <p className="text-sm text-muted-foreground">
-                                Will this pension increase with inflation?
-                              </p>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value ?? false}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {calculateForSpouse && (
+                  <SelfSpouseFields
+                    calculateForSpouse={calculateForSpouse}
+                    selfContent={
                       <div className="space-y-4">
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.definedBenefitPensionStartAge"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Start Age</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter age"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseInt(value) : null
-                                    )
-                                  }}
-                                  onBlur={() =>
-                                    handlePensionAgeBlur(
-                                      'spouse',
-                                      'definedBenefitPension'
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.definedBenefitPensionStartAge"
+                          label="Your Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('self', 'definedBenefitPension')}
                         />
-
-                        <FormField
+                        <NumberInput
                           control={form.control}
-                          name="persons.1.definedBenefitPensionAmount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Spouse's Annual Amount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseInt(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="persons.0.definedBenefitPensionAmount"
+                          label="Your Annual Amount"
+                          placeholder="Enter amount"
                         />
-
-                        <FormField
+                        <SwitchField
                           control={form.control}
-                          name="persons.1.definedBenefitPensionIndexedToInflation"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel>Indexed to Inflation</FormLabel>
-                                <p className="text-sm text-muted-foreground">
-                                  Will this pension increase with inflation?
-                                </p>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value ?? false}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
+                          name="persons.0.definedBenefitPensionIndexedToInflation"
+                          label="Indexed to Inflation"
+                          description="Will this pension increase with inflation?"
                         />
                       </div>
-                    )}
-                  </div>
+                    }
+                    spouseContent={
+                      <div className="space-y-4">
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.definedBenefitPensionStartAge"
+                          label="Spouse's Start Age"
+                          placeholder="Enter age"
+                          onBlur={() => handlePensionAgeBlur('spouse', 'definedBenefitPension')}
+                        />
+                        <NumberInput
+                          control={form.control}
+                          name="persons.1.definedBenefitPensionAmount"
+                          label="Spouse's Annual Amount"
+                          placeholder="Enter amount"
+                        />
+                        <SwitchField
+                          control={form.control}
+                          name="persons.1.definedBenefitPensionIndexedToInflation"
+                          label="Indexed to Inflation"
+                          description="Will this pension increase with inflation?"
+                        />
+                      </div>
+                    }
+                  />
                 </div>
               </div>
-            </div>
+            </FormSection>
+
+            {/* Primary Income Section */}
+            <FormSection 
+              title="Primary Income"
+              description="Enter your annual employment income (before tax)"
+              tooltip="Include income from employment, consulting, small business, or other sources. Do not include investment income, pension income, RRSP, or RRIF withdrawals."
+            >
+              <div className="space-y-6">
+                <SelfSpouseFields
+                  calculateForSpouse={calculateForSpouse}
+                  selfContent={
+                    <NumberInput
+                      control={form.control}
+                      name="persons.0.primaryYearlyIncome"
+                      label="Your Annual Income (before tax)"
+                      placeholder="Enter income"
+                      onBlur={() => handlePrimaryIncomeAgeBlur('self')}
+                    />
+                  }
+                  spouseContent={
+                    <NumberInput
+                      control={form.control}
+                      name="persons.1.primaryYearlyIncome"
+                      label="Spouse's Annual Income (before tax)"
+                      placeholder="Enter income"
+                      onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
+                    />
+                  }
+                />
+
+                <SelfSpouseFields
+                  calculateForSpouse={calculateForSpouse}
+                  selfContent={
+                    <div className="space-y-4">
+                      <NumberInput
+                        control={form.control}
+                        name="persons.0.incomeStartAge"
+                        label="Your Income Start Age"
+                        placeholder="Enter age"
+                        onBlur={() => handlePrimaryIncomeAgeBlur('self')}
+                      />
+                      <NumberInput
+                        control={form.control}
+                        name="persons.0.incomeEndAge"
+                        label="Your Income End Age"
+                        placeholder="Enter age"
+                        onBlur={() => handlePrimaryIncomeAgeBlur('self')}
+                      />
+                    </div>
+                  }
+                  spouseContent={
+                    <div className="space-y-4">
+                      <NumberInput
+                        control={form.control}
+                        name="persons.1.incomeStartAge"
+                        label="Spouse's Income Start Age"
+                        placeholder="Enter age"
+                        onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
+                      />
+                      <NumberInput
+                        control={form.control}
+                        name="persons.1.incomeEndAge"
+                        label="Spouse's Income End Age"
+                        placeholder="Enter age"
+                        onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
+                      />
+                    </div>
+                  }
+                />
+              </div>
+            </FormSection>
 
             {/* Other Income Section */}
-            <div className="form-section">
-              <h3 className="form-section-title">Other Income Sources</h3>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Enter any additional sources of income <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      Include income from rental properties, lump-sum payments,
-                      inheritances, annuities, or other sources. Do not include
-                      investment income, pension income, RRSP, or RRIF
-                      withdrawals.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
+            <FormSection 
+              title="Other Income Sources"
+              description="Enter any additional sources of income"
+              tooltip="Include income from rental properties, lump-sum payments, inheritances, annuities, or other sources. Do not include investment income, pension income, RRSP, or RRIF withdrawals."
+            >
               <div className="space-y-6">
                 {form.watch('otherIncomes')?.map((income, index) => (
                   <div
@@ -884,105 +383,29 @@ const IncomeCard = ({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
+                      <TextInput
                         control={form.control}
-                        name={`otherIncomes.${index}.description`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter description"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.description`)}
+                        label="Description"
+                        placeholder="Enter description"
                       />
-
-                      <FormField
+                      <NumberInput
                         control={form.control}
-                        name={`otherIncomes.${index}.amount`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Annual Amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.amount`)}
+                        label="Annual Amount"
+                        placeholder="Enter amount"
                       />
-
-                      <FormField
+                      <NumberInput
                         control={form.control}
-                        name={`otherIncomes.${index}.startYear`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Start Year</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter year"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.startYear`)}
+                        label="Start Year"
+                        placeholder="Enter year"
                       />
-
-                      <FormField
+                      <NumberInput
                         control={form.control}
-                        name={`otherIncomes.${index}.endYear`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>End Year</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Enter year"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value ? parseInt(value) : null)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.endYear`)}
+                        label="End Year"
+                        placeholder="Enter year"
                       />
                     </div>
                   </div>
@@ -992,7 +415,7 @@ const IncomeCard = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => handleAddOtherIncome('self')}
+                    onClick={() => addOtherIncome('self')}
                   >
                     Add Other Income (Self)
                   </Button>
@@ -1000,14 +423,14 @@ const IncomeCard = ({
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => handleAddOtherIncome('spouse')}
+                      onClick={() => addOtherIncome('spouse')}
                     >
                       Add Other Income (Spouse)
                     </Button>
                   )}
                 </div>
               </div>
-            </div>
+            </FormSection>
           </form>
         </Form>
       </CardContent>

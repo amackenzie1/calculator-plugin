@@ -1,5 +1,51 @@
 // File: src/lib/calculator/projection/constants.ts
 
+// Account types enum for type safety
+export const ACCOUNT_TYPES = {
+  NON_REGISTERED: 'nonRegistered',
+  TFSA: 'tfsa',
+  RRSP: 'rrsp',
+  RRIF: 'rrif',
+  LIRA: 'lira',
+  LIF: 'lif',
+} as const;
+
+export type AccountType = typeof ACCOUNT_TYPES[keyof typeof ACCOUNT_TYPES];
+
+// Withdrawal account types (subset of all account types)
+export const WITHDRAWAL_ACCOUNT_TYPES = {
+  NON_REGISTERED: ACCOUNT_TYPES.NON_REGISTERED,
+  TFSA: ACCOUNT_TYPES.TFSA,
+  RRSP: ACCOUNT_TYPES.RRSP,
+  RRIF: ACCOUNT_TYPES.RRIF,
+} as const;
+
+export type WithdrawalAccountType = typeof WITHDRAWAL_ACCOUNT_TYPES[keyof typeof WITHDRAWAL_ACCOUNT_TYPES];
+
+// Age-related constants
+export const AGE_CONSTANTS = {
+  MAX_WITHDRAWAL_RATE_AGE: 100,
+  MAX_WITHDRAWAL_RATE: 0.2,
+  RRSP_TO_RRIF_AGE: 71,
+  DEFAULT_CPP_START_AGE: 65,
+  DEFAULT_OAS_START_AGE: 65,
+} as const;
+
+// Investment return constants
+export const INVESTMENT_CONSTANTS = {
+  RISK_AVERSE_RETURN: 0.03,
+  MODERATE_RETURN: 0.04,
+  AGGRESSIVE_RETURN: 0.05,
+} as const;
+
+// Tax-related constants (moved from tax.ts)
+export const TAX_CONSTANTS = {
+  CAPITAL_GAINS_THRESHOLD_2026: 250000,
+  PRE_2026_INCLUSION_RATE: 0.5,
+  POST_2026_BASE_INCLUSION_RATE: 0.5,
+  POST_2026_HIGH_INCLUSION_RATE: 2/3,
+} as const;
+
 // RRIF Minimum Withdrawal Rates
 export const RRIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
   // Early conversion rates (before 71)
@@ -68,3 +114,10 @@ export const GOVERNMENT_BENEFITS = {
     STANDARD_AGE: 65,
   },
 }
+
+// Helper type for income calculations
+export type YearOrAge = {
+  year?: number | null;
+  age?: number | null;
+  birthYear: number | null;
+};

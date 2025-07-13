@@ -1,16 +1,10 @@
-/**
- * Utility for logging calculator inputs to DynamoDB
- */
-
-// This is a simple utility to log calculator inputs to DynamoDB
-// The table has no schema as we just store arbitrary JSON data
+// DynamoDB logging utilities
 export interface LogData {
   id: string;           // Unique identifier (UUID)
   timestamp: number;    // Current timestamp
   calculatorData: any;  // Arbitrary calculator input data
 }
 
-// Base URL for API Gateway endpoint (using Vite environment variables)
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
 /**

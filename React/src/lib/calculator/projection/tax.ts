@@ -1,15 +1,9 @@
 // File: src/lib/calculator/projection/tax.ts
-import { CalculatorSchemaType } from '@/components/Schema'
+import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { calculateTax } from '../tax'
-import { GOVERNMENT_BENEFITS } from './constants'
+import { GOVERNMENT_BENEFITS, TAX_CONSTANTS } from './constants'
 import { YearState } from './types'
 import { deepClone } from './utils'
-
-// Constants for capital gains tax calculation
-const CAPITAL_GAINS_THRESHOLD_2026 = 250000
-const PRE_2026_INCLUSION_RATE = 0.5
-const POST_2026_BASE_INCLUSION_RATE = 0.5
-const POST_2026_HIGH_INCLUSION_RATE = 2/3
 
 /**
  * Calculate taxable capital gains based on the year and amount
@@ -19,19 +13,19 @@ const POST_2026_HIGH_INCLUSION_RATE = 2/3
  */
 function calculateTaxableCapitalGains(capitalGains: number, year: number): number {
   if (year < 2026 || capitalGains <= 0) {
-    return capitalGains * PRE_2026_INCLUSION_RATE
+    return capitalGains * TAX_CONSTANTS.PRE_2026_INCLUSION_RATE
   }
 
-  if (capitalGains <= CAPITAL_GAINS_THRESHOLD_2026) {
-    return capitalGains * POST_2026_BASE_INCLUSION_RATE
+  if (capitalGains <= TAX_CONSTANTS.CAPITAL_GAINS_THRESHOLD_2026) {
+    return capitalGains * TAX_CONSTANTS.POST_2026_BASE_INCLUSION_RATE
   }
 
   // For gains over $250,000, split the calculation:
   // First $250,000 at 50%
   // Remainder at 66.67%
-  const basePortionTaxable = CAPITAL_GAINS_THRESHOLD_2026 * POST_2026_BASE_INCLUSION_RATE
-  const excessAmount = capitalGains - CAPITAL_GAINS_THRESHOLD_2026
-  const excessPortionTaxable = excessAmount * POST_2026_HIGH_INCLUSION_RATE
+  const basePortionTaxable = TAX_CONSTANTS.CAPITAL_GAINS_THRESHOLD_2026 * TAX_CONSTANTS.POST_2026_BASE_INCLUSION_RATE
+  const excessAmount = capitalGains - TAX_CONSTANTS.CAPITAL_GAINS_THRESHOLD_2026
+  const excessPortionTaxable = excessAmount * TAX_CONSTANTS.POST_2026_HIGH_INCLUSION_RATE
 
   return basePortionTaxable + excessPortionTaxable
 }

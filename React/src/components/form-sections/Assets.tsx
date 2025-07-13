@@ -1,33 +1,12 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { InfoIcon } from 'lucide-react'
+import { Form } from '@/components/ui/form'
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
-import { CalculatorSchema } from '../Schema'
+import { CalculatorSchema } from '@/lib/schema/calculator'
+import { NumberInput, SelectField, FormSection, SelfSpouseFields, FormFieldWithTooltip, SwitchField } from '@/components/form'
+import { fieldPath } from '@/lib/form-helpers'
 
 interface AssetsCardProps {
   form: UseFormReturn<z.infer<typeof CalculatorSchema>>
@@ -91,635 +70,305 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
     { value: 'LIF', label: 'LIF' },
   ]
 
+  const homeOwnershipOptions = [
+    { value: 'joint', label: 'Joint Ownership' },
+    { value: 'self', label: 'Self Only' },
+    { value: 'spouse', label: 'Spouse Only' },
+  ]
+
   // Autofill for development
   useEffect(() => {
     // TODO: Remove this useEffect for production - for development autofill
     const autoFillFlag = 'formAutoFilled_Assets';
     if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
       // My non-RRSP investments $300,123 (Start year 2024, Cost 200123)
-      form.setValue('persons.0.nonRegisteredInvestmentValue' as any, 300123);
-      form.setValue('persons.0.nonRegisteredInvestmentOpeningYear' as any, 2024);
-      form.setValue('persons.0.nonRegisteredInvestmentBookValue' as any, 200123);
+      form.setValue('persons.0.nonRegisteredInvestmentValue', 300123);
+      form.setValue('persons.0.nonRegisteredInvestmentOpeningYear', 2024);
+      form.setValue('persons.0.nonRegisteredInvestmentBookValue', 200123);
 
-      // Primary Residence: Current market value $950,000, Plan to sell in 2026, Spouse owned
-      form.setValue('primaryResidenceValue' as any, 950000);
-      form.setValue('primaryResidenceSell' as any, true); // To make sell year visible
-      form.setValue('primaryResidenceSellYear' as any, 2026);
-      form.setValue('homeOwnership' as any, 'spouse');
+      // Spouse non-RRSP investments $30,000 (Start year 2016, Cost 20,000)
+      form.setValue('persons.1.nonRegisteredInvestmentValue', 30000);
+      form.setValue('persons.1.nonRegisteredInvestmentOpeningYear', 2016);
+      form.setValue('persons.1.nonRegisteredInvestmentBookValue', 20000);
+
+      // My life insurance $400,000 spouse life insurance $100,000
+      form.setValue('persons.0.lifeInsuranceDeathBenefit', 400000);
+      form.setValue('persons.1.lifeInsuranceDeathBenefit', 100000);
+
+      // Primary residence worth $800,000 won't sell it
+      form.setValue('primaryResidenceValue', 800000);
+      form.setValue('primaryResidenceSell', false);
+      form.setValue('homeOwnership', 'joint');
+
+      // My TFSA balance $15,100 spouse TFSA balance $55,050.21
+      const currentPersons = form.getValues('persons');
+      const updatedPersons = currentPersons.map((person) => {
+        if (person.personType === 'self') {
+          return {
+            ...person,
+            registeredInvestments: [
+              {
+                id: Date.now(),
+                accountType: 'TFSA' as const,
+                currentValue: 15100,
+              },
+            ],
+          };
+        } else if (person.personType === 'spouse') {
+          return {
+            ...person,
+            registeredInvestments: [
+              {
+                id: Date.now() + 1,
+                accountType: 'TFSA' as const,
+                currentValue: 55050.21,
+              },
+            ],
+          };
+        }
+        return person;
+      });
+      form.setValue('persons', updatedPersons);
 
       sessionStorage.setItem(autoFillFlag, 'true');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.getValues('investmentReturnRate')]);
+  }, []); // Run once on mount
 
   return (
     <Card className="form-card">
       <CardHeader className="form-card-header">
-        <CardTitle className="form-card-title text-primary">Assets</CardTitle>
+        <CardTitle className="form-card-title text-primary">
+          Assets & Investments
+        </CardTitle>
         <p className="form-card-description">
-          Provide details about your various assets and investments.
+          Tell us about your savings, investments, and property.
         </p>
       </CardHeader>
       <CardContent className="form-card-content">
         <Form {...form}>
           <form className="space-y-8">
-            <TooltipProvider>
-              {/* Registered Investments Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Registered Investments</h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Details about your registered investment accounts <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm">
-                    <p>
-                      Tax-Free Savings Account (TFSA): When money is withdrawn
-                      from your TFSA it is not taxable.
-                      <br />
-                      <br />
-                      Registered Retirement Savings Plan (RRSP): When money is
-                      withdrawn from your RRSP account it is taxable. At age 71
-                      your RRSP account will automatically convert into a RRIF
-                      account.
-                      <br />
-                      <br />
-                      Registered Retirement Income Fund (RRIF): At age 71 RRSPs
-                      must be converted to a RRIF. We will calculate the
-                      withdrawal amount for your income each year.
-                      <br />
-                      <br />
-                      Locked-in Retirement Account (LIRA): If you have
-                      contributed to a Defined Contribution Pension Plan you may
-                      have a LIRA. At age 71 we will automatically convert your
-                      LIRA account into a LIF account.
-                      <br />
-                      <br />
-                      Life Income Fund (LIF): Use this if you have a LIRA
-                      account that has been converted to a LIF. We will
-                      calculate the withdrawal amount for your income each year.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPersons.map((person, personIndex) => (
-                    <div key={personIndex} className="space-y-6">
+            {/* Registered Investments Section */}
+            <FormSection
+              title="Registered Investments"
+              tooltip="Include all retirement and registered accounts"
+            >
+              <div className="space-y-6">
+                {filteredPersons.map((person, personIndex) => {
+                  const personLabel = person.personType === 'self' ? 'Your' : "Spouse's"
+                  return (
+                    <div key={person.personType} className="space-y-4">
                       <h4 className="text-lg font-medium">
-                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
-                        Registered Investments
+                        {personLabel} Registered Investments
                       </h4>
+                      
+                      {person.registeredInvestments?.map((investment, investmentIndex) => (
+                        <div
+                          key={investment.id}
+                          className="border rounded-lg p-4 space-y-4"
+                        >
+                          <div className="flex justify-between items-center">
+                            <FormFieldWithTooltip
+                              label={`Investment ${investmentIndex + 1}`}
+                              tooltip={
+                                investment.accountType === 'TFSA' ? 'Tax-Free Savings Account: Contributions are not tax-deductible, but withdrawals are tax-free.'
+                                : investment.accountType === 'RRSP' ? 'Registered Retirement Savings Plan: Contributions are tax-deductible, withdrawals are taxed as income.'
+                                : investment.accountType === 'RRIF' ? 'Registered Retirement Income Fund: Converted from RRSP, requires minimum annual withdrawals.'
+                                : investment.accountType === 'LIRA' ? 'Locked-In Retirement Account: Cannot withdraw until retirement age.'
+                                : investment.accountType === 'LIF' ? 'Life Income Fund: Converted from LIRA, provides retirement income with withdrawal limits.'
+                                : 'Select an account type to see more information.'
+                              }
+                            >
+                              <h5 className="font-medium">Investment {investmentIndex + 1}</h5>
+                            </FormFieldWithTooltip>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleRemoveRegisteredInvestment(
+                                  person.personType as 'self' | 'spouse',
+                                  investment.id
+                                )
+                              }
+                            >
+                              Remove
+                            </Button>
+                          </div>
 
-                      {person.registeredInvestments?.map(
-                        (investment, index) => (
-                          <div
-                            key={investment.id}
-                            className="border rounded-lg p-4 space-y-4"
-                          >
-                            <div className="flex justify-between items-center">
-                              <h5 className="font-medium">
-                                Investment {index + 1}
-                              </h5>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  handleRemoveRegisteredInvestment(
-                                    person.personType,
-                                    investment.id
-                                  )
-                                }
-                              >
-                                Remove
-                              </Button>
-                            </div>
-
-                            <FormField
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <SelectField
                               control={form.control}
-                              name={`persons.${personIndex}.registeredInvestments.${index}.accountType`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <div className="flex items-center gap-2">
-                                    <FormLabel>Account Type</FormLabel>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>
-                                          Select the type of registered
-                                          investment account you have.
-                                        </p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </div>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value ?? undefined}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select account type" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {registeredInvestmentOptions.map(
-                                        (option) => (
-                                          <SelectItem
-                                            key={option.value}
-                                            value={option.value}
-                                          >
-                                            {option.label}
-                                          </SelectItem>
-                                        )
-                                      )}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              name={fieldPath<z.infer<typeof CalculatorSchema>>(`persons.${personIndex}.registeredInvestments.${investmentIndex}.accountType`)}
+                              label="Account Type"
+                              placeholder="Select account type"
+                              options={registeredInvestmentOptions}
                             />
-
-                            <FormField
+                            <NumberInput
                               control={form.control}
-                              name={`persons.${personIndex}.registeredInvestments.${index}.currentValue`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <div className="flex items-center gap-2">
-                                    <FormLabel>Current Value</FormLabel>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>
-                                          Enter the current market value of this
-                                          registered investment account.
-                                        </p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </div>
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      step="0.01"
-                                      placeholder="Enter amount"
-                                      value={
-                                        field.value == null
-                                          ? ''
-                                          : field.value.toString()
-                                      }
-                                      onChange={(e) => {
-                                        const value = e.target.value
-                                        field.onChange(
-                                          value ? parseFloat(value) : null
-                                        )
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              name={fieldPath<z.infer<typeof CalculatorSchema>>(`persons.${personIndex}.registeredInvestments.${investmentIndex}.currentValue`)}
+                              label="Current Value"
+                              placeholder="Enter amount"
+                              type="decimal"
                             />
                           </div>
-                        )
-                      )}
+                        </div>
+                      ))}
 
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() =>
-                          handleAddRegisteredInvestment(person.personType)
+                          handleAddRegisteredInvestment(person.personType as 'self' | 'spouse')
                         }
                       >
-                        Add Registered Investment
+                        Add {personLabel} Registered Investment
                       </Button>
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
+            </FormSection>
 
-              {/* Non-Registered Investments Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">
-                  Non-Registered Investments
-                </h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Details about your non-registered investments <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm">
-                    <p>
-                      This represents all assets and investments excluding your
-                      primary residence and registered assets. Include cottages,
-                      rental properties, non-registered investment accounts,
-                      bank accounts, holding company values, art collections, or
-                      any other valuable assets. The difference between the
-                      total value and the book value represents a capital gain,
-                      of which 50% will be taxable when the asset is sold.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+            {/* Non-Registered Investments Section */}
+            <FormSection
+              title="Non-Registered Investments"
+              tooltip="Enter information about your taxable investment accounts, stocks, bonds, GICs, or other non-registered investments."
+            >
+              <SelfSpouseFields
+                calculateForSpouse={calculateForSpouse}
+                selfContent={
+                  <div className="space-y-4">
+                    <FormFieldWithTooltip
+                      label="Your Non-Registered Investments"
+                      tooltip="Capital gains on these investments are taxable. In Canada, 50% of capital gains are included in taxable income."
+                    >
+                      <h4 className="text-lg font-medium">Your Non-Registered Investments</h4>
+                    </FormFieldWithTooltip>
+                    <NumberInput
+                      control={form.control}
+                      name="persons.0.nonRegisteredInvestmentValue"
+                      label="Current Value"
+                      placeholder="Enter current value"
+                      type="decimal"
+                    />
+                    <NumberInput
+                      control={form.control}
+                      name="persons.0.nonRegisteredInvestmentOpeningYear"
+                      label="Opening Year"
+                      placeholder="Enter year"
+                    />
+                    <NumberInput
+                      control={form.control}
+                      name="persons.0.nonRegisteredInvestmentBookValue"
+                      label="Book Value (Cost Basis)"
+                      placeholder="Enter original cost"
+                      type="decimal"
+                    />
+                  </div>
+                }
+                spouseContent={
+                  <div className="space-y-4">
+                    <FormFieldWithTooltip
+                      label="Spouse's Non-Registered Investments"
+                      tooltip="Capital gains on these investments are taxable. In Canada, 50% of capital gains are included in taxable income."
+                    >
+                      <h4 className="text-lg font-medium">Spouse's Non-Registered Investments</h4>
+                    </FormFieldWithTooltip>
+                    <NumberInput
+                      control={form.control}
+                      name="persons.1.nonRegisteredInvestmentValue"
+                      label="Current Value"
+                      placeholder="Enter current value"
+                      type="decimal"
+                    />
+                    <NumberInput
+                      control={form.control}
+                      name="persons.1.nonRegisteredInvestmentOpeningYear"
+                      label="Opening Year"
+                      placeholder="Enter year"
+                    />
+                    <NumberInput
+                      control={form.control}
+                      name="persons.1.nonRegisteredInvestmentBookValue"
+                      label="Book Value (Cost Basis)"
+                      placeholder="Enter original cost"
+                      type="decimal"
+                    />
+                  </div>
+                }
+              />
+            </FormSection>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPersons.map((person, personIndex) => (
-                    <div key={personIndex} className="space-y-6">
-                      <h4 className="text-lg font-medium">
-                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
-                        Non-Registered Investments
-                      </h4>
-
-                      <div className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name={`persons.${personIndex}.nonRegisteredInvestmentValue`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel>Current Value</FormLabel>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      Enter the total current market value of
-                                      all your non-registered investments.
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseFloat(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`persons.${personIndex}.nonRegisteredInvestmentOpeningYear`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel>Opening Year</FormLabel>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      Enter the year you acquired these
-                                      non-registered investments.
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseInt(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`persons.${personIndex}.nonRegisteredInvestmentBookValue`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="flex items-center gap-2">
-                                <FormLabel>Book Value</FormLabel>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      Enter the total cost or book value of all
-                                      your non-registered investments. The
-                                      difference between the total value and
-                                      book value represents a capital gain, of
-                                      which 50% will be taxable when the asset
-                                      is sold.
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="Enter amount"
-                                  value={
-                                    field.value == null
-                                      ? ''
-                                      : field.value.toString()
-                                  }
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    field.onChange(
-                                      value ? parseFloat(value) : null
-                                    )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Life Insurance Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Life Insurance</h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Details about your life insurance policies <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm">
-                    <p>
-                      Enter the face value of universal or whole life insurance
-                      policies where your spouse or immediate family is the
-                      beneficiary. This will form part of your surplus capital.
-                      Do not include policies where someone outside your
-                      immediate family is the beneficiary, as this would inflate
-                      your total net estate projection.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPersons.map((person, personIndex) => (
-                    <div key={personIndex} className="space-y-4">
-                      <h4 className="text-lg font-medium">
-                        {person.personType === 'self' ? 'Your' : "Spouse's"}{' '}
-                        Life Insurance
-                      </h4>
-
-                      <FormField
-                        control={form.control}
-                        name={`persons.${personIndex}.lifeInsuranceDeathBenefit`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center gap-2">
-                              <FormLabel>Death Benefit Amount</FormLabel>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>
-                                    Enter the amount of life insurance death
-                                    benefit that will be paid to your
-                                    beneficiaries.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </div>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="Enter amount"
-                                value={
-                                  field.value == null
-                                    ? ''
-                                    : field.value.toString()
-                                }
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(
-                                    value ? parseFloat(value) : null
-                                  )
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Primary Residence Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Primary Residence</h3>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="text-sm text-muted-foreground mb-4 cursor-help flex items-center">
-                      Details about your primary residence <InfoIcon className="h-4 w-4 ml-1" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      We will assume your home increases at your chosen
-                      inflation rate. When the home is eventually sold, the gain
-                      is considered to be a tax-free capital gain. This is
-                      different from other assets where capital gains are
-                      typically taxable.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <div className="space-y-4">
-                  <FormField
+            {/* Life Insurance Section */}
+            <FormSection
+              title="Life Insurance"
+              tooltip="Enter the death benefit amount for term or permanent life insurance policies. Only include policies where the surviving spouse (or estate) is the beneficiary."
+            >
+              <SelfSpouseFields
+                calculateForSpouse={calculateForSpouse}
+                selfContent={
+                  <NumberInput
                     control={form.control}
-                    name="primaryResidenceValue"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center gap-2">
-                          <FormLabel>Current Market Value</FormLabel>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
-                                Enter the current market value of your primary
-                                residence.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            placeholder="Enter amount"
-                            value={
-                              field.value == null ? '' : field.value.toString()
-                            }
-                            onChange={(e) => {
-                              const value = e.target.value
-                              field.onChange(value ? parseFloat(value) : null)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    name="persons.0.lifeInsuranceDeathBenefit"
+                    label="Your Death Benefit Amount"
+                    placeholder="Enter death benefit"
+                    type="decimal"
                   />
-
-                  <FormField
+                }
+                spouseContent={
+                  <NumberInput
                     control={form.control}
-                    name="primaryResidenceSell"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <FormLabel>Plan to Sell</FormLabel>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>
-                                  Indicate whether you plan to sell your primary
-                                  residence in the future.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Do you plan to sell your home in the future?
-                          </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value ?? false}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    name="persons.1.lifeInsuranceDeathBenefit"
+                    label="Spouse's Death Benefit Amount"
+                    placeholder="Enter death benefit"
+                    type="decimal"
                   />
+                }
+              />
+            </FormSection>
 
-                  {calculateForSpouse && (
-                  <FormField
+            {/* Primary Residence Section */}
+            <FormSection
+              title="Primary Residence"
+              tooltip="Your primary residence is typically exempt from capital gains tax in Canada. Include the current market value if you own your home."
+            >
+              <div className="space-y-6">
+                <NumberInput
+                  control={form.control}
+                  name="primaryResidenceValue"
+                  label="Current Market Value"
+                  placeholder="Enter current value"
+                  type="decimal"
+                />
+
+                <SwitchField
+                  control={form.control}
+                  name="primaryResidenceSell"
+                  label="Plan to Sell Primary Residence"
+                  description="Do you plan to sell your home during retirement?"
+                />
+
+                {calculateForSpouse && (
+                  <SelectField
                     control={form.control}
                     name="homeOwnership"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center gap-2">
-                          <FormLabel>Home Ownership</FormLabel>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
-                                Select who owns the home and will receive proceeds when sold.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          defaultValue="joint"
-                        >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select home ownership" />
-                          </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="joint">Joint Ownership</SelectItem>
-                            <SelectItem value="self">Self Only</SelectItem>
-                            <SelectItem value="spouse">Spouse Only</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> )}
+                    label="Home Ownership"
+                    placeholder="Select ownership type"
+                    options={homeOwnershipOptions}
+                  />
+                )}
 
-                  {primaryResidenceSell && (
-                    <FormField
-                      control={form.control}
-                      name="primaryResidenceSellYear"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center gap-2">
-                            <FormLabel>Planned Sale Year</FormLabel>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <InfoIcon className="cursor-help text-muted-foreground h-4 w-4" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>
-                                  Enter the year when you plan to sell your
-                                  primary residence.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Enter amount"
-                              value={
-                                field.value == null
-                                  ? ''
-                                  : field.value.toString()
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value
-                                field.onChange(value ? parseInt(value) : null)
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </div>
+                {primaryResidenceSell && (
+                  <NumberInput
+                    control={form.control}
+                    name="primaryResidenceSellYear"
+                    label="Planned Sale Year"
+                    placeholder="Enter year"
+                  />
+                )}
               </div>
-            </TooltipProvider>
+            </FormSection>
           </form>
         </Form>
       </CardContent>

@@ -13,5 +13,13 @@ export default {
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  globals: {
+    'import.meta': {
+      env: {
+        VITE_API_ENDPOINT: undefined
+      }
+    }
   },
 }

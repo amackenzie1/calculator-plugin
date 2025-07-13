@@ -1,6 +1,6 @@
 // File: src/lib/calculator/projection/income.ts
-import { CalculatorSchemaType } from "@/components/Schema";
-import { GOVERNMENT_BENEFITS } from "./constants";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
+import { GOVERNMENT_BENEFITS, YearOrAge } from "./constants";
 import { PersonState, YearState } from "./types";
 import { adjustForInflation, deepClone } from "./utils";
 
@@ -22,127 +22,83 @@ export function calculateYearlyIncome(
     );
     if (!schemaPerson) return;
 
-    const simulationEpochYear = new Date().getFullYear(); // Defined for use in CPP/OAS
+    const simulationEpochYear = new Date().getFullYear();
 
-    // Derive employment start and end years (fallback to ages if provided)
-    let startYr = schemaPerson.incomeYearStart;
-    if (
-      startYr == null &&
-      schemaPerson.incomeStartAge != null &&
-      schemaPerson.birthYear != null
-    ) {
-      startYr = schemaPerson.birthYear + schemaPerson.incomeStartAge;
-    }
-    let endYr = schemaPerson.incomeYearEnd;
-    if (
-      endYr == null &&
-      schemaPerson.incomeEndAge != null &&
-      schemaPerson.birthYear != null
-    ) {
-      endYr = schemaPerson.birthYear + schemaPerson.incomeEndAge;
-    }
     // 1. Employment Income
-    if (schemaPerson.primaryYearlyIncome != null) {
-      let include = true;
-      if (startYr != null && currentYear < startYr) include = false;
-      if (endYr != null && currentYear > endYr) include = false;
-      person.income.employment = include ? schemaPerson.primaryYearlyIncome : 0;
-    } else {
-      person.income.employment = 0;
-    }
+    const employmentStart = deriveYear({
+      year: schemaPerson.incomeYearStart,
+      age: schemaPerson.incomeStartAge,
+      birthYear: schemaPerson.birthYear,
+    });
+    const employmentEnd = deriveYear({
+      year: schemaPerson.incomeYearEnd,
+      age: schemaPerson.incomeEndAge,
+      birthYear: schemaPerson.birthYear,
+    });
+    
+    person.income.employment = calculateIncomeForYear(
+      schemaPerson.primaryYearlyIncome,
+      employmentStart,
+      employmentEnd,
+      currentYear
+    );
 
-    // 2. CPP with age or year start
-    let cppStart = schemaPerson.cppStartYear;
-    if (
-      cppStart == null &&
-      schemaPerson.cppStartAge != null &&
-      schemaPerson.birthYear != null
-    ) {
-      cppStart = schemaPerson.birthYear + schemaPerson.cppStartAge;
-    }
-    if (cppStart == null && schemaPerson.birthYear != null) {
-      cppStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.CPP.STANDARD_AGE;
-    }
+    // 2. CPP Income
+    const cppStart = deriveYear(
+      {
+        year: schemaPerson.cppStartYear,
+        age: schemaPerson.cppStartAge,
+        birthYear: schemaPerson.birthYear,
+      },
+      GOVERNMENT_BENEFITS.CPP.STANDARD_AGE
+    );
 
-    if (
-      schemaPerson.cppAmount != null &&
-      cppStart != null &&
-      currentYear >= cppStart
-    ) {
-      const baseCppAmountForStartYear = schemaPerson.cppAmount;
-      const yearToInflateFrom =
-        cppStart <= simulationEpochYear ? simulationEpochYear : cppStart;
+    person.income.cpp = calculateInflationAdjustedIncome(
+      schemaPerson.cppAmount,
+      cppStart,
+      currentYear,
+      inflationRate,
+      simulationEpochYear
+    );
 
-      person.income.cpp = adjustForInflation(
-        baseCppAmountForStartYear,
-        yearToInflateFrom,
-        currentYear,
-        inflationRate
-      );
-    } else {
-      person.income.cpp = 0;
-    }
+    // 3. OAS Income
+    const oasStart = deriveYear(
+      {
+        year: schemaPerson.oasStartYear,
+        age: schemaPerson.oasStartAge,
+        birthYear: schemaPerson.birthYear,
+      },
+      GOVERNMENT_BENEFITS.OAS.MIN_AGE
+    );
 
-    // 3. OAS with age or year start and minimum age
-    let oasStart = schemaPerson.oasStartYear;
-    if (
-      oasStart == null &&
-      schemaPerson.oasStartAge != null &&
-      schemaPerson.birthYear != null
-    ) {
-      oasStart = schemaPerson.birthYear + schemaPerson.oasStartAge;
-    }
-    if (oasStart == null && schemaPerson.birthYear != null) {
-      oasStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.OAS.MIN_AGE;
-    }
-    if (
-      schemaPerson.oasAmount != null &&
-      oasStart != null &&
-      currentYear >= oasStart &&
+    person.income.oas = 
       person.age >= GOVERNMENT_BENEFITS.OAS.MIN_AGE
-    ) {
-      const baseOasAmountForStartYear = schemaPerson.oasAmount;
-      const yearToInflateFrom =
-        oasStart <= simulationEpochYear ? simulationEpochYear : oasStart;
+        ? calculateInflationAdjustedIncome(
+            schemaPerson.oasAmount,
+            oasStart,
+            currentYear,
+            inflationRate,
+            simulationEpochYear
+          )
+        : 0;
 
-      person.income.oas = adjustForInflation(
-        baseOasAmountForStartYear,
-        yearToInflateFrom,
-        currentYear,
-        inflationRate
-      );
-    } else {
-      person.income.oas = 0;
-    }
+    // 4. Defined Benefit Pension
+    const dbStart = deriveYear(
+      {
+        year: schemaPerson.definedBenefitPensionStartYear,
+        age: schemaPerson.definedBenefitPensionStartAge,
+        birthYear: schemaPerson.birthYear,
+      },
+      schemaPerson.definedBenefitPensionAmount != null ? GOVERNMENT_BENEFITS.OAS.MIN_AGE : undefined
+    );
 
-    // 4. Defined Benefit Pension with age or year start
-    let dbStart = schemaPerson.definedBenefitPensionStartYear;
-    if (
-      dbStart == null &&
-      schemaPerson.definedBenefitPensionStartAge != null &&
-      schemaPerson.birthYear != null
-    ) {
-      dbStart =
-        schemaPerson.birthYear + schemaPerson.definedBenefitPensionStartAge;
-    }
-    if (
-      dbStart == null &&
-      schemaPerson.definedBenefitPensionAmount != null &&
-      schemaPerson.birthYear != null
-    ) {
-      // Default pension start aligns with OAS
-      dbStart = schemaPerson.birthYear + GOVERNMENT_BENEFITS.OAS.MIN_AGE;
-    }
-    if (
-      schemaPerson.definedBenefitPensionAmount != null &&
-      dbStart != null &&
-      currentYear >= dbStart
-    ) {
+    if (schemaPerson.definedBenefitPensionAmount != null && dbStart != null && currentYear >= dbStart) {
       const baseAmount = schemaPerson.definedBenefitPensionAmount;
-      person.income.definedBenefit =
-        schemaPerson.definedBenefitPensionIndexedToInflation
-          ? adjustForInflation(baseAmount, dbStart, currentYear, inflationRate)
-          : baseAmount;
+      person.income.definedBenefit = schemaPerson.definedBenefitPensionIndexedToInflation
+        ? adjustForInflation(baseAmount, dbStart, currentYear, inflationRate)
+        : baseAmount;
+    } else {
+      person.income.definedBenefit = 0;
     }
 
     // 5. Other Income
@@ -199,4 +155,69 @@ export function applyYearlyIncomeToAccounts(
     }
   });
   return newState;
+}
+
+// Helper functions to reduce redundancy
+
+/**
+ * Derives a year from either a direct year value or age + birthYear
+ * @param yearOrAge Object containing year, age, and birthYear
+ * @param defaultAge Optional default age to use if no year or age provided
+ */
+function deriveYear(yearOrAge: YearOrAge, defaultAge?: number): number | null {
+  if (yearOrAge.year != null) {
+    return yearOrAge.year;
+  }
+  
+  if (yearOrAge.age != null && yearOrAge.birthYear != null) {
+    return yearOrAge.birthYear + yearOrAge.age;
+  }
+  
+  if (defaultAge != null && yearOrAge.birthYear != null) {
+    return yearOrAge.birthYear + defaultAge;
+  }
+  
+  return null;
+}
+
+/**
+ * Calculates income for a given year based on start/end constraints
+ */
+function calculateIncomeForYear(
+  baseAmount: number | null | undefined,
+  startYear: number | null,
+  endYear: number | null,
+  currentYear: number
+): number {
+  if (baseAmount == null) return 0;
+  
+  let include = true;
+  if (startYear != null && currentYear < startYear) include = false;
+  if (endYear != null && currentYear > endYear) include = false;
+  
+  return include ? baseAmount : 0;
+}
+
+/**
+ * Calculates inflation-adjusted income for government benefits
+ */
+function calculateInflationAdjustedIncome(
+  baseAmount: number | null | undefined,
+  startYear: number | null,
+  currentYear: number,
+  inflationRate: number,
+  simulationEpochYear: number
+): number {
+  if (baseAmount == null || startYear == null || currentYear < startYear) {
+    return 0;
+  }
+  
+  const yearToInflateFrom = startYear <= simulationEpochYear ? simulationEpochYear : startYear;
+  
+  return adjustForInflation(
+    baseAmount,
+    yearToInflateFrom,
+    currentYear,
+    inflationRate
+  );
 }

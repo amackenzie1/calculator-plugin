@@ -1,5 +1,5 @@
 // File: src/lib/calculator/projection/utils.ts
-import { CalculatorSchemaType } from "@/components/Schema";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { YearState } from "./types";
 
 /**

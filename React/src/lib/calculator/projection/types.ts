@@ -1,5 +1,6 @@
 // File: src/lib/calculator/projection/types.ts
-import { CalculatorSchemaType } from '@/components/Schema'
+import { CalculatorSchemaType } from '@/lib/schema/calculator'
+import { AccountType, WithdrawalAccountType } from './constants'
 
 export interface ProjectionDataPoint {
   year: number
@@ -12,17 +13,19 @@ export interface AccountState {
   bookValue: number // For non-registered accounts
 }
 
+// Type-safe account collections using the constants
+export type AccountsCollection = {
+  [K in AccountType]: AccountState
+}
+
+export type WithdrawalsCollection = {
+  [K in WithdrawalAccountType]: number
+}
+
 export interface PersonState {
   age: number
   personType: 'self' | 'spouse'
-  accounts: {
-    nonRegistered: AccountState
-    tfsa: AccountState
-    rrsp: AccountState
-    rrif: AccountState
-    lira: AccountState
-    lif: AccountState
-  }
+  accounts: AccountsCollection
   income: {
     employment: number
     cpp: number
@@ -36,12 +39,7 @@ export interface PersonState {
   taxPaid: number
   realizedGains: number
   expenses: number
-  withdrawals: {
-    nonRegistered: number
-    tfsa: number
-    rrsp: number
-    rrif: number
-  }
+  withdrawals: WithdrawalsCollection
 }
 
 export interface YearState {

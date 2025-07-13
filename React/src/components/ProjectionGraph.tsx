@@ -7,7 +7,6 @@ import {
     CartesianGrid,
     Line,
     LineChart,
-    ReferenceLine,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -28,8 +27,6 @@ interface ProjectionGraphProps {
 const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
   const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('area')
 
-  // Get current year to highlight on chart
-  const currentYear = new Date().getFullYear()
   
   // Format currency
   const formatCurrency = (value: number) => {
@@ -93,7 +90,6 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Line
                 type="monotone"
                 dataKey="netWorth"
@@ -126,7 +122,6 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 width={80}
               />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Area
                 type="monotone"
                 dataKey="netWorth"
@@ -157,7 +152,6 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
                 tickFormatter={(value) => formatCurrency(value)}
               />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine x={currentYear} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: "Current Year", position: "insideBottomRight", fill: 'hsl(var(--destructive))' }} />
               <Bar
                 dataKey="netWorth"
                 name="Net Worth"

@@ -1,4 +1,4 @@
-import { CalculatorSchemaType } from '../components/Schema'
+import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import {
   projectNetWorth,
   projectRetirement,

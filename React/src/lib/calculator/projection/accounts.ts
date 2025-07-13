@@ -1,5 +1,5 @@
 // File: src/lib/calculator/projection/accounts.ts
-import { CalculatorSchemaType } from '@/components/Schema'
+import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { AccountState, PersonState, SchemaPerson, YearState } from './types'
 import { deepClone, getAnnualReturnRate } from './utils'
 

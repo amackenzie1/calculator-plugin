@@ -1,9 +1,9 @@
 // File: src/lib/calculator/projection/withdrawals.ts
-import { CalculatorSchemaType } from "@/components/Schema";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { withdrawFromAccount } from "./accounts";
-import { RRIF_MIN_WITHDRAWAL_RATES } from "./constants";
+import { RRIF_MIN_WITHDRAWAL_RATES, AGE_CONSTANTS, ACCOUNT_TYPES, WithdrawalAccountType } from "./constants";
 import { getCharitableDonationsForYear } from "./tax";
-import { YearState } from "./types";
+import { PersonState, YearState } from "./types";
 import { deepClone } from "./utils";
 
 /**
@@ -17,10 +17,10 @@ export function getRRIFMinimumRate(age: number, spouseAge?: number): number {
   if (effectiveAge < 55) return 0;
 
   // Maximum rate for ages above our table
-  if (effectiveAge > 100) return 0.2;
+  if (effectiveAge > AGE_CONSTANTS.MAX_WITHDRAWAL_RATE_AGE) return AGE_CONSTANTS.MAX_WITHDRAWAL_RATE;
 
-  // Return the rate from our table, or default to 0.2 if not found
-  return RRIF_MIN_WITHDRAWAL_RATES[effectiveAge] || 0.2;
+  // Return the rate from our table, or default to max rate if not found
+  return RRIF_MIN_WITHDRAWAL_RATES[effectiveAge] || AGE_CONSTANTS.MAX_WITHDRAWAL_RATE;
 }
 
 export function getAllExpenses(
@@ -89,26 +89,8 @@ export function calculateRequiredWithdrawals(
 
   // Process RRSP to RRIF conversions and mandatory withdrawals
   newState.persons.forEach((person) => {
-    // Convert RRSP to RRIF at age 71
-    if (person.age === 71 && person.accounts.rrsp.marketValue > 0) {
-      person.accounts.rrif.marketValue = person.accounts.rrsp.marketValue;
-      person.accounts.rrif.bookValue = person.accounts.rrsp.bookValue;
-      person.accounts.rrsp.marketValue = 0;
-      person.accounts.rrsp.bookValue = 0;
-    }
-
-    // Calculate and apply mandatory RRIF withdrawal
-    if (person.age >= 55 && person.accounts.rrif.marketValue > 0) {
-      // Automatically use spouse's age if younger
-      const rate = getRRIFMinimumRate(person.age, spouseAge);
-
-      // Calculate minimum withdrawal based on January 1st value
-      const mandatoryWithdrawal = person.accounts.rrif.marketValue * rate;
-
-      // Apply the withdrawal
-      person.accounts.rrif.marketValue -= mandatoryWithdrawal;
-      person.withdrawals.rrif += mandatoryWithdrawal;
-    }
+    processRRSPToRRIFConversion(person);
+    processMandatoryRRIFWithdrawal(person, spouseAge);
   });
 
   // Add estimated tax to expenses (using the tax amount calculated in the initial tax estimation step)
@@ -124,70 +106,111 @@ export function calculateRequiredWithdrawals(
 
   // Withdrawal strategy (in order of tax efficiency)
   if (remainingNeeded > 0) {
-    // 1. TFSA Withdrawals
-    for (const person of Object.values(newState.persons)) {
-      const { withdrawn, remaining } = withdrawFromAccount(
-        person.accounts.tfsa,
+    const withdrawalOrder: WithdrawalAccountType[] = [
+      ACCOUNT_TYPES.TFSA,
+      ACCOUNT_TYPES.NON_REGISTERED,
+      ACCOUNT_TYPES.RRSP,
+      ACCOUNT_TYPES.RRIF,
+    ];
+
+    for (const accountType of withdrawalOrder) {
+      if (remainingNeeded === 0) break;
+      remainingNeeded = processWithdrawalsFromAccountType(
+        newState.persons,
+        accountType,
         remainingNeeded
       );
-      person.withdrawals.tfsa += withdrawn;
-      remainingNeeded = remaining;
-      if (remainingNeeded === 0) break;
     }
 
-    // 2. Non-registered Withdrawals
+    // Special handling for LIF withdrawals if still needed
     if (remainingNeeded > 0) {
-      for (const person of Object.values(newState.persons)) {
-        const { withdrawn, remaining, realizedGains } = withdrawFromAccount(
-          person.accounts.nonRegistered,
-          remainingNeeded
-        );
-        person.withdrawals.nonRegistered += withdrawn;
-        person.realizedGains += realizedGains;
-        remainingNeeded = remaining;
-        if (remainingNeeded === 0) break;
-      }
-    }
-
-    // 3. RRSP Withdrawals
-    if (remainingNeeded > 0) {
-      for (const person of Object.values(newState.persons)) {
-        const { withdrawn, remaining } = withdrawFromAccount(
-          person.accounts.rrsp,
-          remainingNeeded
-        );
-        person.withdrawals.rrsp += withdrawn;
-        remainingNeeded = remaining;
-        if (remainingNeeded === 0) break;
-      }
-    }
-
-    // 4. LIF/LIRA Withdrawals (if needed and available)
-    if (remainingNeeded > 0) {
-      let lifWithdrawals = 0;
-
-      for (const person of Object.values(newState.persons)) {
-        // Try LIF first
-        if (person.accounts.lif.marketValue > 0) {
-          const { withdrawn, remaining } = withdrawFromAccount(
-            person.accounts.lif,
-            remainingNeeded
-          );
-          // Track LIF withdrawals for reporting purposes
-          lifWithdrawals += withdrawn;
-          remainingNeeded = remaining;
-          if (remainingNeeded === 0) break;
-        }
-      }
-
-      // Log LIF withdrawals for debugging/reporting
-      if (lifWithdrawals > 0) {
-        // console.log(
-        //   `Year ${currentYear}: LIF withdrawals: $${lifWithdrawals.toFixed(2)}`
-        // );
-      }
+      remainingNeeded = processLIFWithdrawals(newState.persons, remainingNeeded, currentYear);
     }
   }
 
   return newState;
+}
+
+// Helper functions to reduce repetition
+
+function processRRSPToRRIFConversion(person: PersonState): void {
+  // Convert RRSP to RRIF at age 71
+  if (person.age === AGE_CONSTANTS.RRSP_TO_RRIF_AGE && person.accounts.rrsp.marketValue > 0) {
+    person.accounts.rrif.marketValue = person.accounts.rrsp.marketValue;
+    person.accounts.rrif.bookValue = person.accounts.rrsp.bookValue;
+    person.accounts.rrsp.marketValue = 0;
+    person.accounts.rrsp.bookValue = 0;
+  }
+}
+
+function processMandatoryRRIFWithdrawal(person: PersonState, spouseAge?: number): void {
+  // Calculate and apply mandatory RRIF withdrawal
+  if (person.age >= 55 && person.accounts.rrif.marketValue > 0) {
+    // Automatically use spouse's age if younger
+    const rate = getRRIFMinimumRate(person.age, spouseAge);
+
+    // Calculate minimum withdrawal based on January 1st value
+    const mandatoryWithdrawal = person.accounts.rrif.marketValue * rate;
+
+    // Apply the withdrawal
+    person.accounts.rrif.marketValue -= mandatoryWithdrawal;
+    person.withdrawals.rrif += mandatoryWithdrawal;
+  }
+}
+
+function processWithdrawalsFromAccountType(
+  persons: PersonState[],
+  accountType: WithdrawalAccountType,
+  remainingNeeded: number
+): number {
+  for (const person of persons) {
+    if (remainingNeeded === 0) break;
+    
+    const account = person.accounts[accountType];
+    const { withdrawn, remaining, realizedGains } = withdrawFromAccount(
+      account,
+      remainingNeeded
+    );
+    
+    // Update withdrawal tracking
+    person.withdrawals[accountType] += withdrawn;
+    
+    // Track realized gains for non-registered accounts
+    if (accountType === ACCOUNT_TYPES.NON_REGISTERED && realizedGains) {
+      person.realizedGains += realizedGains;
+    }
+    
+    remainingNeeded = remaining;
+  }
+  
+  return remainingNeeded;
+}
+
+function processLIFWithdrawals(
+  persons: PersonState[],
+  remainingNeeded: number,
+  currentYear: number
+): number {
+  let lifWithdrawals = 0;
+
+  for (const person of persons) {
+    if (person.accounts.lif.marketValue > 0) {
+      const { withdrawn, remaining } = withdrawFromAccount(
+        person.accounts.lif,
+        remainingNeeded
+      );
+      lifWithdrawals += withdrawn;
+      remainingNeeded = remaining;
+      if (remainingNeeded === 0) break;
+    }
+  }
+
+  // Log LIF withdrawals for debugging/reporting
+  if (lifWithdrawals > 0) {
+    // console.log(
+    //   `Year ${currentYear}: LIF withdrawals: $${lifWithdrawals.toFixed(2)}`
+    // );
+  }
+
+  return remainingNeeded;
 }

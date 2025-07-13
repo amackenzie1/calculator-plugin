@@ -1,4 +1,4 @@
-import { CalculatorSchemaType } from "@/components/Schema";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { YearState, getAllExpenses } from "@/lib/calculator/projection";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver"; // Utility to trigger browser download
@@ -419,7 +419,7 @@ export async function generateExcelReport(
   });
 
   // --- Data Rows ---
-  let categorySubtotals: { [category: string]: { [year: number]: number } } =
+  const categorySubtotals: { [category: string]: { [year: number]: number } } =
     {};
 
   reportRows.forEach((rowConfig) => {

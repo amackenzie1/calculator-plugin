@@ -1,5 +1,5 @@
 // File: src/lib/calculator/projection/engine.ts
-import { CalculatorSchemaType } from "@/components/Schema";
+import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { applyInvestmentReturns } from "./accounts";
 import { applyYearlyIncomeToAccounts, calculateYearlyIncome } from "./income";
 import { ageOneYear, createInitialState, processHouseSale } from "./state";
@@ -22,7 +22,7 @@ export function calculateNextYear(
   const withReturns = applyInvestmentReturns(withHouseSale, input);
 
   // 3. Calculate income for the year
-  let withIncomeCalculated = calculateYearlyIncome(withReturns, input);
+  const withIncomeCalculated = calculateYearlyIncome(withReturns, input);
 
   // 4. Add calculated income to non-registered accounts
   const withIncomeAppliedToAssets =

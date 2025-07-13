@@ -9,7 +9,7 @@ import {
 } from '@/lib/calculator/projection'
 import { calculateNetWorth } from '@/lib/calculator/projection/engine'
 import { initializePerson, yearFromBirthYearAndTargetAge } from '@/lib/utils'
-import { logCalculatorData } from '@/lib/utils/dynamo-logger'
+import { logCalculatorData } from '@/lib/dynamo-logger'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, InfoIcon, PercentIcon, SaveIcon, UserIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -20,7 +20,7 @@ import ExpensesCard from './form-sections/Expenses'
 import IncomeCard from './form-sections/Income'
 import OnboardingCard from './form-sections/Onboarding'
 import ResultsCard from './form-sections/ResultsCard'
-import { CalculatorSchema, CalculatorSchemaType } from './Schema'
+import { CalculatorSchema, CalculatorSchemaType } from '@/lib/schema/calculator'
 
 const steps = [
   { id: 'general', label: 'General', icon: UserIcon },

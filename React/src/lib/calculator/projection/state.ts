@@ -1,5 +1,5 @@
 // File: src/lib/calculator/projection/state.ts
-import { CalculatorSchemaType } from '@/components/Schema'
+import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { PersonState, SchemaPerson, YearState } from './types'
 import { adjustForInflation, deepClone } from './utils'
 import { createAccountState, createRegisteredAccounts } from './accounts'
@@ -106,33 +106,40 @@ export function processHouseSale(
   const houseValue = input.primaryResidenceValue
   const homeOwnership = input.homeOwnership || 'joint'
   
-  if (homeOwnership === 'joint') {
+  distributeProceedsToOwners(newState.persons, houseValue, homeOwnership)
+
+  return newState
+}
+
+// Helper function to reduce duplication in house sale proceeds distribution
+function distributeProceedsToOwners(
+  persons: PersonState[],
+  amount: number,
+  ownership: 'joint' | 'self' | 'spouse'
+): void {
+  if (ownership === 'joint') {
     // Split proceeds equally between all persons
-    const numPersons = newState.persons.length
-    const proceedsPerPerson = houseValue / numPersons
-    
-    newState.persons.forEach((person) => {
-      person.accounts.nonRegistered.marketValue += proceedsPerPerson
-      person.accounts.nonRegistered.bookValue += proceedsPerPerson
+    const proceedsPerPerson = amount / persons.length
+    persons.forEach((person) => {
+      addToNonRegisteredAccount(person, proceedsPerPerson)
     })
   } else {
-    // Assign proceeds to the specified owner (self or spouse)
-    const owner = newState.persons.find(person => person.personType === homeOwnership)
+    // Assign proceeds to the specified owner
+    const owner = persons.find(person => person.personType === ownership)
     
     if (owner) {
-      owner.accounts.nonRegistered.marketValue += houseValue
-      owner.accounts.nonRegistered.bookValue += houseValue
+      addToNonRegisteredAccount(owner, amount)
     } else {
       // Fallback to joint ownership if owner not found
-      const numPersons = newState.persons.length
-      const proceedsPerPerson = houseValue / numPersons
-      
-      newState.persons.forEach((person) => {
-        person.accounts.nonRegistered.marketValue += proceedsPerPerson
-        person.accounts.nonRegistered.bookValue += proceedsPerPerson
+      const proceedsPerPerson = amount / persons.length
+      persons.forEach((person) => {
+        addToNonRegisteredAccount(person, proceedsPerPerson)
       })
     }
   }
+}
 
-  return newState
+function addToNonRegisteredAccount(person: PersonState, amount: number): void {
+  person.accounts.nonRegistered.marketValue += amount
+  person.accounts.nonRegistered.bookValue += amount
 }
