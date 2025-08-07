@@ -99,5 +99,15 @@ export function applyInvestmentReturns(
   // Process all persons
   newState.persons = newState.persons.map((person) => growAccounts(person))
 
+  // Apply growth to home value if it exists and hasn't been sold
+  if (newState.primaryResidenceValue) {
+    // Check if home hasn't been sold yet
+    if (!input.primaryResidenceSell || 
+        !input.primaryResidenceSellYear || 
+        newState.year < input.primaryResidenceSellYear) {
+      newState.primaryResidenceValue *= 1 + r
+    }
+  }
+
   return newState
 }

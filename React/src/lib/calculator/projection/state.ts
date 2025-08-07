@@ -59,6 +59,7 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
   const yearState: YearState = {
     year: currentYear,
     persons: [createPersonState(self), ...(spouse ? [createPersonState(spouse)] : [])],
+    primaryResidenceValue: input.primaryResidenceValue || undefined,
   }
 
   return yearState
@@ -80,6 +81,9 @@ export function ageOneYear(currentState: YearState, input: CalculatorSchemaType)
   newState.persons.forEach((person) => {
     person.expenses = adjustForInflation(person.expenses, currentState.year, newState.year, inflationRate)
   })
+  
+  // Carry forward the home value (it will be grown in applyInvestmentReturns)
+  newState.primaryResidenceValue = currentState.primaryResidenceValue
 
   return newState
 }
@@ -102,11 +106,14 @@ export function processHouseSale(
 
   const newState = deepClone(currentState)
   
-  // Distribute house sale proceeds based on home ownership setting
-  const houseValue = input.primaryResidenceValue
+  // Use the grown home value from state, not the original input value
+  const houseValue = newState.primaryResidenceValue || input.primaryResidenceValue
   const homeOwnership = input.homeOwnership || 'joint'
   
   distributeProceedsToOwners(newState.persons, houseValue, homeOwnership)
+  
+  // Clear the home value after sale
+  newState.primaryResidenceValue = undefined
 
   return newState
 }

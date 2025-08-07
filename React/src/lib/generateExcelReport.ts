@@ -209,9 +209,9 @@ export async function generateExcelReport(
     {
       label: "House Sale Proceeds",
       subCategory: "Home Sales",
-      getValue: (ys, _, inp) =>
+      getValue: (ys, prevState, inp) =>
         ys.year === inp.primaryResidenceSellYear && inp.primaryResidenceSell
-          ? inp.primaryResidenceValue
+          ? (prevState?.primaryResidenceValue || inp.primaryResidenceValue)
           : 0,
       isCurrency: true,
       parentCategory: "Cash Sources",
@@ -317,11 +317,7 @@ export async function generateExcelReport(
     {
       label: "Primary Residence",
       subCategory: "Homes",
-      getValue: (ys, _, inp) =>
-        inp.primaryResidenceSell &&
-        ys.year > (inp.primaryResidenceSellYear || 0)
-          ? 0
-          : inp.primaryResidenceValue,
+      getValue: (ys) => ys.primaryResidenceValue || 0,
       isCurrency: true,
       parentCategory: "Assets",
     },
@@ -369,19 +365,16 @@ export async function generateExcelReport(
     {
       label: "Net Worth",
       isBold: true,
-      getValue: (ys, _, inp) => {
+      getValue: (ys) => {
         let totalNetWorth = 0;
         ys.persons.forEach((person) => {
           Object.values(person.accounts).forEach(
             (acc) => (totalNetWorth += acc.marketValue)
           );
         });
-        if (
-          inp.primaryResidenceValue &&
-          (!inp.primaryResidenceSell ||
-            ys.year <= (inp.primaryResidenceSellYear || 0))
-        ) {
-          totalNetWorth += inp.primaryResidenceValue;
+        // Add home value if it exists in the state
+        if (ys.primaryResidenceValue) {
+          totalNetWorth += ys.primaryResidenceValue;
         }
         // Life insurance death benefit is part of input.persons, not YearState.
         // It's usually added to final estate, not ongoing net worth in this type of projection.
@@ -521,7 +514,9 @@ export async function generateExcelReport(
               input.primaryResidenceSell &&
               yearState.year === input.primaryResidenceSellYear
             ) {
-              operationalCashSources += input.primaryResidenceValue || 0;
+              // Use the grown home value from the previous year's state
+              const prevYearState = colIndex > 0 ? detailedProjectionStates[colIndex - 1] : null;
+              operationalCashSources += prevYearState?.primaryResidenceValue || input.primaryResidenceValue || 0;
             }
 
             const totalCashUses =

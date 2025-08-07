@@ -63,28 +63,17 @@ const IncomeCard = ({
     })
   }
 
-  const handlePrimaryIncomeAgeBlur = (personType: 'self' | 'spouse') => {
-    const startAge = form.getValues(
-      `persons.${personType === 'spouse' ? 1 : 0}.incomeStartAge`
-    )
-    const endAge = form.getValues(
-      `persons.${personType === 'spouse' ? 1 : 0}.incomeEndAge`
+  const handlePrimaryIncomeYearChange = (personType: 'self' | 'spouse', field: 'start' | 'end') => {
+    const year = form.getValues(
+      `persons.${personType === 'spouse' ? 1 : 0}.${field === 'start' ? 'incomeYearStart' : 'incomeYearEnd'}`
     )
     const birthYear = personType === 'self' ? birthYearSelf : birthYearSpouse
 
-    if (startAge && birthYear) {
-      const startYear = yearFromBirthYearAndTargetAge(birthYear, startAge)
+    if (year && birthYear) {
+      const age = year - birthYear
       form.setValue(
-        `persons.${personType === 'spouse' ? 1 : 0}.incomeYearStart`,
-        startYear
-      )
-    }
-
-    if (endAge && birthYear) {
-      const endYear = yearFromBirthYearAndTargetAge(birthYear, endAge)
-      form.setValue(
-        `persons.${personType === 'spouse' ? 1 : 0}.incomeYearEnd`,
-        endYear
+        `persons.${personType === 'spouse' ? 1 : 0}.${field === 'start' ? 'incomeStartAge' : 'incomeEndAge'}`,
+        age
       )
     }
   }
@@ -148,10 +137,16 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.0.cppAmount"
-                          label="Your Annual Amount"
+                          label="Your Annual Amount (before tax)"
                           placeholder="Enter amount"
                           type="decimal"
                         />
+                        <p className="text-sm text-muted-foreground">
+                          If you don't know what your monthly CPP payments will be, you can sign into your My Service Canada Account for your monthly CPP estimate. For QPP, you can find more information at{' '}
+                          <a href="http://www.rqq.gouv.qc.ca/fr/retraite" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                            www.rqq.gouv.qc.ca/fr/retraite
+                          </a>.
+                        </p>
                       </div>
                     }
                     spouseContent={
@@ -166,10 +161,16 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.1.cppAmount"
-                          label="Spouse's Annual Amount"
+                          label="Spouse's Annual Amount (before tax)"
                           placeholder="Enter amount"
                           type="decimal"
                         />
+                        <p className="text-sm text-muted-foreground">
+                          If you don't know what your monthly CPP payments will be, you can sign into your My Service Canada Account for your monthly CPP estimate. For QPP, you can find more information at{' '}
+                          <a href="http://www.rqq.gouv.qc.ca/fr/retraite" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                            www.rqq.gouv.qc.ca/fr/retraite
+                          </a>.
+                        </p>
                       </div>
                     }
                   />
@@ -198,10 +199,13 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.0.oasAmount"
-                          label="Your Annual Amount"
+                          label="Your Annual Amount (before tax)"
                           placeholder="Enter amount"
                           type="decimal"
                         />
+                        <p className="text-sm text-muted-foreground">
+                          You can start receiving OAS from age 65. For each year you delay OAS up until age 70 the amount received will increase by 7.2% per year.
+                        </p>
                       </div>
                     }
                     spouseContent={
@@ -216,22 +220,25 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.1.oasAmount"
-                          label="Spouse's Annual Amount"
+                          label="Spouse's Annual Amount (before tax)"
                           placeholder="Enter amount"
                           type="decimal"
                         />
+                        <p className="text-sm text-muted-foreground">
+                          You can start receiving OAS from age 65. For each year you delay OAS up until age 70 the amount received will increase by 7.2% per year.
+                        </p>
                       </div>
                     }
                   />
                 </div>
 
-                {/* Defined Benefit Pension */}
+                {/* Other Pension */}
                 <div className="border rounded-lg p-4 space-y-4">
                   <FormFieldWithTooltip
-                    label="Defined Benefit Pension"
+                    label="Other Pension"
                     tooltip="Include any private pension from a government or private company."
                   >
-                    <h4 className="text-lg font-medium">Defined Benefit Pension</h4>
+                    <h4 className="text-lg font-medium">Other Pension</h4>
                   </FormFieldWithTooltip>
 
                   <SelfSpouseFields
@@ -248,7 +255,7 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.0.definedBenefitPensionAmount"
-                          label="Your Annual Amount"
+                          label="Your Annual Amount (before tax)"
                           placeholder="Enter amount"
                         />
                         <SwitchField
@@ -271,7 +278,7 @@ const IncomeCard = ({
                         <NumberInput
                           control={form.control}
                           name="persons.1.definedBenefitPensionAmount"
-                          label="Spouse's Annual Amount"
+                          label="Spouse's Annual Amount (before tax)"
                           placeholder="Enter amount"
                         />
                         <SwitchField
@@ -297,22 +304,27 @@ const IncomeCard = ({
                 <SelfSpouseFields
                   calculateForSpouse={calculateForSpouse}
                   selfContent={
-                    <NumberInput
-                      control={form.control}
-                      name="persons.0.primaryYearlyIncome"
-                      label="Your Annual Income (before tax)"
-                      placeholder="Enter income"
-                      onBlur={() => handlePrimaryIncomeAgeBlur('self')}
-                    />
+                    <div className="space-y-2">
+                      <NumberInput
+                        control={form.control}
+                        name="persons.0.primaryYearlyIncome"
+                        label="Your Annual Income (before tax)"
+                        placeholder="Enter income"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Note: Do not enter the investment income you will earn, or any pension income. Our calculator will handle this for you.
+                      </p>
+                    </div>
                   }
                   spouseContent={
-                    <NumberInput
-                      control={form.control}
-                      name="persons.1.primaryYearlyIncome"
-                      label="Spouse's Annual Income (before tax)"
-                      placeholder="Enter income"
-                      onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
-                    />
+                    <div className="space-y-2">
+                      <NumberInput
+                        control={form.control}
+                        name="persons.1.primaryYearlyIncome"
+                        label="Spouse's Annual Income (before tax)"
+                        placeholder="Enter income"
+                      />
+                    </div>
                   }
                 />
 
@@ -322,17 +334,19 @@ const IncomeCard = ({
                     <div className="space-y-4">
                       <NumberInput
                         control={form.control}
-                        name="persons.0.incomeStartAge"
-                        label="Your Income Start Age"
-                        placeholder="Enter age"
-                        onBlur={() => handlePrimaryIncomeAgeBlur('self')}
+                        name="persons.0.incomeYearStart"
+                        label="Your Income Start Year"
+                        placeholder="Enter year"
+                        skipFormatting
+                        onBlur={() => handlePrimaryIncomeYearChange('self', 'start')}
                       />
                       <NumberInput
                         control={form.control}
-                        name="persons.0.incomeEndAge"
-                        label="Your Income End Age"
-                        placeholder="Enter age"
-                        onBlur={() => handlePrimaryIncomeAgeBlur('self')}
+                        name="persons.0.incomeYearEnd"
+                        label="Your Income End Year"
+                        placeholder="Enter year"
+                        skipFormatting
+                        onBlur={() => handlePrimaryIncomeYearChange('self', 'end')}
                       />
                     </div>
                   }
@@ -340,17 +354,19 @@ const IncomeCard = ({
                     <div className="space-y-4">
                       <NumberInput
                         control={form.control}
-                        name="persons.1.incomeStartAge"
-                        label="Spouse's Income Start Age"
-                        placeholder="Enter age"
-                        onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
+                        name="persons.1.incomeYearStart"
+                        label="Spouse's Income Start Year"
+                        placeholder="Enter year"
+                        skipFormatting
+                        onBlur={() => handlePrimaryIncomeYearChange('spouse', 'start')}
                       />
                       <NumberInput
                         control={form.control}
-                        name="persons.1.incomeEndAge"
-                        label="Spouse's Income End Age"
-                        placeholder="Enter age"
-                        onBlur={() => handlePrimaryIncomeAgeBlur('spouse')}
+                        name="persons.1.incomeYearEnd"
+                        label="Spouse's Income End Year"
+                        placeholder="Enter year"
+                        skipFormatting
+                        onBlur={() => handlePrimaryIncomeYearChange('spouse', 'end')}
                       />
                     </div>
                   }
@@ -400,12 +416,14 @@ const IncomeCard = ({
                         name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.startYear`)}
                         label="Start Year"
                         placeholder="Enter year"
+                        skipFormatting
                       />
                       <NumberInput
                         control={form.control}
                         name={fieldPath<z.infer<typeof CalculatorSchema>>(`otherIncomes.${index}.endYear`)}
                         label="End Year"
                         placeholder="Enter year"
+                        skipFormatting
                       />
                     </div>
                   </div>

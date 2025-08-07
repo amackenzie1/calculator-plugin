@@ -133,17 +133,22 @@ describe('Retirement Projection', () => {
         
         // Calculate expected values
         // Since we're checking the year AFTER sale, we need to account for an additional year of growth
-        const initialGrowth = Math.pow(1.04, 10); // Growth up to sale year
+        const initialGrowth = Math.pow(1.04, 11); // Growth up to sale year (including first year now)
         const additionalYearGrowth = 1.04; // One more year after sale  
         
-        // Self should have both original investment with growth + house value with 1 year of growth
+        // Self should have both original investment with growth + grown house value with 1 more year of growth
         const selfNonRegValue = houseSaleYear.persons[0].accounts.nonRegistered.marketValue;
         const expectedSelfBaseGrowth = 100000 * initialGrowth; // Original investment growth
-        const expectedHouseProceedsWithGrowth = 500000 * additionalYearGrowth; // House proceeds with growth
+        // House value grows for 11 years (2025-2035, including first year's closing balance)
+        const grownHouseValue = 500000 * Math.pow(1.04, 11); // House value after 11 years of growth (sold in 2035)
+        const expectedHouseProceedsWithGrowth = grownHouseValue * additionalYearGrowth; // House proceeds with 1 more year growth
         const expectedSelfValue = expectedSelfBaseGrowth * additionalYearGrowth + expectedHouseProceedsWithGrowth;
         
         console.log('Self non-registered value:', selfNonRegValue);
         console.log('Expected self value:', expectedSelfValue);
+        console.log('Grown house value:', grownHouseValue);
+        console.log('Expected house proceeds with growth:', expectedHouseProceedsWithGrowth);
+        console.log('Expected self base growth:', expectedSelfBaseGrowth * additionalYearGrowth);
         
         // Use close approximation for floating point comparisons
         expect(selfNonRegValue).toBeCloseTo(expectedSelfValue, -1); // Less precision needed
@@ -199,7 +204,7 @@ describe('Retirement Projection', () => {
       if (houseSaleYear) {
         // Calculate expected values
         // Since we're checking the year AFTER sale, we need to account for an additional year of growth
-        const initialGrowth = Math.pow(1.04, 10); // Growth up to sale year
+        const initialGrowth = Math.pow(1.04, 11); // Growth up to sale year (including first year now)
         const additionalYearGrowth = 1.04; // One more year after sale  
         
         // Self should only have original investment with growth
@@ -209,10 +214,12 @@ describe('Retirement Projection', () => {
         // Use close approximation for floating point comparisons
         expect(selfNonRegValue).toBeCloseTo(expectedSelfValue, -1); // Less precision needed
         
-        // Spouse should have both original investment with growth + house value with 1 year of growth
+        // Spouse should have both original investment with growth + grown house value with 1 more year of growth
         const spouseNonRegValue = houseSaleYear.persons[1].accounts.nonRegistered.marketValue;
         const expectedSpouseBaseGrowth = 100000 * initialGrowth; // Original investment growth
-        const expectedHouseProceedsWithGrowth = 500000 * additionalYearGrowth; // House proceeds with growth
+        // House value grows for 11 years (2025-2035, including first year's closing balance)
+        const grownHouseValue = 500000 * Math.pow(1.04, 11); // House value after 11 years of growth (sold in 2035)
+        const expectedHouseProceedsWithGrowth = grownHouseValue * additionalYearGrowth; // House proceeds with 1 more year growth
         const expectedSpouseValue = expectedSpouseBaseGrowth * additionalYearGrowth + expectedHouseProceedsWithGrowth;
         
         expect(spouseNonRegValue).toBeCloseTo(expectedSpouseValue, -1); // Less precision needed
@@ -264,7 +271,9 @@ describe('Retirement Projection', () => {
       // Check initial point
       const initialPoint = projection[0]
       expect(initialPoint.year).toBe(currentYear)
-      expect(initialPoint.netWorth).toBe(650000) // 500k house + 50k TFSA + 100k non-reg
+      // Now showing closing balances: all assets grow by 4%
+      // 500k house * 1.04 + (50k TFSA + 100k non-reg) * 1.04 = 520k + 156k = 676000
+      expect(initialPoint.netWorth).toBe(676000) // Now shows end-of-year balances with home growth
 
       // Log some intermediate points to understand the growth
       console.log('Initial net worth:', initialPoint.netWorth)
@@ -293,9 +302,12 @@ describe('Retirement Projection', () => {
 
       // Calculate expected final value
       const initialInvestments = 50000 + 100000 // TFSA + non-reg
-      const expectedInvestmentGrowth = initialInvestments * Math.pow(1.04, 60)
+      const initialHome = 500000 // Home value
+      // Now includes growth for all 61 years (first year is now closing balance)
+      const expectedInvestmentGrowth = initialInvestments * Math.pow(1.04, 61)
+      const expectedHomeGrowth = initialHome * Math.pow(1.04, 61) // Home also grows
       const expectedFinalNetWorth = Math.round(
-        expectedInvestmentGrowth + 500000
+        expectedInvestmentGrowth + expectedHomeGrowth
       )
 
       // Allow for small rounding differences (within $1)
@@ -329,9 +341,11 @@ describe('Retirement Projection', () => {
       expect(states.length).toBeGreaterThan(0)
 
       const initialState = states[0]
-      expect(initialState.persons[0].accounts.tfsa.marketValue).toBe(50000)
+      // Now showing closing balance after 4% return for the first year
+      expect(initialState.persons[0].accounts.tfsa.marketValue).toBe(52000) // 50000 * 1.04
+      // Non-registered also shows closing balance after 4% return
       expect(initialState.persons[0].accounts.nonRegistered.marketValue).toBe(
-        100000
+        104000 // 100000 * 1.04
       )
       expect(initialState.persons[0].accounts.nonRegistered.bookValue).toBe(
         80000

@@ -155,6 +155,7 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                           name={fieldPath<z.infer<typeof CalculatorSchema>>(`oneOffExpenses.${index}.year`)}
                           label="Year"
                           placeholder="Enter year"
+                          skipFormatting
                         />
                       </div>
                     </div>
@@ -223,12 +224,14 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
                           name={fieldPath<z.infer<typeof CalculatorSchema>>(`charitableDonations.${index}.startYear`)}
                           label="Start Year"
                           placeholder="Enter year"
+                          skipFormatting
                         />
                         <NumberInput
                           control={form.control}
                           name={fieldPath<z.infer<typeof CalculatorSchema>>(`charitableDonations.${index}.endYear`)}
                           label="End Year"
                           placeholder="Enter year"
+                          skipFormatting
                         />
                       </div>
                     </div>

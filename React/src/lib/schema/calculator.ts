@@ -41,11 +41,6 @@ const PersonSchema = z.object({
     )
     .nullable(),
   nonRegisteredInvestmentValue: z.number().nullable(),
-  nonRegisteredInvestmentOpeningYear: z
-    .number()
-    .min(lowerYearBound)
-    .max(currentYear)
-    .nullable(),
   nonRegisteredInvestmentBookValue: z.number().nullable(),
   lifeInsuranceDeathBenefit: z.number().nullable(),
   annualExpenses: z.number().nullable(),

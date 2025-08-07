@@ -116,6 +116,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       name="persons.0.birthYear"
                       label="Your Birth Year"
                       placeholder="Enter birth year (e.g., 1975)"
+                      skipFormatting
                     />
                     <NumberInput
                       control={form.control}
@@ -132,6 +133,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                       name="persons.1.birthYear"
                       label="Spouse's Birth Year"
                       placeholder="Enter birth year (e.g., 1975)"
+                      skipFormatting
                     />
                     <NumberInput
                       control={form.control}

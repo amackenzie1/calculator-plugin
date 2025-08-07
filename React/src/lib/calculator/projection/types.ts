@@ -45,6 +45,7 @@ export interface PersonState {
 export interface YearState {
   year: number
   persons: PersonState[]
+  primaryResidenceValue?: number // Track home value with growth applied
 }
 
 // Helper type for a person from the schema

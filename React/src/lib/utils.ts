@@ -38,7 +38,6 @@ export function initializePerson(personType: 'self' | 'spouse'): Person {
     definedBenefitPensionIndexedToInflation: null,
     registeredInvestments: [],
     nonRegisteredInvestmentValue: null,
-    nonRegisteredInvestmentOpeningYear: null,
     nonRegisteredInvestmentBookValue: null,
     lifeInsuranceDeathBenefit: null,
     annualExpenses: null,

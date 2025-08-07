@@ -81,14 +81,12 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
     // TODO: Remove this useEffect for production - for development autofill
     const autoFillFlag = 'formAutoFilled_Assets';
     if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
-      // My non-RRSP investments $300,123 (Start year 2024, Cost 200123)
+      // My non-RRSP investments $300,123 (Cost 200123)
       form.setValue('persons.0.nonRegisteredInvestmentValue', 300123);
-      form.setValue('persons.0.nonRegisteredInvestmentOpeningYear', 2024);
       form.setValue('persons.0.nonRegisteredInvestmentBookValue', 200123);
 
-      // Spouse non-RRSP investments $30,000 (Start year 2016, Cost 20,000)
+      // Spouse non-RRSP investments $30,000 (Cost 20,000)
       form.setValue('persons.1.nonRegisteredInvestmentValue', 30000);
-      form.setValue('persons.1.nonRegisteredInvestmentOpeningYear', 2016);
       form.setValue('persons.1.nonRegisteredInvestmentBookValue', 20000);
 
       // My life insurance $400,000 spouse life insurance $100,000
@@ -254,12 +252,6 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                     />
                     <NumberInput
                       control={form.control}
-                      name="persons.0.nonRegisteredInvestmentOpeningYear"
-                      label="Opening Year"
-                      placeholder="Enter year"
-                    />
-                    <NumberInput
-                      control={form.control}
                       name="persons.0.nonRegisteredInvestmentBookValue"
                       label="Book Value (Cost Basis)"
                       placeholder="Enter original cost"
@@ -281,12 +273,6 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                       label="Current Value"
                       placeholder="Enter current value"
                       type="decimal"
-                    />
-                    <NumberInput
-                      control={form.control}
-                      name="persons.1.nonRegisteredInvestmentOpeningYear"
-                      label="Opening Year"
-                      placeholder="Enter year"
                     />
                     <NumberInput
                       control={form.control}
@@ -365,6 +351,7 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                     name="primaryResidenceSellYear"
                     label="Planned Sale Year"
                     placeholder="Enter year"
+                    skipFormatting
                   />
                 )}
               </div>

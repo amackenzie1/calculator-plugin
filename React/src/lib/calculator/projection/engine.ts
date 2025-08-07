@@ -50,15 +50,15 @@ export function projectRetirementInternal(
 ): YearState[] {
   const states: YearState[] = [];
 
-  // 1. Create initial state from input
-  let initialState = createInitialState(input);
+  // 1. Create initial state from input (this represents Jan 1, 2025 opening balances)
+  const initialState = createInitialState(input);
 
-  // Apply tax calculations to the initial year as well
-  initialState = calculateTaxImplications(initialState, input);
+  // 2. Calculate the first year's closing balances (Dec 31, 2025)
+  // This applies investment returns, income, expenses, and taxes for the full year
+  const firstYearClosing = calculateFirstYear(initialState, input);
+  states.push(firstYearClosing);
 
-  states.push(initialState);
-
-  // 2. Project forward year by year
+  // 3. Project forward year by year
   while (!isProjectionComplete(states, input)) {
     const nextState = calculateNextYear(states[states.length - 1], input);
     console.log("nextState", nextState);
@@ -66,6 +66,40 @@ export function projectRetirementInternal(
   }
 
   return states;
+}
+
+/**
+ * Calculates the first year's closing state (Dec 31) from opening balances (Jan 1)
+ * This ensures the first year shows end-of-year balances after applying growth and income
+ */
+function calculateFirstYear(
+  openingState: YearState,
+  input: CalculatorSchemaType
+): YearState {
+  // Apply the same calculations as calculateNextYear, but for the first year
+  // This ensures we show closing balances (Dec 31) instead of opening balances (Jan 1)
+  
+  // 1. Handle house sale if applicable
+  const withHouseSale = processHouseSale(openingState, input);
+
+  // 2. Apply investment returns for the full year
+  const withReturns = applyInvestmentReturns(withHouseSale, input);
+
+  // 3. Calculate income for the year
+  const withIncomeCalculated = calculateYearlyIncome(withReturns, input);
+
+  // 4. Add calculated income to non-registered accounts
+  const withIncomeAppliedToAssets = applyYearlyIncomeToAccounts(withIncomeCalculated);
+
+  // 5. Estimate tax implications based on current income
+  const withInitialTax = calculateTaxImplications(withIncomeAppliedToAssets, input);
+
+  // 6. Calculate required withdrawals for expenses and taxes
+  const withWithdrawals = calculateRequiredWithdrawals(withInitialTax, input);
+
+  // 7. Don't age for the first year - we want to show the current year's closing state
+  // The age shown should still be the current age (as of Dec 31 of current year)
+  return withWithdrawals;
 }
 
 /**
@@ -78,17 +112,9 @@ export function calculateNetWorth(
   // Sum up all assets across all accounts for both persons
   let netWorth = 0;
 
-  // Add primary residence value if it exists and hasn't been sold yet
-  if (data.primaryResidenceValue) {
-    if (
-      !data.primaryResidenceSell ||
-      !data.primaryResidenceSellYear ||
-      state.year <= data.primaryResidenceSellYear
-    ) {
-      // Include house value up to and including the sale year
-      // The sale proceeds will already be in the investment accounts
-      netWorth += data.primaryResidenceValue;
-    }
+  // Add primary residence value if it exists in the state (hasn't been sold yet)
+  if (state.primaryResidenceValue) {
+    netWorth += state.primaryResidenceValue;
   }
 
   // Add all account values from the current state
