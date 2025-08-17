@@ -272,8 +272,8 @@ describe('Retirement Projection', () => {
       const initialPoint = projection[0]
       expect(initialPoint.year).toBe(currentYear)
       // Now showing closing balances: all assets grow by 4%
-      // 500k house * 1.04 + (50k TFSA + 100k non-reg) * 1.04 = 520k + 156k = 676000
-      expect(initialPoint.netWorth).toBe(676000) // Now shows end-of-year balances with home growth
+      // House NOT included (not selling): (50k TFSA + 100k non-reg) * 1.04 = 156000
+      expect(initialPoint.netWorth).toBe(156000) // House excluded since not selling
 
       // Log some intermediate points to understand the growth
       console.log('Initial net worth:', initialPoint.netWorth)
@@ -302,13 +302,10 @@ describe('Retirement Projection', () => {
 
       // Calculate expected final value
       const initialInvestments = 50000 + 100000 // TFSA + non-reg
-      const initialHome = 500000 // Home value
+      // Home NOT included since not selling
       // Now includes growth for all 61 years (first year is now closing balance)
       const expectedInvestmentGrowth = initialInvestments * Math.pow(1.04, 61)
-      const expectedHomeGrowth = initialHome * Math.pow(1.04, 61) // Home also grows
-      const expectedFinalNetWorth = Math.round(
-        expectedInvestmentGrowth + expectedHomeGrowth
-      )
+      const expectedFinalNetWorth = Math.round(expectedInvestmentGrowth)
 
       // Allow for small rounding differences (within $1)
       expect(finalPoint.netWorth).toBe(expectedFinalNetWorth)

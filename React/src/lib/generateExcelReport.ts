@@ -62,7 +62,8 @@ interface ReportRow {
 
 export async function generateExcelReport(
   detailedProjectionStates: YearState[],
-  input: CalculatorSchemaType
+  input: CalculatorSchemaType,
+  filename: string = "FinancialProjection.xlsx"
 ): Promise<void> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Financial Projection");
@@ -200,36 +201,28 @@ export async function generateExcelReport(
         ]
       : []),
     // GIS, CPP Death Benefit not in current model - could be added if data exists
-    {
-      label: "Home Sales",
-      category: "Cash Sources",
-      getValue: () => null,
-      fill: cashSourceFill,
-    },
-    {
-      label: "House Sale Proceeds",
-      subCategory: "Home Sales",
-      getValue: (ys, prevState, inp) =>
-        ys.year === inp.primaryResidenceSellYear && inp.primaryResidenceSell
-          ? (prevState?.primaryResidenceValue || inp.primaryResidenceValue)
-          : 0,
-      isCurrency: true,
-      parentCategory: "Cash Sources",
-    },
-    {
-      label: "Non-Reg. Port. Withdrawals",
-      category: "Cash Sources",
-      getValue: (ys) => {
-        let totalWithdrawals = 0;
-        ys.persons.forEach((p) => {
-          totalWithdrawals += p.withdrawals.nonRegistered;
-        });
-        return totalWithdrawals;
-      },
-      isCurrency: true,
-      parentCategory: "Cash Sources",
-      fill: cashSourceFill,
-    },
+    // Only include Home Sales section if they plan to sell the house
+    ...(input.primaryResidenceSell
+      ? [
+          {
+            label: "Home Sales",
+            category: "Cash Sources",
+            getValue: () => null,
+            fill: cashSourceFill,
+          } as ReportRow,
+          {
+            label: "House Sale Proceeds",
+            subCategory: "Home Sales",
+            getValue: (ys: YearState, prevState: YearState | null, inp: CalculatorSchemaType) =>
+              ys.year === inp.primaryResidenceSellYear && inp.primaryResidenceSell
+                ? (prevState?.primaryResidenceValue || inp.primaryResidenceValue)
+                : 0,
+            isCurrency: true,
+            parentCategory: "Cash Sources",
+          } as ReportRow,
+        ]
+      : []),
+    // Portfolio withdrawals removed from Cash Sources - they're not income
     {
       label: "Total Cash Sources",
       isBold: true,
@@ -296,31 +289,26 @@ export async function generateExcelReport(
       parentCategory: "Cash Uses",
     }, // Calculated dynamically
 
-    // --- Annual Net Cash Flow ---
-    {
-      label: "Annual Net Cash Flow",
-      isBold: true,
-      getValue: () => "",
-      isCurrency: true,
-      fill: totalFill,
-      isSubTotal: true,
-    }, // Calculated dynamically
-
     // --- Assets ---
     { label: "Assets", isBold: true, fill: sectionFill, getValue: () => null },
-    {
-      label: "Homes",
-      category: "Assets",
-      getValue: () => null,
-      fill: assetFill,
-    },
-    {
-      label: "Primary Residence",
-      subCategory: "Homes",
-      getValue: (ys) => ys.primaryResidenceValue || 0,
-      isCurrency: true,
-      parentCategory: "Assets",
-    },
+    // Only include house rows if planning to sell
+    ...(input.primaryResidenceSell
+      ? [
+          {
+            label: "Homes",
+            category: "Assets",
+            getValue: () => null,
+            fill: assetFill,
+          } as ReportRow,
+          {
+            label: "Primary Residence",
+            subCategory: "Homes",
+            getValue: (ys: YearState) => ys.primaryResidenceValue || 0,
+            isCurrency: true,
+            parentCategory: "Assets",
+          } as ReportRow,
+        ]
+      : []),
     {
       label: "Non-Reg. Portfolios",
       category: "Assets",
@@ -372,12 +360,11 @@ export async function generateExcelReport(
             (acc) => (totalNetWorth += acc.marketValue)
           );
         });
-        // Add home value if it exists in the state
-        if (ys.primaryResidenceValue) {
+        // Only add home value if they plan to sell it (consistent with graph)
+        if (ys.primaryResidenceValue && input.primaryResidenceSell) {
           totalNetWorth += ys.primaryResidenceValue;
         }
-        // Life insurance death benefit is part of input.persons, not YearState.
-        // It's usually added to final estate, not ongoing net worth in this type of projection.
+        // Note: Life insurance is never included until someone dies
         return totalNetWorth;
       },
       isCurrency: true,
@@ -481,12 +468,12 @@ export async function generateExcelReport(
     });
   });
 
-  // --- Populate Subtotals and Net Cash Flow ---
+  // --- Populate Subtotals and calculated rows ---
   sheet
     .getRows(headerRow.number + 1, reportRows.length)
     ?.forEach((dataRow, rowIndex) => {
       const rowConfig = reportRows[rowIndex];
-      if (rowConfig.isSubTotal || rowConfig.label === "Annual Net Cash Flow") {
+      if (rowConfig.isSubTotal) {
         detailedProjectionStates.forEach((yearState, colIndex) => {
           const cell = dataRow.getCell(colIndex + 2);
           let calculatedValue: number | string = 0;
@@ -498,30 +485,6 @@ export async function generateExcelReport(
           ) {
             calculatedValue =
               categorySubtotals[rowConfig.parentCategory][yearState.year] || 0;
-          } else if (rowConfig.label === "Annual Net Cash Flow") {
-            // Calculate Operational Cash Sources for this year
-            let operationalCashSources = 0;
-            yearState.persons.forEach((person) => {
-              operationalCashSources += person.income.cpp || 0;
-              operationalCashSources += person.income.oas || 0;
-              operationalCashSources += person.income.definedBenefit || 0;
-              operationalCashSources += person.income.employment || 0; // Assuming employment is also an operational source
-              person.income.other?.forEach(
-                (otherInc) => (operationalCashSources += otherInc.amount || 0)
-              );
-            });
-            if (
-              input.primaryResidenceSell &&
-              yearState.year === input.primaryResidenceSellYear
-            ) {
-              // Use the grown home value from the previous year's state
-              const prevYearState = colIndex > 0 ? detailedProjectionStates[colIndex - 1] : null;
-              operationalCashSources += prevYearState?.primaryResidenceValue || input.primaryResidenceValue || 0;
-            }
-
-            const totalCashUses =
-              categorySubtotals["Cash Uses"]?.[yearState.year] || 0;
-            calculatedValue = operationalCashSources - totalCashUses;
           }
 
           cell.value = calculatedValue;
@@ -538,7 +501,7 @@ export async function generateExcelReport(
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, "FinancialProjection.xlsx");
+    saveAs(blob, filename);
   } catch (error) {
     console.error("Error writing excel buffer or saving file:", error);
     // Handle error - maybe show a toast to the user

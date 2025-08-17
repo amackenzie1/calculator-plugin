@@ -112,8 +112,9 @@ export function calculateNetWorth(
   // Sum up all assets across all accounts for both persons
   let netWorth = 0;
 
-  // Add primary residence value if it exists in the state (hasn't been sold yet)
-  if (state.primaryResidenceValue) {
+  // Only include primary residence if they plan to sell it
+  // If they're keeping it forever, it's not really part of their usable net worth
+  if (state.primaryResidenceValue && data.primaryResidenceSell) {
     netWorth += state.primaryResidenceValue;
   }
 
@@ -124,12 +125,9 @@ export function calculateNetWorth(
     });
   });
 
-  // Add life insurance values if they exist
-  data.persons.forEach((person) => {
-    if (person.lifeInsuranceDeathBenefit) {
-      netWorth += person.lifeInsuranceDeathBenefit;
-    }
-  });
+  // NOTE: We don't include life insurance death benefits here
+  // Life insurance only becomes an asset when someone dies and it's paid out
+  // It will be added to the surviving spouse's accounts at that time
 
   return netWorth;
 }

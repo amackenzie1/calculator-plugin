@@ -56,3 +56,7 @@ export function projectNetWorth(
 export * from "./types";
 
 export { getAllExpenses };
+
+// Export surplus calculation functions
+export { calculateSurplusCapital } from './surplus';
+export type { SurplusCalculationResult, ProjectionTestResult } from './surplus';

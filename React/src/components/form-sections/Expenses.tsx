@@ -48,7 +48,7 @@ const ExpensesCard = ({ form, calculateForSpouse }: ExpensesCardProps) => {
     const autoFillFlag = 'formAutoFilled_Expenses';
     if (process.env.NODE_ENV === 'development' && !sessionStorage.getItem(autoFillFlag)) {
       // My expenses $100,123
-      form.setValue('persons.0.annualExpenses', 100123);
+      form.setValue('persons.0.annualExpenses', 50123);
 
       // No expenses for spouse
       if (calculateForSpouse) {

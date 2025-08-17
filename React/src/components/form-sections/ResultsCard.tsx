@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ProjectionDataPoint, YearState } from "@/lib/calculator/projection"; // Assuming YearState is exported
+import { calculateSurplusCapital, SurplusCalculationResult } from "@/lib/calculator/projection/surplus";
 import { generateExcelReport } from "@/lib/generateExcelReport"; // Ensure this is a static import for now
 import { DownloadIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { SurplusCapitalCard } from "@/components/SurplusCapitalCard";
 
 export interface ResultsCardProps {
   projectionData: ProjectionDataPoint[];
@@ -21,6 +23,36 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
 }) => {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [surplusResult, setSurplusResult] = useState<SurplusCalculationResult | undefined>();
+  const [isCalculatingSurplus, setIsCalculatingSurplus] = useState(false);
+
+  // Calculate surplus capital when calculatorInput changes
+  useEffect(() => {
+    if (!calculatorInput) {
+      setSurplusResult(undefined);
+      return;
+    }
+
+    setIsCalculatingSurplus(true);
+    
+    // Run calculation async to avoid blocking UI
+    const calculateAsync = async () => {
+      try {
+        // Small delay to show loading state
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const result = calculateSurplusCapital(calculatorInput);
+        setSurplusResult(result);
+      } catch (error) {
+        console.error("Error calculating surplus capital:", error);
+        setSurplusResult(undefined);
+      } finally {
+        setIsCalculatingSurplus(false);
+      }
+    };
+
+    calculateAsync();
+  }, [calculatorInput]);
 
   const handleDownloadXLSX = async () => {
     console.log("[ResultsCard] handleDownloadXLSX triggered");
@@ -39,11 +71,27 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
     setIsDownloading(true);
 
     try {
+      // Use post-donation data if available and there's surplus
+      const hasSurplus = surplusResult && surplusResult.surplusCapital > 0;
+      
+      const dataToExport = hasSurplus && surplusResult.postDonationProjection
+        ? surplusResult.postDonationProjection
+        : detailedProjectionStates;
+      
+      const inputToExport = hasSurplus && surplusResult.postDonationInput
+        ? surplusResult.postDonationInput
+        : calculatorInput;
+      
+      const filename = hasSurplus
+        ? `Projection_After_${Math.round(surplusResult.surplusCapital / 1000)}k_Donation.xlsx`
+        : "FinancialProjection.xlsx";
+      
       console.log("[ResultsCard] Attempting to call generateExcelReport with:", { 
-        statesCount: detailedProjectionStates.length,
-        hasInput: !!calculatorInput
+        statesCount: dataToExport.length,
+        hasInput: !!inputToExport,
+        filename
       });
-      await generateExcelReport(detailedProjectionStates, calculatorInput);
+      await generateExcelReport(dataToExport, inputToExport, filename);
       console.log("[ResultsCard] Excel report generation call completed.");
       toast({
         title: "Export Successful",
@@ -67,12 +115,17 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center text-primary">Financial Projection Results</CardTitle>
         <CardDescription className="text-center text-muted-foreground">
-          This chart illustrates your projected net worth over time.
+          Your retirement projection and charitable giving capacity analysis.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {projectionData.length > 0 ? (
-          <ProjectionGraph data={projectionData} />
+        {/* Surplus Capital Analysis - now includes the projection graph */}
+        {calculatorInput && projectionData.length > 0 ? (
+          <SurplusCapitalCard 
+            surplusResult={surplusResult} 
+            isCalculating={isCalculatingSurplus}
+            originalProjectionData={projectionData}
+          />
         ) : (
           <p className="text-center text-muted-foreground">No projection data available. Please complete the previous steps and calculate.</p>
         )}

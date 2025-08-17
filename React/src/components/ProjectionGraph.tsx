@@ -22,9 +22,11 @@ interface ProjectionDataPoint {
 
 interface ProjectionGraphProps {
   data: ProjectionDataPoint[]
+  overlayData?: ProjectionDataPoint[]
+  overlayLabel?: string
 }
 
-const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
+const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data, overlayData, overlayLabel }) => {
   const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('area')
 
   
@@ -38,6 +40,16 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
     }).format(value)
   }
 
+  // Merge data for overlay charts
+  const mergedData = data.map(point => {
+    const overlayPoint = overlayData?.find(overlay => overlay.year === point.year)
+    return {
+      year: point.year,
+      netWorth: point.netWorth,
+      overlayNetWorth: overlayPoint?.netWorth
+    }
+  })
+
   // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -45,9 +57,11 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
         <Card className="p-3 shadow-md border">
           <CardContent className="p-0">
             <p className="text-sm font-medium">Year: {label}</p>
-            <p className="text-primary font-semibold">
-              Net Worth: {formatCurrency(payload[0].value)}
-            </p>
+            {payload.map((entry: any, index: number) => (
+              <p key={index} className="font-semibold" style={{ color: entry.color }}>
+                {entry.name}: {formatCurrency(entry.value)}
+              </p>
+            ))}
           </CardContent>
         </Card>
       )
@@ -75,7 +89,7 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
       <div className="h-[400px]">
         {chartType === 'line' && (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+            <LineChart data={mergedData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis 
                 dataKey="year" 
@@ -93,19 +107,31 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
               <Line
                 type="monotone"
                 dataKey="netWorth"
-                name="Net Worth"
+                name="Current Projection"
                 stroke="hsl(var(--primary))"
                 strokeWidth={3}
                 dot={{ r: 2, fill: 'hsl(var(--primary))' }}
                 activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
               />
+              {overlayData && (
+                <Line
+                  type="monotone"
+                  dataKey="overlayNetWorth"
+                  name={overlayLabel || "Post-Donation"}
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={{ r: 2, fill: '#22c55e' }}
+                  activeDot={{ r: 6, fill: '#22c55e' }}
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         )}
 
         {chartType === 'area' && (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+            <AreaChart data={mergedData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} />
               <XAxis 
                 dataKey="year" 
@@ -125,19 +151,31 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
               <Area
                 type="monotone"
                 dataKey="netWorth"
-                name="Net Worth"
+                name="Current Projection"
                 stroke="hsl(var(--primary))"
                 fill="hsl(var(--primary) / 25%)"
                 strokeWidth={2.5}
                 activeDot={{ r: 7, fill: 'hsl(var(--primary))' }}
               />
+              {overlayData && (
+                <Area
+                  type="monotone"
+                  dataKey="overlayNetWorth"
+                  name={overlayLabel || "Post-Donation"}
+                  stroke="#22c55e"
+                  fill="rgba(34, 197, 94, 0.1)"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  activeDot={{ r: 6, fill: '#22c55e' }}
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         )}
 
         {chartType === 'bar' && (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+            <BarChart data={mergedData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis 
                 dataKey="year" 
@@ -154,10 +192,18 @@ const ProjectionGraph: React.FC<ProjectionGraphProps> = ({ data }) => {
               <Tooltip content={<CustomTooltip />} />
               <Bar
                 dataKey="netWorth"
-                name="Net Worth"
+                name="Current Projection"
                 fill="hsl(var(--primary) / 80%)"
                 radius={[4, 4, 0, 0]}
               />
+              {overlayData && (
+                <Bar
+                  dataKey="overlayNetWorth"
+                  name={overlayLabel || "Post-Donation"}
+                  fill="rgba(34, 197, 94, 0.6)"
+                  radius={[4, 4, 0, 0]}
+                />
+              )}
             </BarChart>
           </ResponsiveContainer>
         )}
