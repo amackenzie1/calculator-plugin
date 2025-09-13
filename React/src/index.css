@@ -4,27 +4,27 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 0 0% 99%;
+    --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
-    --primary: 215 25% 25%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 220.9 39.3% 15%;
     --primary-foreground: 210 20% 98%;
-    --secondary: 215 15% 94%;
-    --secondary-foreground: 215 25% 15%;
-    --muted: 215 15% 94%;
-    --muted-foreground: 215 10% 45%;
-    --accent: 215 15% 94%;
-    --accent-foreground: 215 25% 15%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 35 91% 62%;
+    --accent-foreground: 220.9 39.3% 11%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
-    --border: 214 15% 88%;
-    --input: 214 15% 88%;
-    --ring: 215 25% 25%;
-    --radius: 0.4rem;
-    --success: 150 45% 40%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220.9 39.3% 15%;
+    --radius: 0.5rem;
+    --success: 142 70% 45%;
     --success-foreground: 210 20% 98%;
   }
 
@@ -35,13 +35,13 @@
     --card-foreground: 210 20% 98%;
     --popover: 215 25% 8%;
     --popover-foreground: 210 20% 98%;
-    --primary: 215 20% 65%;
+    --primary: 215 40% 70%;
     --primary-foreground: 215 25% 12%;
     --secondary: 215 25% 20%;
     --secondary-foreground: 210 20% 98%;
     --muted: 215 25% 20%;
     --muted-foreground: 215 10% 70%;
-    --accent: 215 25% 20%;
+    --accent: 43 65% 50%;
     --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 210 20% 98%;
@@ -59,20 +59,57 @@
   }
   body {
     @apply bg-background text-foreground min-h-screen antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl font-light leading-tight;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+/* Subtle gradient background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at top, hsl(var(--primary) / 0.02), transparent 50%),
+              radial-gradient(ellipse at bottom, hsl(var(--accent) / 0.02), transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Custom styles for consistent form elements */
 .form-card {
-  @apply bg-card rounded-lg border shadow-sm;
+  @apply bg-card rounded-lg border border-border/50 shadow-sm;
 }
 
 .form-card-header {
-  @apply p-6 border-b;
+  @apply p-8 border-b border-border/50;
 }
 
 .form-card-title {
-  @apply text-3xl font-bold tracking-tight mb-2;
+  @apply text-2xl md:text-3xl font-normal tracking-tight mb-2;
 }
 
 .form-card-description {
@@ -121,28 +158,13 @@
 }
 
 /* New styles for improved UI */
-.form-card {
-  @apply bg-card rounded-lg border shadow-md transition-all duration-200;
-}
-
-.form-card:hover {
-  @apply shadow-lg;
-}
-
-.form-card-header {
-  @apply p-6 border-b bg-gradient-to-r from-primary/5 to-transparent;
-}
-
-.form-card-title {
-  @apply text-3xl font-bold tracking-tight mb-2 text-primary;
-}
 
 .form-section-title {
-  @apply text-xl font-semibold mb-4 text-primary/90 border-l-4 border-primary/50 pl-3 py-1;
+  @apply text-lg md:text-xl font-medium mb-4 text-foreground;
 }
 
 .tab-indicator {
-  @apply flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-medium text-sm mr-2;
+  @apply flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary font-medium text-sm mr-2 transition-all;
 }
 
 .tab-active .tab-indicator {
@@ -158,11 +180,11 @@
 }
 
 .input-with-icon input {
-  @apply pl-10;
+  @apply pl-12;
 }
 
 .input-with-icon .icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground;
+  @apply absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground;
 }
 
 .required-indicator {
@@ -178,11 +200,11 @@
 }
 
 .stat-card {
-  @apply p-4 rounded-lg border bg-card/50 hover:bg-card/80 transition-all duration-200;
+  @apply p-6 rounded-lg border border-border/50 bg-card shadow-sm hover:shadow-md transition-shadow;
 }
 
 .stat-value {
-  @apply text-2xl font-bold text-primary;
+  @apply text-2xl md:text-3xl font-light text-primary;
 }
 
 .stat-label {
@@ -191,11 +213,11 @@
 
 /* Progress bar for multi-step form */
 .progress-bar {
-  @apply w-full h-2 bg-muted rounded-full overflow-hidden mb-6;
+  @apply w-full h-1.5 bg-muted/50 rounded-full overflow-hidden mb-8;
 }
 
 .progress-fill {
-  @apply h-full bg-primary transition-all duration-300;
+  @apply h-full bg-primary transition-all duration-500 ease-out;
 }
 
 /* Navigation buttons */
@@ -204,10 +226,15 @@
 }
 
 .form-navigation button {
-  @apply h-10;
+  @apply h-11;
 }
 
 /* Improved graph styling */
 .projection-graph {
-  @apply rounded-lg border p-4 bg-card/50;
+  @apply rounded-lg border border-border/50 p-6 bg-card shadow-sm;
+}
+
+/* Page section title utility */
+.section-title {
+  @apply text-xl md:text-2xl font-medium tracking-tight text-foreground;
 }

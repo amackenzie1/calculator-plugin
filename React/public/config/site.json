@@ -1,0 +1,23 @@
+{
+  "logo": "use-it-wisely-logo.png",
+  "name": "Use It Wisely",
+  "nav": [
+    { "label": "About Us", "path": "/about" },
+    { "label": "How It Works", "path": "/how-it-works" },
+    { "label": "Surplus Calculator", "path": "/calculator" },
+    { "label": "Resources", "path": "/resources" },
+    { "label": "Contact Us", "path": "/contact" }
+  ],
+  "footer": {
+    "about": "We established our non-profit to help retirees maximize their opportunities for happiness in retirement.\n\nYour support helps us to continue delivering a product that every retiree can access and benefit from.",
+    "links": [
+      { "label": "About Us", "path": "/about" },
+      { "label": "How it Works", "path": "/how-it-works" },
+      { "label": "Surplus Calculator", "path": "/calculator" },
+      { "label": "Resources", "path": "/resources" },
+      { "label": "Contact Us", "path": "/contact" }
+    ]
+  }
+}
+
+

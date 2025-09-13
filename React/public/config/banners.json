@@ -1,0 +1,24 @@
+{
+  "about": {
+    "image": "about-us-banner.jpg",
+    "title": "About Us",
+    "subtitle": "We established our non-profit for you to benefit from. Together, we can make a difference that echoes for generations."
+  },
+  "howItWorks": {
+    "image": "how-it-works-banner.jpg",
+    "title": "How It Works",
+    "subtitle": "Most financial planning software is for professionals. Ours is for retirees at home."
+  },
+  "resources": {
+    "image": "resources-banner.jpg",
+    "title": "Resources",
+    "subtitle": "Insights, tools, and perspectives for your retirement journey."
+  },
+  "contact": {
+    "image": "contact-us-banner.jpg",
+    "title": "Contact Us",
+    "subtitle": "We would love to hear from you."
+  }
+}
+
+

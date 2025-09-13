@@ -1,0 +1,40 @@
+{
+  "resources": [
+    {
+      "id": "using-wealth-wisely",
+      "tag": "Wealth",
+      "title": "Using Wealth Wisely",
+      "date": "2023-07-16",
+      "author": "Warren MacKenzie",
+      "authorImage": "warren-mackenzie.jpg",
+      "coverPhoto": "1-2-1280x512.jpg",
+      "excerpt": "Wealth is only useful if it helps to increase the quality of your life.",
+      "content": "Wealth is only useful if it helps to increase the quality of your life.",
+      "image": "1-2-1280x512.jpg"
+    },
+    {
+      "id": "wealth-goals-fun",
+      "tag": "Goals",
+      "title": "Be Clear on Your Goals - Avoid Wasting Capital - And Have Fun",
+      "date": "2023-07-08",
+      "author": "Warren MacKenzie",
+      "authorImage": "warren-mackenzie.jpg",
+      "coverPhoto": "1-2-1280x512.jpg",
+      "excerpt": "Clarity on goals helps you use capital where it matters most.",
+      "content": "Clarity on goals helps you use capital where it matters most.",
+      "image": "1-2-1280x512.jpg"
+    },
+    {
+      "id": "philanthropy-character",
+      "tag": "Philanthropy",
+      "title": "Philanthropy and Character Development",
+      "date": "2023-07-01",
+      "author": "Michael Alexander",
+      "authorImage": "michael-alexander.jpg",
+      "coverPhoto": "1-2-1280x512.jpg",
+      "excerpt": "Giving can shape who we become and how we live.",
+      "content": "Giving can shape who we become and how we live.",
+      "image": "1-2-1280x512.jpg"
+    }
+  ]
+}

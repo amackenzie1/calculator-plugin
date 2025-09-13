@@ -1,0 +1,29 @@
+{
+  "members": [
+    {
+      "name": "Terry McCullum",
+      "photo": "terry.jpg",
+      "bio": "Terry McCullum, MSW, MA, MDiv, was CEO of a large charitable non-profit organization for 35 years, serving over 7000 individuals annually."
+    },
+    {
+      "name": "Warren MacKenzie",
+      "photo": "warren.jpg",
+      "bio": "Head of Financial Planning at Optimize Wealth Management, author and educator focused on Essential and Surplus Capital."
+    },
+    {
+      "name": "Linda Reed",
+      "photo": "linda.jpg",
+      "bio": "MA, MBA, executive coach with extensive business leadership experience and community engagement."
+    },
+    {
+      "name": "Michael Alexander",
+      "photo": "michael.jpg",
+      "bio": "Author and legal commentator with notable contributions in inheritance and public policy."
+    },
+    {
+      "name": "Andrew Jenkins",
+      "photo": "andrew.jpg",
+      "bio": "Author and consultant on social media strategy, international speaker and educator."
+    }
+  ]
+}
