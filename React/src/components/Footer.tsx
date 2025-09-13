@@ -46,8 +46,8 @@ function Footer() {
           <div className="space-y-4">
             {recent.map((r) => (
               <Link key={r.id} to={`/resources/${r.id}`} className="flex items-center gap-3 group">
-                {r.authorImage ? (
-                  <img src={`/${r.authorImage}`} alt={r.author} className="h-10 w-10 rounded-full object-cover ring-2 ring-border/50 group-hover:ring-primary/30 transition-all" />
+                {r.coverPhoto ? (
+                  <img src={`/${r.coverPhoto}`} alt={r.title} className="h-12 w-16 object-cover rounded border border-border/50 group-hover:border-primary/30 transition-all" />
                 ) : null}
                 <div>
                   <div className="text-xs text-muted-foreground">{new Date(r.date).toLocaleDateString()}</div>

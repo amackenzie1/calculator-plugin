@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { loadBanners } from "@/lib/config/banners";
 import Banner from "@/components/Banner";
-import { Info, Gift, UsersRound, ChevronRight, Linkedin } from "lucide-react";
+import { Info, Gift, UsersRound, ChevronRight, Linkedin, Anchor, ShieldCheck, Plane, PiggyBank } from "lucide-react";
 
 function About() {
   const [banner, setBanner] = useState<{ image: string; title: string; subtitle?: string } | null>(null);
@@ -52,24 +52,44 @@ function About() {
                   </summary>
                   <div className="mt-3 leading-relaxed">{m.bio}</div>
                 </details>
-                <div className="mt-3 flex items-center gap-3">
-                  <a href="#" className="text-muted-foreground hover:text-foreground" aria-label="LinkedIn">
-                    <Linkedin className="h-5 w-5" aria-hidden="true" />
-                  </a>
-                </div>
+
               </div>
             ))}
           </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="space-y-6">
           <h2 className="section-title inline-flex items-center gap-2"><ChevronRight className="h-5 w-5 text-accent" aria-hidden="true" /> Retire Your Way</h2>
-          <ul className="pl-0 text-muted-foreground space-y-2">
-            <li className="flex items-start gap-2"><ChevronRight className="mt-1 h-4 w-4 text-accent" aria-hidden="true" /> Clarify your financial future today.</li>
-            <li className="flex items-start gap-2"><ChevronRight className="mt-1 h-4 w-4 text-accent" aria-hidden="true" /> Peace Of Mind: Know where you stand now, and into the future.</li>
-            <li className="flex items-start gap-2"><ChevronRight className="mt-1 h-4 w-4 text-accent" aria-hidden="true" /> Examine ‘what-ifs’: Start a business, a new career, or take a vacation!</li>
-            <li className="flex items-start gap-2"><ChevronRight className="mt-1 h-4 w-4 text-accent" aria-hidden="true" /> Income Protection: Calculate now, and pay less income tax during retirement.</li>
-          </ul>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="rounded-lg border border-border/50 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <Anchor className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div className="font-medium">Clarity</div>
+              </div>
+              <div className="text-sm text-muted-foreground">Clarify your financial future today.</div>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <ShieldCheck className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div className="font-medium">Peace of Mind</div>
+              </div>
+              <div className="text-sm text-muted-foreground">Know where you stand now, and into the future.</div>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <Plane className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div className="font-medium">Explore What-Ifs</div>
+              </div>
+              <div className="text-sm text-muted-foreground">Start a business, a new career, or take a vacation!</div>
+            </div>
+            <div className="rounded-lg border border-border/50 bg-card p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <PiggyBank className="h-5 w-5 text-accent" aria-hidden="true" />
+                <div className="font-medium">Income Protection</div>
+              </div>
+              <div className="text-sm text-muted-foreground">Calculate now, and pay less income tax during retirement.</div>
+            </div>
+          </div>
         </section>
       </div>
     </>
