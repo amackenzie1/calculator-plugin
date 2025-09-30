@@ -34,6 +34,7 @@ describe('Retirement Projection', () => {
     desiredEstateValue: null,
     incomeReturnRate: null,
     growthReturnRate: null,
+    nonRegisteredReturnBreakdown: { interest: 0.2, eligibleDividends: 0.3, capitalGains: 0.5 },
     expensesChangeForEachStage: null,
     expensesChangeForEachStageSpouse: null,
   }
@@ -261,6 +262,7 @@ describe('Retirement Projection', () => {
         desiredEstateValue: null,
         incomeReturnRate: null,
         growthReturnRate: null,
+        nonRegisteredReturnBreakdown: { interest: 0.2, eligibleDividends: 0.3, capitalGains: 0.5 },
         expensesChangeForEachStage: null,
         expensesChangeForEachStageSpouse: null,
       }
@@ -340,13 +342,11 @@ describe('Retirement Projection', () => {
       const initialState = states[0]
       // Now showing closing balance after 4% return for the first year
       expect(initialState.persons[0].accounts.tfsa.marketValue).toBe(52000) // 50000 * 1.04
-      // Non-registered also shows closing balance after 4% return
-      expect(initialState.persons[0].accounts.nonRegistered.marketValue).toBe(
-        104000 // 100000 * 1.04
-      )
-      expect(initialState.persons[0].accounts.nonRegistered.bookValue).toBe(
-        80000
-      )
+      // Non-registered: 100k start, 4% return = 4k total
+      // Split: 50% cap gains (2k, unrealized) + 20% interest (0.8k cash) + 30% div (1.2k cash) = 104k market value
+      expect(initialState.persons[0].accounts.nonRegistered.marketValue).toBe(104000)
+      // Book value: 80k start + 2k cash income (interest + dividends) = 82k
+      expect(initialState.persons[0].accounts.nonRegistered.bookValue).toBe(82000)
     })
   })
 })

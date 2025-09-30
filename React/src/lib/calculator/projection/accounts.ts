@@ -84,16 +84,41 @@ export function applyInvestmentReturns(
   const r = ratePercent / 100
 
   function growAccounts(person: PersonState): PersonState {
-    const newAccounts = { ...person.accounts }
-    Object.keys(newAccounts).forEach((key) => {
-      const account = newAccounts[key as keyof typeof newAccounts]
-      account.marketValue *= 1 + r
+    const newPerson: PersonState = { ...person, accounts: { ...person.accounts } }
+
+    // Get breakdown for non-registered returns (has default in schema)
+    const breakdown = input.nonRegisteredReturnBreakdown
+    const interestPct: number = breakdown.interest
+    const eligibleDivPct: number = breakdown.eligibleDividends
+    const capitalGainsPct: number = breakdown.capitalGains
+
+    // Grow registered accounts with full return
+    const registeredKeys = ['tfsa', 'rrsp', 'rrif', 'lira', 'lif'] as const
+    registeredKeys.forEach((key) => {
+      newPerson.accounts[key].marketValue *= 1 + r
     })
 
-    return {
-      ...person,
-      accounts: newAccounts,
+    // Handle non-registered separately: split between income and unrealized capital gains
+    const nr = newPerson.accounts.nonRegistered
+    const startMV = nr.marketValue
+    if (startMV > 0 && r > -1) {
+      const totalReturnAmt = startMV * r
+      const cgAmt = totalReturnAmt * capitalGainsPct
+      const interestAmt = totalReturnAmt * interestPct
+      const eligibleDivAmt = totalReturnAmt * eligibleDivPct
+
+      // Unrealized capital gains increase market value only
+      nr.marketValue += cgAmt
+
+      // Interest and dividends: add as income and deposit cash immediately to non-registered
+      newPerson.income.interest = Math.max(0, interestAmt)
+      newPerson.income.eligibleDividends = Math.max(0, eligibleDivAmt)
+      const cashIncome = newPerson.income.interest + newPerson.income.eligibleDividends
+      nr.marketValue += cashIncome
+      nr.bookValue += cashIncome
     }
+
+    return newPerson
   }
 
   // Process all persons

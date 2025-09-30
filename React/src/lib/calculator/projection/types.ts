@@ -31,6 +31,9 @@ export interface PersonState {
     cpp: number
     oas: number
     definedBenefit: number
+    // New: non-registered investment income components (taxed annually)
+    interest: number
+    eligibleDividends: number
     other: Array<{
       amount: number
       description: string

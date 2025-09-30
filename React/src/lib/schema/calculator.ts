@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { BREAKDOWN_TOLERANCE, NON_REGISTERED_RETURN_DEFAULT_BREAKDOWN } from '../calculator/projection/constants'
 
 const currentYear = new Date().getFullYear()
 const lowerYearBound = currentYear - 150
@@ -117,6 +118,17 @@ export const CalculatorSchema = z
     desiredEstateValue: z.number().nullable(),
     incomeReturnRate: z.number().nullable(),
     growthReturnRate: z.number().nullable(),
+    nonRegisteredReturnBreakdown: z
+      .object({
+        interest: z.number().min(0).max(1),
+        eligibleDividends: z.number().min(0).max(1),
+        capitalGains: z.number().min(0).max(1),
+      })
+      .default({
+        interest: NON_REGISTERED_RETURN_DEFAULT_BREAKDOWN.interest,
+        eligibleDividends: NON_REGISTERED_RETURN_DEFAULT_BREAKDOWN.eligibleDividends,
+        capitalGains: NON_REGISTERED_RETURN_DEFAULT_BREAKDOWN.capitalGains,
+      }),
   })
   .refine(
     (data) => {
@@ -125,6 +137,19 @@ export const CalculatorSchema = z
     {
       message: "At least one person with type 'self' is required.",
       path: ['persons'],
+    }
+  )
+  .refine(
+    (data) => {
+      const i = data.nonRegisteredReturnBreakdown.interest
+      const d = data.nonRegisteredReturnBreakdown.eligibleDividends
+      const c = data.nonRegisteredReturnBreakdown.capitalGains
+      return Math.abs(i + d + c - 1) < BREAKDOWN_TOLERANCE
+    },
+    {
+      message:
+        'nonRegisteredReturnBreakdown parts must sum to 1.0 (interest + eligibleDividends + capitalGains)',
+      path: ['nonRegisteredReturnBreakdown'],
     }
   )
   .refine(

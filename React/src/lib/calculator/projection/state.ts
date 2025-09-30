@@ -36,6 +36,8 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
         cpp: person.cppAmount || 0,
         oas: person.oasAmount || 0,
         definedBenefit: person.definedBenefitPensionAmount || 0,
+        interest: 0,
+        eligibleDividends: 0,
         other: (input.otherIncomes ?? [])
           .filter((inc) => inc.personType === person.personType)
           .map((inc) => ({

@@ -46,6 +46,22 @@ export const TAX_CONSTANTS = {
   POST_2026_HIGH_INCLUSION_RATE: 2/3,
 } as const;
 
+// Defaults for non-registered return breakdown (fractions summing to 1)
+export const NON_REGISTERED_RETURN_DEFAULT_BREAKDOWN = {
+  interest: 0.2,
+  eligibleDividends: 0.3,
+  capitalGains: 0.5,
+} as const;
+
+// Tolerance for floating point sum validation
+export const BREAKDOWN_TOLERANCE = 1e-6;
+
+// Simplified federal eligible dividend rules
+export const DIVIDEND_RULES = {
+  FED_ELIGIBLE_DIV_GROSS_UP: 1.38, // 38% gross-up
+  FED_ELIGIBLE_DIV_CREDIT_RATE: 0.1502, // ~15.02% of grossed-up amount
+} as const;
+
 // RRIF Minimum Withdrawal Rates
 export const RRIF_MIN_WITHDRAWAL_RATES: { [age: number]: number } = {
   // Early conversion rates (before 71)

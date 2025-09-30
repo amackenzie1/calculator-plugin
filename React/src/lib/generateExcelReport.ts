@@ -143,6 +143,33 @@ export async function generateExcelReport(
     });
   }
 
+  // Helper to DRY per-person row creation
+  const perPersonRows = (
+    baseLabel: string,
+    subCategory: string,
+    getValue: (ys: YearState, personType: "self" | "spouse") => number
+  ): ReportRow[] => {
+    const rows: ReportRow[] = [
+      {
+        label: `${baseLabel} (Self)`,
+        subCategory,
+        getValue: (ys) => getValue(ys, "self"),
+        isCurrency: true,
+        parentCategory: "Cash Sources",
+      },
+    ];
+    if (input.calculateForSpouse) {
+      rows.push({
+        label: `${baseLabel} (Spouse)`,
+        subCategory,
+        getValue: (ys) => getValue(ys, "spouse"),
+        isCurrency: true,
+        parentCategory: "Cash Sources",
+      });
+    }
+    return rows;
+  };
+
   // --- Define Report Structure ---
   const reportRows: ReportRow[] = [
     // --- Cash Sources ---
@@ -158,48 +185,68 @@ export async function generateExcelReport(
       getValue: () => null,
       fill: cashSourceFill,
     },
+    ...perPersonRows("CPP/QPP", "Government Benefits", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.income.cpp || 0
+    ),
+    ...perPersonRows("OAS", "Government Benefits", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.income.oas || 0
+    ),
+    // Employment & Pension income
     {
-      label: "CPP/QPP (Self)",
-      subCategory: "Government Benefits",
-      getValue: (ys) =>
-        ys.persons.find((p) => p.personType === "self")?.income.cpp || 0,
-      isCurrency: true,
-      parentCategory: "Cash Sources",
+      label: "Employment & Pensions",
+      category: "Cash Sources",
+      getValue: () => null,
+      fill: cashSourceFill,
     },
-    ...(input.calculateForSpouse
-      ? [
-          {
-            label: "CPP/QPP (Spouse)",
-            subCategory: "Government Benefits",
-            getValue: (ys: YearState) =>
-              ys.persons.find((p) => p.personType === "spouse")?.income.cpp ||
-              0,
-            isCurrency: true,
-            parentCategory: "Cash Sources",
-          } as ReportRow,
-        ]
-      : []),
+    ...perPersonRows("Employment", "Employment & Pensions", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.income.employment || 0
+    ),
+    ...perPersonRows(
+      "Defined Benefit Pension",
+      "Employment & Pensions",
+      (ys, type) =>
+        ys.persons.find((p) => p.personType === type)?.income.definedBenefit || 0
+    ),
+    ...perPersonRows(
+      "Other Income",
+      "Employment & Pensions",
+      (ys, type) =>
+        (ys.persons.find((p) => p.personType === type)?.income.other || []).reduce(
+          (s, inc) => s + inc.amount,
+          0
+        )
+    ),
+
+    // Portfolio withdrawals (cash sources)
     {
-      label: "OAS (Self)",
-      subCategory: "Government Benefits",
-      getValue: (ys) =>
-        ys.persons.find((p) => p.personType === "self")?.income.oas || 0,
-      isCurrency: true,
-      parentCategory: "Cash Sources",
+      label: "Registered Withdrawals",
+      category: "Cash Sources",
+      getValue: () => null,
+      fill: cashSourceFill,
     },
-    ...(input.calculateForSpouse
-      ? [
-          {
-            label: "OAS (Spouse)",
-            subCategory: "Government Benefits",
-            getValue: (ys: YearState) =>
-              ys.persons.find((p) => p.personType === "spouse")?.income.oas ||
-              0,
-            isCurrency: true,
-            parentCategory: "Cash Sources",
-          } as ReportRow,
-        ]
-      : []),
+    ...perPersonRows("RRSP Withdrawals", "Registered Withdrawals", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.withdrawals.rrsp || 0
+    ),
+    ...perPersonRows("RRIF Withdrawals", "Registered Withdrawals", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.withdrawals.rrif || 0
+    ),
+
+    // Non-registered investment income
+    {
+      label: "Investment Income",
+      category: "Cash Sources",
+      getValue: () => null,
+      fill: cashSourceFill,
+    },
+    ...perPersonRows("Interest", "Investment Income", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.income.interest || 0
+    ),
+    ...perPersonRows("Eligible Dividends", "Investment Income", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.income.eligibleDividends || 0
+    ),
+    ...perPersonRows("Realized Capital Gains", "Investment Income", (ys, type) =>
+      ys.persons.find((p) => p.personType === type)?.realizedGains || 0
+    ),
     // GIS, CPP Death Benefit not in current model - could be added if data exists
     // Only include Home Sales section if they plan to sell the house
     ...(input.primaryResidenceSell

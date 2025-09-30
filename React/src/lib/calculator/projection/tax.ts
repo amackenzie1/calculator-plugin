@@ -1,7 +1,7 @@
 // File: src/lib/calculator/projection/tax.ts
 import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { calculateTax } from '../tax'
-import { GOVERNMENT_BENEFITS, TAX_CONSTANTS } from './constants'
+import { GOVERNMENT_BENEFITS, TAX_CONSTANTS, DIVIDEND_RULES } from './constants'
 import { YearState } from './types'
 import { deepClone } from './utils'
 
@@ -57,49 +57,56 @@ export function calculateTaxImplications(
   // Calculate charitable donations for the current year
   const charitableDonations = getCharitableDonationsForYear(input.charitableDonations ?? [], currentYear)
 
-  // Calculate taxable income and apply OAS clawback for each person
-  const taxableIncomes = Object.values(newState.persons).map((person) => {
+  // Helper to compute taxable income and dividend credit for a person
+  function computeTaxableIncomeAndDividendCredit(personIndex: number): { taxableIncome: number; fedDividendCredit: number } {
+    const person = newState.persons[personIndex]
     const income = person.income
+    const eligibleDividends = income.eligibleDividends || 0
+    const eligibleDividendsGrossed = eligibleDividends * DIVIDEND_RULES.FED_ELIGIBLE_DIV_GROSS_UP
     const baseIncome =
       income.employment +
       income.cpp +
       income.oas +
       income.definedBenefit +
+      (income.interest || 0) +
+      eligibleDividendsGrossed +
       income.other.reduce((sum, inc) => sum + inc.amount, 0)
 
-    // Split registered withdrawals and capital gains equally
     const registeredWithdrawals = person.withdrawals.rrsp + person.withdrawals.rrif
-    const capitalGains = person.realizedGains
-    const taxableCapitalGains = calculateTaxableCapitalGains(capitalGains, currentYear)
+    const taxableCapitalGains = calculateTaxableCapitalGains(person.realizedGains, currentYear)
+    let totalTaxableIncome = baseIncome + registeredWithdrawals + taxableCapitalGains
 
-    const totalTaxableIncome =
-      baseIncome + registeredWithdrawals + taxableCapitalGains
-
-    // Apply OAS clawback with inflation-adjusted threshold
+    // OAS clawback modeled as income reduction (for simplicity)
     if (totalTaxableIncome > clawbackThreshold) {
       const clawback = Math.min(
         income.oas,
-        (totalTaxableIncome - clawbackThreshold) *
-          GOVERNMENT_BENEFITS.OAS.CLAWBACK_RATE
+        (totalTaxableIncome - clawbackThreshold) * GOVERNMENT_BENEFITS.OAS.CLAWBACK_RATE
       )
       person.income.oas -= clawback
+      totalTaxableIncome -= clawback
     }
 
-    return totalTaxableIncome
-  })
+    const fedDividendCredit = eligibleDividendsGrossed * DIVIDEND_RULES.FED_ELIGIBLE_DIV_CREDIT_RATE
+    return { taxableIncome: totalTaxableIncome, fedDividendCredit }
+  }
+
+  // Calculate taxable income and credits per person
+  const taxablePerPerson = newState.persons.map((_, idx) => computeTaxableIncomeAndDividendCredit(idx))
 
   // Calculate tax for each person individually
   let totalTax = 0
   newState.persons.forEach((person, index) => {
     const donations = charitableDonations.filter((donation) => donation.personType === person.personType)
     const personTax = calculateTax(
-      taxableIncomes[index], 
+      taxablePerPerson[index].taxableIncome, 
       input.province, 
       donations.reduce((sum, donation) => sum + (donation.amount ?? 0), 0),
       person.age
     )
-    person.taxPaid = personTax
-    totalTax += personTax
+    // Apply simplified federal eligible dividend tax credit
+    const fedDividendCredit = taxablePerPerson[index].fedDividendCredit
+    person.taxPaid = Math.max(0, personTax - fedDividendCredit)
+    totalTax += person.taxPaid
   })
   
   return newState

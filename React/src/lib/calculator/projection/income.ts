@@ -132,26 +132,38 @@ export function calculateTotalIncome(person: PersonState): number {
     person.income.cpp +
     person.income.oas +
     person.income.definedBenefit +
+    (person.income.interest || 0) +
+    (person.income.eligibleDividends || 0) +
+    person.income.other.reduce((sum, inc) => sum + inc.amount, 0)
+  );
+}
+
+/**
+ * Calculate total income excluding investment income (which is already deposited)
+ */
+function calculateNonInvestmentIncome(person: PersonState): number {
+  return (
+    person.income.employment +
+    person.income.cpp +
+    person.income.oas +
+    person.income.definedBenefit +
     person.income.other.reduce((sum, inc) => sum + inc.amount, 0)
   );
 }
 
 /**
  * Adds the calculated yearly income for each person to their non-registered accounts.
+ * Note: Investment income (interest/dividends) is already deposited in applyInvestmentReturns
  */
 export function applyYearlyIncomeToAccounts(
   currentState: YearState
 ): YearState {
   const newState = deepClone(currentState);
   newState.persons.forEach((person) => {
-    const totalPersonIncome = calculateTotalIncome(person); // Uses existing helper
+    const totalPersonIncome = calculateNonInvestmentIncome(person);
     if (totalPersonIncome > 0) {
-      // Ensure account exists, though it should from createInitialState
-      if (!person.accounts.nonRegistered) {
-        person.accounts.nonRegistered = { marketValue: 0, bookValue: 0 };
-      }
       person.accounts.nonRegistered.marketValue += totalPersonIncome;
-      person.accounts.nonRegistered.bookValue += totalPersonIncome; // Income received increases book value
+      person.accounts.nonRegistered.bookValue += totalPersonIncome;
     }
   });
   return newState;
