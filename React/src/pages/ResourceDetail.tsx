@@ -1,6 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { loadResourceById, Resource } from "@/lib/config/resources";
+
+const AUTHOR_BIOS: Record<string, string> = {
+  "Warren MacKenzie":
+    "Warren MacKenzie is a Chartered Professional Accountant and veteran financial advisor. He has authored several books on investing and retirement planning and holds the CFP, CIMA, and CIM designations.",
+};
 
 function ResourceDetail() {
   const { id } = useParams();
@@ -51,11 +56,7 @@ function ResourceDetail() {
     );
   }
 
-  const authorBios: Record<string, string> = useMemo(() => ({
-    "Warren MacKenzie": "Warren MacKenzie is a Chartered Professional Accountant and veteran financial advisor. He has authored several books on investing and retirement planning and holds the CFP, CIMA, and CIM designations.",
-  }), []);
-
-  const paragraphs = useMemo(() => resource.content.split("\n\n"), [resource.content]);
+  const paragraphs = resource.content.split("\n\n");
 
   return (
     <div className="container mx-auto px-6 max-w-3xl py-12">
@@ -87,7 +88,7 @@ function ResourceDetail() {
         <div>
           <div className="font-medium">{resource.author}</div>
           <div className="text-sm text-muted-foreground max-w-none">
-            {authorBios[resource.author] ?? "Contributor to Use It Wisely on topics including retirement planning, investing, and using capital to improve quality of life."}
+            {AUTHOR_BIOS[resource.author] ?? "Contributor to Use It Wisely on topics including retirement planning, investing, and using capital to improve quality of life."}
           </div>
         </div>
       </section>
