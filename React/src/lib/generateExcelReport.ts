@@ -1,6 +1,7 @@
 import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { YearState, getAllExpenses } from "@/lib/calculator/projection";
-import ExcelJS from "exceljs";
+import { getCharitableDonationsForYear } from "@/lib/calculator/projection/tax";
+import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver"; // Utility to trigger browser download
 
 // Helper for styling
@@ -63,8 +64,9 @@ interface ReportRow {
 export async function generateExcelReport(
   detailedProjectionStates: YearState[],
   input: CalculatorSchemaType,
-  filename: string = "FinancialProjection.xlsx"
-): Promise<void> {
+  filename: string = "FinancialProjection.xlsx",
+  returnWorkbook: boolean = false
+): Promise<void | ExcelJS.Workbook> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Financial Projection");
 
@@ -327,6 +329,17 @@ export async function generateExcelReport(
       parentCategory: "Cash Uses",
     },
     {
+      label: "Charitable Donations",
+      subCategory: "Lifestyle Expenses",
+      getValue: (ys, _, inp) =>
+        getCharitableDonationsForYear(
+          inp.charitableDonations ?? [],
+          ys.year
+        ).reduce((sum, donation) => sum + (donation.amount ?? 0), 0),
+      isCurrency: true,
+      parentCategory: "Cash Uses",
+    },
+    {
       label: "Total Cash Uses",
       isBold: true,
       getValue: () => "",
@@ -335,6 +348,16 @@ export async function generateExcelReport(
       isSubTotal: true,
       parentCategory: "Cash Uses",
     }, // Calculated dynamically
+
+    // --- Net Cash Flow ---
+    {
+      label: "Annual Net Cash Flow",
+      isBold: true,
+      getValue: () => "",
+      isCurrency: true,
+      fill: totalFill,
+      category: "Net Cash Flow",
+    }, // Calculated as Cash Sources - Cash Uses
 
     // --- Assets ---
     { label: "Assets", isBold: true, fill: sectionFill, getValue: () => null },
@@ -518,7 +541,7 @@ export async function generateExcelReport(
   // --- Populate Subtotals and calculated rows ---
   sheet
     .getRows(headerRow.number + 1, reportRows.length)
-    ?.forEach((dataRow, rowIndex) => {
+    ?.forEach((dataRow: ExcelJS.Row, rowIndex: number) => {
       const rowConfig = reportRows[rowIndex];
       if (rowConfig.isSubTotal) {
         detailedProjectionStates.forEach((yearState, colIndex) => {
@@ -539,8 +562,25 @@ export async function generateExcelReport(
           cell.numFmt = currencyFormat;
           cell.fill = totalFill;
         });
+      } else if (rowConfig.label === "Annual Net Cash Flow") {
+        detailedProjectionStates.forEach((yearState, colIndex) => {
+          const cell = dataRow.getCell(colIndex + 2);
+          const cashSources = categorySubtotals["Cash Sources"]?.[yearState.year] || 0;
+          const cashUses = categorySubtotals["Cash Uses"]?.[yearState.year] || 0;
+          const netCashFlow = cashSources - cashUses;
+
+          cell.value = netCashFlow;
+          cell.font = boldFont;
+          cell.numFmt = currencyFormat;
+          cell.fill = totalFill;
+        });
       }
     });
+
+  // --- Return workbook for testing or trigger download ---
+  if (returnWorkbook) {
+    return workbook;
+  }
 
   // --- Trigger Download ---
   try {
