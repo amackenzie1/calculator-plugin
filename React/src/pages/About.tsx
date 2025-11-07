@@ -20,6 +20,17 @@ function About() {
       {banner && <Banner image={banner.image} title={banner.title} subtitle={banner.subtitle} height="h-[28rem] md:h-[36rem]" />}
 
       <div className="container mx-auto px-6 max-w-6xl py-12 space-y-16">
+        <section className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/20 p-8 md:p-12 shadow-md text-center">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_hsl(var(--primary)/0.18),_transparent_55%)] opacity-70" aria-hidden="true" />
+          <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground/90">Guiding Principle</p>
+          <blockquote className="mt-4 text-2xl md:text-3xl font-light text-foreground">
+            "He who knows he has enough is wealthy."
+          </blockquote>
+          <cite className="mt-4 block text-base text-muted-foreground">
+            - Lao Tzu
+          </cite>
+        </section>
+
         <section className="space-y-6">
           <h2 className="section-title inline-flex items-center gap-2"><Info className="h-5 w-5 text-accent" aria-hidden="true" /> What We Do</h2>
           <p className="text-muted-foreground leading-relaxed">
@@ -97,5 +108,3 @@ function About() {
 }
 
 export default About;
-
-

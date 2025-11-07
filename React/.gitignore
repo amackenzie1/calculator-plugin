@@ -26,3 +26,4 @@ dist-ssr
 # CDK output
 cdk/cdk.out/
 .env
+.vercel
