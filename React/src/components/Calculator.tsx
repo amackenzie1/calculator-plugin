@@ -57,6 +57,11 @@ const Calculator = () => {
       desiredEstateValue: null,
       incomeReturnRate: null,
       growthReturnRate: null,
+      borrowingRate: null,
+      startingDebt: 0,
+      allowHomeBorrowing: false,
+      withdrawOnlyNeededFromInvestments: true,
+      nonRegisteredReturnBreakdown: { interest: 0.2, eligibleDividends: 0.3, capitalGains: 0.5 },
     },
   })
 

@@ -93,11 +93,13 @@ export const CalculatorSchema = z
     ),
     expensesChangeForEachStage: z.boolean().nullable(),
     expensesChangeForEachStageSpouse: z.boolean().nullable(),
-    charitableDonations: z.array(
-      z.object({
-        id: z.number(),
-        personType: z.enum(['self', 'spouse']),
-        amount: z.number().nullable(),
+    borrowingRate: z.number().nullable().default(null),
+    withdrawOnlyNeededFromInvestments: z.boolean().default(true),
+  charitableDonations: z.array(
+    z.object({
+      id: z.number(),
+      personType: z.enum(['self', 'spouse']),
+      amount: z.number().nullable(),
         startYear: z.number().nullable(),
         endYear: z.number().nullable(),
       })
@@ -116,9 +118,11 @@ export const CalculatorSchema = z
     primaryResidenceSellYear: z.number().nullable(),
     homeOwnership: z.enum(['self', 'spouse', 'joint']).default('joint'),
     desiredEstateValue: z.number().nullable(),
-    incomeReturnRate: z.number().nullable(),
-    growthReturnRate: z.number().nullable(),
-    nonRegisteredReturnBreakdown: z
+  incomeReturnRate: z.number().nullable(),
+  growthReturnRate: z.number().nullable(),
+  startingDebt: z.number().nullable().default(0),
+  allowHomeBorrowing: z.boolean().nullable().default(false),
+  nonRegisteredReturnBreakdown: z
       .object({
         interest: z.number().min(0).max(1),
         eligibleDividends: z.number().min(0).max(1),

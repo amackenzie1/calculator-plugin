@@ -22,6 +22,15 @@ export type WithdrawalsCollection = {
   [K in WithdrawalAccountType]: number
 }
 
+export interface CashflowSnapshot {
+  cashOnHand: number
+  shortTermDebt: number
+}
+
+export interface LiabilitiesState {
+  debtBalance: number
+}
+
 export interface PersonState {
   age: number
   personType: 'self' | 'spouse'
@@ -49,6 +58,8 @@ export interface YearState {
   year: number
   persons: PersonState[]
   primaryResidenceValue?: number // Track home value with growth applied
+  cashflow?: CashflowSnapshot // Placeholder for future cash/debt tracking
+  liabilities: LiabilitiesState
 }
 
 // Helper type for a person from the schema

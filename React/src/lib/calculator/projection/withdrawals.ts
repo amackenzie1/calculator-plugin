@@ -5,6 +5,7 @@ import { RRIF_MIN_WITHDRAWAL_RATES, AGE_CONSTANTS, ACCOUNT_TYPES, WithdrawalAcco
 import { getCharitableDonationsForYear } from "./tax";
 import { PersonState, YearState } from "./types";
 import { deepClone } from "./utils";
+import { calculateTotalIncome } from "./income";
 
 /**
  * Gets the appropriate RRIF minimum withdrawal rate based on age
@@ -98,8 +99,14 @@ export function calculateRequiredWithdrawals(
     (sum, person) => sum + person.taxPaid,
     0
   );
-  const totalNeeded = totalExpensesNeeded + totalTaxPaid;
+  let totalNeeded = totalExpensesNeeded + totalTaxPaid;
   // console.log("totalTaxPaid", totalTaxPaid, "totalNeeded", totalNeeded);
+
+  // Optionally apply current-year income to needs before withdrawing from investments
+  if (input.withdrawOnlyNeededFromInvestments) {
+    const { remainingNeeded } = applyIncomeToNeeds(newState, totalNeeded);
+    totalNeeded = remainingNeeded;
+  }
 
   // Calculate required additional withdrawals
   let remainingNeeded = Math.max(0, totalNeeded);
@@ -126,6 +133,44 @@ export function calculateRequiredWithdrawals(
     if (remainingNeeded > 0) {
       remainingNeeded = processLIFWithdrawals(newState.persons, remainingNeeded, currentYear);
     }
+  }
+
+  // Any remaining unmet amount becomes debt (accumulates interest next year)
+  if (remainingNeeded > 0) {
+    newState.liabilities.debtBalance += remainingNeeded;
+  }
+
+  return newState;
+}
+
+/**
+ * Withdraw an additional arbitrary amount (e.g., tax top-ups) following the same order.
+ * Any remaining shortfall becomes debt.
+ */
+export function withdrawAdditionalAmount(currentState: YearState, amount: number): YearState {
+  if (amount <= 0) return currentState;
+
+  const newState = deepClone(currentState);
+  let remainingNeeded = amount;
+
+  const withdrawalOrder: WithdrawalAccountType[] = [
+    ACCOUNT_TYPES.TFSA,
+    ACCOUNT_TYPES.NON_REGISTERED,
+    ACCOUNT_TYPES.RRSP,
+    ACCOUNT_TYPES.RRIF,
+  ];
+
+  for (const accountType of withdrawalOrder) {
+    if (remainingNeeded === 0) break;
+    remainingNeeded = processWithdrawalsFromAccountType(newState.persons, accountType, remainingNeeded);
+  }
+
+  if (remainingNeeded > 0) {
+    remainingNeeded = processLIFWithdrawals(newState.persons, remainingNeeded, newState.year);
+  }
+
+  if (remainingNeeded > 0) {
+    newState.liabilities.debtBalance += remainingNeeded;
   }
 
   return newState;
@@ -213,4 +258,40 @@ function processLIFWithdrawals(
   }
 
   return remainingNeeded;
+}
+
+function applyIncomeToNeeds(state: YearState, totalNeeded: number): { remainingNeeded: number } {
+  const incomes = state.persons.map((p) => ({
+    person: p,
+    totalIncome: calculateTotalIncome(p),
+  }));
+
+  const totalIncomeAmount = incomes.reduce((sum, entry) => sum + entry.totalIncome, 0);
+  if (totalIncomeAmount <= 0) {
+    return { remainingNeeded: totalNeeded };
+  }
+
+  const amountToUse = Math.min(totalIncomeAmount, totalNeeded);
+  let actualSpent = 0;
+
+  incomes.forEach(({ person, totalIncome: personIncome }) => {
+    if (personIncome <= 0) return;
+    const share = (personIncome / totalIncomeAmount) * amountToUse;
+    const spent = spendFromNonRegistered(person, share);
+    actualSpent += spent;
+    // If we couldn't spend the full share due to lack of balance, the remainder will be covered in withdrawals
+    // via the remainingNeeded calculation below.
+  });
+
+  const remainingNeeded = Math.max(0, totalNeeded - actualSpent);
+  return { remainingNeeded };
+}
+
+function spendFromNonRegistered(person: PersonState, amount: number): number {
+  if (amount <= 0) return 0;
+  const account = person.accounts.nonRegistered;
+  const spent = Math.min(amount, account.marketValue);
+  account.marketValue -= spent;
+  account.bookValue = Math.max(0, account.bookValue - spent);
+  return spent;
 }

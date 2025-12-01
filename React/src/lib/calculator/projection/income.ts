@@ -1,5 +1,6 @@
 // File: src/lib/calculator/projection/income.ts
 import { CalculatorSchemaType } from "@/lib/schema/calculator";
+import { depositToNonRegistered } from "./accounts";
 import { GOVERNMENT_BENEFITS, YearOrAge } from "./constants";
 import { PersonState, YearState } from "./types";
 import { adjustForInflation, deepClone } from "./utils";
@@ -162,8 +163,7 @@ export function applyYearlyIncomeToAccounts(
   newState.persons.forEach((person) => {
     const totalPersonIncome = calculateNonInvestmentIncome(person);
     if (totalPersonIncome > 0) {
-      person.accounts.nonRegistered.marketValue += totalPersonIncome;
-      person.accounts.nonRegistered.bookValue += totalPersonIncome;
+      depositToNonRegistered(person, totalPersonIncome);
     }
   });
   return newState;

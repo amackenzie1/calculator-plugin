@@ -129,3 +129,13 @@ export function getAnnualReturnRate(
   // Fallback
   return DEFAULT_RETURN_RATE;
 }
+
+/**
+ * Determine borrowing interest rate (percent) for deficits/debt.
+ * Falls back to the primary investment return rate if not specified.
+ */
+export function getBorrowingRate(input: CalculatorSchemaType): number {
+  if (input.borrowingRate != null) return input.borrowingRate;
+  if (input.investmentReturnRate != null) return input.investmentReturnRate;
+  return DEFAULT_RETURN_RATE;
+}

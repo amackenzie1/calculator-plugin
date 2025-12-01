@@ -40,6 +40,16 @@ export function createAccountState(
 }
 
 /**
+ * Deposit cash to a person's non-registered account, keeping book and market in sync.
+ * This intentionally ignores negative amounts to avoid accidental reversals.
+ */
+export function depositToNonRegistered(person: PersonState, amount: number): void {
+  if (amount <= 0) return
+  person.accounts.nonRegistered.marketValue += amount
+  person.accounts.nonRegistered.bookValue += amount
+}
+
+/**
  * Create the registered accounts for a person
  */
 export function createRegisteredAccounts(person: SchemaPerson) {
@@ -114,8 +124,7 @@ export function applyInvestmentReturns(
       newPerson.income.interest = Math.max(0, interestAmt)
       newPerson.income.eligibleDividends = Math.max(0, eligibleDivAmt)
       const cashIncome = newPerson.income.interest + newPerson.income.eligibleDividends
-      nr.marketValue += cashIncome
-      nr.bookValue += cashIncome
+      depositToNonRegistered(newPerson, cashIncome)
     }
 
     return newPerson

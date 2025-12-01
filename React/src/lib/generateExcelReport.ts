@@ -1,5 +1,6 @@
 import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { YearState, getAllExpenses } from "@/lib/calculator/projection";
+import { calculateNetWorthValue } from "@/lib/calculator/projection/balanceSheet";
 import { getCharitableDonationsForYear } from "@/lib/calculator/projection/tax";
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver"; // Utility to trigger browser download
@@ -424,18 +425,7 @@ export async function generateExcelReport(
       label: "Net Worth",
       isBold: true,
       getValue: (ys) => {
-        let totalNetWorth = 0;
-        ys.persons.forEach((person) => {
-          Object.values(person.accounts).forEach(
-            (acc) => (totalNetWorth += acc.marketValue)
-          );
-        });
-        // Only add home value if they plan to sell it (consistent with graph)
-        if (ys.primaryResidenceValue && input.primaryResidenceSell) {
-          totalNetWorth += ys.primaryResidenceValue;
-        }
-        // Note: Life insurance is never included until someone dies
-        return totalNetWorth;
+        return calculateNetWorthValue(ys, input);
       },
       isCurrency: true,
       fill: totalFill,

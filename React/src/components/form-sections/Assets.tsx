@@ -335,6 +335,21 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                   description="Do you plan to sell your home during retirement?"
                 />
 
+                <SwitchField
+                  control={form.control}
+                  name="allowHomeBorrowing"
+                  label="Allow Borrowing Against Home"
+                  description="Enable use of home equity for donations or cash needs (e.g., reverse mortgage)."
+                />
+
+                <NumberInput
+                  control={form.control}
+                  name="borrowingRate"
+                  label="Borrowing Interest Rate (%)"
+                  placeholder="Enter borrowing rate (e.g., 5)"
+                  type="decimal"
+                />
+
                 {calculateForSpouse && (
                   <SelectField
                     control={form.control}
@@ -355,6 +370,18 @@ const AssetsCard = ({ form, calculateForSpouse = false }: AssetsCardProps) => {
                   />
                 )}
               </div>
+            </FormSection>
+
+            <FormSection
+              title="Withdrawal Preferences"
+              tooltip="Control how cash needs are met."
+            >
+              <SwitchField
+                control={form.control}
+                name="withdrawOnlyNeededFromInvestments"
+                label="Use Income Before Investment Withdrawals"
+                description="Only withdraw from investments after applying annual income; reduces unnecessary capital gains and tax."
+              />
             </FormSection>
           </form>
         </Form>

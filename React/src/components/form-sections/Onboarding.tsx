@@ -39,6 +39,7 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
   const calculateForSpouse = form.watch('calculateForSpouse')
   const investorProfile = form.watch('investorProfile')
   const specifyReturn = form.watch('specifyReturn')
+  const nonRegBreakdown = form.watch('nonRegisteredReturnBreakdown')
 
   useEffect(() => {
     const calculateInvestmentReturnRate = () => {
@@ -195,6 +196,27 @@ const OnboardingCard = ({ form }: OnboardingCardProps) => {
                 )}
               </div>
             </FormSection>
+
+            <div className="rounded-lg border p-4 bg-muted/30">
+              <h4 className="text-sm font-semibold">Non-Registered Return Breakdown</h4>
+              <p className="text-xs text-muted-foreground mb-2">
+                Used for tax treatment of the selected return rate.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div>
+                  <div className="text-muted-foreground">Interest</div>
+                  <div className="font-medium">{Math.round((nonRegBreakdown?.interest ?? 0) * 100)}%</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Eligible Dividends</div>
+                  <div className="font-medium">{Math.round((nonRegBreakdown?.eligibleDividends ?? 0) * 100)}%</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Capital Gains</div>
+                  <div className="font-medium">{Math.round((nonRegBreakdown?.capitalGains ?? 0) * 100)}%</div>
+                </div>
+              </div>
+            </div>
 
             {/* Inflation Rate Section */}
             <FormSection

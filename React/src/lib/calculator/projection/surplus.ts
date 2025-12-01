@@ -1,6 +1,7 @@
 // File: src/lib/calculator/projection/surplus.ts
 import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { projectRetirementInternal } from './engine'
+import { calculateLiquidAssetsFromInput, calculateNetWorthValue, calculateTotalNetWorthFromInput } from './balanceSheet'
 import { YearState } from './types'
 import { deepClone } from './utils'
 
@@ -26,51 +27,6 @@ export interface ProjectionTestResult {
 }
 
 /**
- * Calculates the initial liquid assets available for donation
- * Excludes illiquid assets like primary residence and life insurance
- */
-function calculateLiquidAssets(input: CalculatorSchemaType): number {
-  let liquidAssets = 0
-  
-  // Add all registered and non-registered investments (these are liquid)
-  for (const person of input.persons) {
-    // Non-registered investments
-    liquidAssets += person.nonRegisteredInvestmentValue || 0
-    
-    // Registered investments
-    if (person.registeredInvestments) {
-      for (const account of person.registeredInvestments) {
-        liquidAssets += account.currentValue || 0
-      }
-    }
-  }
-  
-  // Note: We explicitly exclude:
-  // - Primary residence (illiquid)
-  // - Life insurance death benefit (not accessible until death)
-  
-  return liquidAssets
-}
-
-/**
- * Calculates the total net worth including house (only if they plan to sell it)
- */
-function calculateTotalNetWorth(input: CalculatorSchemaType): number {
-  let totalNetWorth = calculateLiquidAssets(input)
-  
-  // Only add primary residence if they plan to sell it
-  // If keeping it forever, it's not part of usable net worth
-  if (input.primaryResidenceValue && input.primaryResidenceSell) {
-    totalNetWorth += input.primaryResidenceValue
-  }
-  
-  // Note: We don't include life insurance death benefits here
-  // They only become assets when someone dies
-  
-  return totalNetWorth
-}
-
-/**
  * Simulates an immediate withdrawal by reducing account values
  * Priority: non-registered -> TFSA -> RRSP -> RRIF -> LIF -> LIRA
  */
@@ -79,6 +35,7 @@ function simulateWithdrawal(
   withdrawalAmount: number
 ): CalculatorSchemaType {
   const modifiedInput = deepClone(input)
+  let borrowed = 0
   
   // Calculate total available across all persons for proportional allocation
   let totalAvailable = 0
@@ -89,6 +46,9 @@ function simulateWithdrawal(
         totalAvailable += account.currentValue || 0
       }
     }
+  }
+  if (modifiedInput.allowHomeBorrowing && modifiedInput.primaryResidenceValue) {
+    totalAvailable += modifiedInput.primaryResidenceValue
   }
   
   if (totalAvailable === 0) return modifiedInput
@@ -132,6 +92,16 @@ function simulateWithdrawal(
         }
       }
     }
+
+    // If still remaining and home borrowing allowed, track as borrowing
+    if (personRemaining > 0 && modifiedInput.allowHomeBorrowing) {
+      borrowed += personRemaining
+      personRemaining = 0
+    }
+  }
+
+  if (borrowed > 0) {
+    modifiedInput.startingDebt = (modifiedInput.startingDebt || 0) + borrowed
   }
   
   return modifiedInput
@@ -174,20 +144,7 @@ function validateProjectionSuccess(
   // Check each year for viability
   for (let i = 0; i < states.length; i++) {
     const state = states[i]
-    
-    // Calculate total net worth for this year
-    let netWorth = 0
-    for (const person of state.persons) {
-      for (const account of Object.values(person.accounts)) {
-        netWorth += account.marketValue
-      }
-    }
-    
-    // Only add house value if they plan to sell it
-    // Must be consistent with calculateNetWorth function
-    if (state.primaryResidenceValue && input.primaryResidenceSell) {
-      netWorth += state.primaryResidenceValue
-    }
+    const netWorth = calculateNetWorthValue(state, input)
     
     // Check if we've run out of money (or about to)
     // Also check if net worth is too low to cover basic needs
@@ -222,17 +179,7 @@ function validateProjectionSuccess(
     }
   }
   
-  let finalNetWorth = 0
-  for (const person of finalState.persons) {
-    for (const account of Object.values(person.accounts)) {
-      finalNetWorth += account.marketValue
-    }
-  }
-  
-  // Only include house if selling
-  if (finalState.primaryResidenceValue && input.primaryResidenceSell) {
-    finalNetWorth += finalState.primaryResidenceValue
-  }
+  const finalNetWorth = calculateNetWorthValue(finalState, input)
   
   // If final net worth is 0 or negative, that's definitely a failure
   if (finalNetWorth <= 0 && states.length > 1) {
@@ -255,8 +202,8 @@ function validateProjectionSuccess(
  * Binary search to find maximum surplus capital
  */
 function binarySearchSurplus(input: CalculatorSchemaType): SurplusCalculationResult {
-  const liquidAssets = calculateLiquidAssets(input)
-  const totalNetWorth = calculateTotalNetWorth(input)
+  const liquidAssets = calculateLiquidAssetsFromInput(input)
+  const totalNetWorth = calculateTotalNetWorthFromInput(input)
   
   let low = 0
   let high = liquidAssets  // Can only donate liquid assets, not house or life insurance
@@ -326,8 +273,8 @@ export function calculateSurplusCapital(
   
   if (!baselineResult.isSuccessful) {
     // Current assets insufficient for goals - they're already running out of money!
-    const totalNetWorth = calculateTotalNetWorth(input)
-    const liquidAssets = calculateLiquidAssets(input)
+    const totalNetWorth = calculateTotalNetWorthFromInput(input)
+    const liquidAssets = calculateLiquidAssetsFromInput(input)
     const roundToThousand = (value: number) => Math.round(value / 1000) * 1000
     
     return {

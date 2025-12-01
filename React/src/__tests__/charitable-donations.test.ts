@@ -88,6 +88,10 @@ describe('Charitable Donations', () => {
       desiredEstateValue: 20000000,
       incomeReturnRate: null,
       growthReturnRate: null,
+      borrowingRate: null,
+      startingDebt: 0,
+      allowHomeBorrowing: false,
+      withdrawOnlyNeededFromInvestments: true,
       nonRegisteredReturnBreakdown: {
         interest: 0.2,
         eligibleDividends: 0.3,
@@ -178,6 +182,10 @@ describe('Charitable Donations', () => {
       desiredEstateValue: null,
       incomeReturnRate: null,
       growthReturnRate: null,
+      borrowingRate: null,
+      startingDebt: 0,
+      allowHomeBorrowing: false,
+      withdrawOnlyNeededFromInvestments: true,
       nonRegisteredReturnBreakdown: {
         interest: 0.2,
         eligibleDividends: 0.3,

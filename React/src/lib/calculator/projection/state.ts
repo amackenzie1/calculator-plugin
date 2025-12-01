@@ -2,7 +2,7 @@
 import { CalculatorSchemaType } from '@/lib/schema/calculator'
 import { PersonState, SchemaPerson, YearState } from './types'
 import { adjustForInflation, deepClone } from './utils'
-import { createAccountState, createRegisteredAccounts } from './accounts'
+import { createAccountState, createRegisteredAccounts, depositToNonRegistered } from './accounts'
 
 /**
  * Creates the initial projection state from input data
@@ -62,6 +62,7 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
     year: currentYear,
     persons: [createPersonState(self), ...(spouse ? [createPersonState(spouse)] : [])],
     primaryResidenceValue: input.primaryResidenceValue || undefined,
+    liabilities: { debtBalance: input.startingDebt || 0 },
   }
 
   return yearState
@@ -111,8 +112,16 @@ export function processHouseSale(
   // Use the grown home value from state, not the original input value
   const houseValue = newState.primaryResidenceValue || input.primaryResidenceValue
   const homeOwnership = input.homeOwnership || 'joint'
-  
-  distributeProceedsToOwners(newState.persons, houseValue, homeOwnership)
+  const debt = newState.liabilities?.debtBalance || 0
+  const debtRepaid = Math.min(debt, houseValue)
+  const netProceeds = Math.max(0, houseValue - debt)
+
+  // Reduce debt first
+  if (newState.liabilities) {
+    newState.liabilities.debtBalance = debt - debtRepaid
+  }
+
+  distributeProceedsToOwners(newState.persons, netProceeds, homeOwnership)
   
   // Clear the home value after sale
   newState.primaryResidenceValue = undefined
@@ -130,25 +139,20 @@ function distributeProceedsToOwners(
     // Split proceeds equally between all persons
     const proceedsPerPerson = amount / persons.length
     persons.forEach((person) => {
-      addToNonRegisteredAccount(person, proceedsPerPerson)
+      depositToNonRegistered(person, proceedsPerPerson)
     })
   } else {
     // Assign proceeds to the specified owner
     const owner = persons.find(person => person.personType === ownership)
     
     if (owner) {
-      addToNonRegisteredAccount(owner, amount)
+      depositToNonRegistered(owner, amount)
     } else {
       // Fallback to joint ownership if owner not found
       const proceedsPerPerson = amount / persons.length
       persons.forEach((person) => {
-        addToNonRegisteredAccount(person, proceedsPerPerson)
+        depositToNonRegistered(person, proceedsPerPerson)
       })
     }
   }
-}
-
-function addToNonRegisteredAccount(person: PersonState, amount: number): void {
-  person.accounts.nonRegistered.marketValue += amount
-  person.accounts.nonRegistered.bookValue += amount
 }

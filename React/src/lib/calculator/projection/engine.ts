@@ -1,12 +1,13 @@
 // File: src/lib/calculator/projection/engine.ts
 import { CalculatorSchemaType } from "@/lib/schema/calculator";
 import { applyInvestmentReturns } from "./accounts";
+import { calculateNetWorthValue } from "./balanceSheet";
 import { applyYearlyIncomeToAccounts, calculateYearlyIncome } from "./income";
 import { ageOneYear, createInitialState, processHouseSale } from "./state";
 import { calculateTaxImplications } from "./tax";
 import { YearState } from "./types";
-import { isProjectionComplete } from "./utils";
-import { calculateRequiredWithdrawals } from "./withdrawals";
+import { deepClone, getBorrowingRate, isProjectionComplete } from "./utils";
+import { calculateRequiredWithdrawals, withdrawAdditionalAmount } from "./withdrawals";
 
 /**
  * Calculates the next year's state based on the current state
@@ -15,30 +16,8 @@ export function calculateNextYear(
   currentState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  // 1. Handle house sale if applicable (moved to first step)
-  const withHouseSale = processHouseSale(currentState, input);
-
-  // 2. Apply investment returns (now includes house sale proceeds if applicable)
-  const withReturns = applyInvestmentReturns(withHouseSale, input);
-
-  // 3. Calculate income for the year
-  const withIncomeCalculated = calculateYearlyIncome(withReturns, input);
-
-  // 4. Add calculated income to non-registered accounts
-  const withIncomeAppliedToAssets =
-    applyYearlyIncomeToAccounts(withIncomeCalculated);
-
-  // 5. Estimate tax implications based on current income
-  const withInitialTax = calculateTaxImplications(
-    withIncomeAppliedToAssets,
-    input
-  );
-
-  // 6. Calculate required withdrawals for expenses and taxes
-  const withWithdrawals = calculateRequiredWithdrawals(withInitialTax, input);
-
-  // 7. Age everyone one year
-  return ageOneYear(withWithdrawals, input);
+  const yearEndState = runAnnualCalculations(currentState, input);
+  return ageOneYear(yearEndState, input);
 }
 
 /**
@@ -61,7 +40,6 @@ export function projectRetirementInternal(
   // 3. Project forward year by year
   while (!isProjectionComplete(states, input)) {
     const nextState = calculateNextYear(states[states.length - 1], input);
-    console.log("nextState", nextState);
     states.push(nextState);
   }
 
@@ -76,30 +54,8 @@ function calculateFirstYear(
   openingState: YearState,
   input: CalculatorSchemaType
 ): YearState {
-  // Apply the same calculations as calculateNextYear, but for the first year
-  // This ensures we show closing balances (Dec 31) instead of opening balances (Jan 1)
-  
-  // 1. Handle house sale if applicable
-  const withHouseSale = processHouseSale(openingState, input);
-
-  // 2. Apply investment returns for the full year
-  const withReturns = applyInvestmentReturns(withHouseSale, input);
-
-  // 3. Calculate income for the year
-  const withIncomeCalculated = calculateYearlyIncome(withReturns, input);
-
-  // 4. Add calculated income to non-registered accounts
-  const withIncomeAppliedToAssets = applyYearlyIncomeToAccounts(withIncomeCalculated);
-
-  // 5. Estimate tax implications based on current income
-  const withInitialTax = calculateTaxImplications(withIncomeAppliedToAssets, input);
-
-  // 6. Calculate required withdrawals for expenses and taxes
-  const withWithdrawals = calculateRequiredWithdrawals(withInitialTax, input);
-
-  // 7. Don't age for the first year - we want to show the current year's closing state
-  // The age shown should still be the current age (as of Dec 31 of current year)
-  return withWithdrawals;
+  // Apply the annual pipeline once without aging to show the current year's closing state
+  return runAnnualCalculations(openingState, input);
 }
 
 /**
@@ -109,25 +65,67 @@ export function calculateNetWorth(
   state: YearState,
   data: CalculatorSchemaType
 ): number {
-  // Sum up all assets across all accounts for both persons
-  let netWorth = 0;
+  return calculateNetWorthValue(state, data);
+}
 
-  // Only include primary residence if they plan to sell it
-  // If they're keeping it forever, it's not really part of their usable net worth
-  if (state.primaryResidenceValue && data.primaryResidenceSell) {
-    netWorth += state.primaryResidenceValue;
+/**
+ * Run the annual pipeline (house sale -> returns -> income -> tax -> withdrawals).
+ * This does NOT age the individuals; callers decide whether to age after processing.
+ */
+function runAnnualCalculations(
+  currentState: YearState,
+  input: CalculatorSchemaType
+): YearState {
+  // 1. Handle house sale if applicable (moved to first step)
+  const withHouseSale = processHouseSale(currentState, input);
+
+  // 2. Apply liability growth (interest on debt)
+  const withLiabilityGrowth = applyLiabilityGrowth(withHouseSale, input);
+
+  // 3. Apply investment returns (now includes house sale proceeds if applicable)
+  const withReturns = applyInvestmentReturns(withLiabilityGrowth, input);
+
+  // 4. Calculate income for the year
+  const withIncomeCalculated = calculateYearlyIncome(withReturns, input);
+
+  // 5. Add calculated income to non-registered accounts
+  const withIncomeAppliedToAssets = applyYearlyIncomeToAccounts(withIncomeCalculated);
+
+  // 6. Estimate tax implications based on current income
+  const withInitialTax = calculateTaxImplications(withIncomeAppliedToAssets, input);
+
+  // 7. Calculate required withdrawals for expenses and taxes
+  const withWithdrawals = calculateRequiredWithdrawals(withInitialTax, input);
+
+  // 8. Recalculate tax with actual withdrawals/realized gains and top up if needed
+  return reconcileTaxAfterWithdrawals(withWithdrawals, input);
+}
+
+function applyLiabilityGrowth(currentState: YearState, input: CalculatorSchemaType): YearState {
+  const rate = getBorrowingRate(input) / 100
+  const newState = deepClone(currentState)
+  newState.liabilities.debtBalance *= 1 + rate
+  return newState
+}
+
+function reconcileTaxAfterWithdrawals(state: YearState, input: CalculatorSchemaType): YearState {
+  let workingState = state
+
+  for (let i = 0; i < 2; i++) {
+    const withUpdatedTax = calculateTaxImplications(workingState, input)
+    const previousTaxTotal = workingState.persons.reduce((sum, p) => sum + p.taxPaid, 0)
+    const updatedTaxTotal = withUpdatedTax.persons.reduce((sum, p) => sum + p.taxPaid, 0)
+
+    // If tax did not increase, or no difference, we're done
+    if (updatedTaxTotal <= previousTaxTotal + 1e-2) {
+      return withUpdatedTax
+    }
+
+    const delta = updatedTaxTotal - previousTaxTotal
+    const withTopUp = withdrawAdditionalAmount(withUpdatedTax, delta)
+    workingState = withTopUp
   }
 
-  // Add all account values from the current state
-  state.persons.forEach((person) => {
-    Object.values(person.accounts).forEach((account) => {
-      netWorth += account.marketValue;
-    });
-  });
-
-  // NOTE: We don't include life insurance death benefits here
-  // Life insurance only becomes an asset when someone dies and it's paid out
-  // It will be added to the surviving spouse's accounts at that time
-
-  return netWorth;
+  // Final recompute to ensure taxPaid reflects last withdrawals
+  return calculateTaxImplications(workingState, input)
 }
