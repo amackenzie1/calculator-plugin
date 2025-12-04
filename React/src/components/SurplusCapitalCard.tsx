@@ -2,17 +2,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SurplusCalculationResult } from "@/lib/calculator/projection/surplus"
 import { Loader2, InfoIcon } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ProjectionDataPoint } from "@/lib/calculator/projection"
+import { ProjectionDataPoint, YearState } from "@/lib/calculator/projection"
 import { calculateNetWorth } from "@/lib/calculator/projection/engine"
 import ProjectionGraph from "@/components/ProjectionGraph"
+import { CalculatorSchemaType } from "@/lib/schema/calculator"
 
 interface SurplusCapitalCardProps {
   surplusResult?: SurplusCalculationResult
   isCalculating?: boolean
   originalProjectionData?: ProjectionDataPoint[]
+  input?: CalculatorSchemaType
+  projectionStates?: YearState[]
 }
 
-export function SurplusCapitalCard({ surplusResult, isCalculating, originalProjectionData }: SurplusCapitalCardProps) {
+export function SurplusCapitalCard({ surplusResult, isCalculating, originalProjectionData, input, projectionStates }: SurplusCapitalCardProps) {
   if (isCalculating) {
     return (
       <Card className="mb-6">
@@ -119,6 +122,35 @@ export function SurplusCapitalCard({ surplusResult, isCalculating, originalProje
               <div className="text-xs text-muted-foreground">
                 Registered + non-registered investments
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reverse Mortgage / Home Equity Breakdown - show when home borrowing is enabled */}
+        {input?.allowHomeBorrowing && input?.primaryResidenceValue && (
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
+            <div className="text-sm font-medium mb-3">Home Equity Position</div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Primary Residence Value</span>
+                <span className="font-medium">${input.primaryResidenceValue.toLocaleString()}</span>
+              </div>
+              {projectionStates && projectionStates.length > 0 && projectionStates[projectionStates.length - 1].liabilities.debtBalance > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>Reverse Mortgage Liability (Final Year)</span>
+                  <span className="font-medium">
+                    -${Math.round(projectionStates[projectionStates.length - 1].liabilities.debtBalance).toLocaleString()}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2 border-t border-slate-300">
+                <span className="font-medium">Total Net Worth</span>
+                <span className="font-bold">${totalNetWorth.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              Home equity borrowing allows covering expenses when investments run out.
+              Interest accrues at {input.borrowingRate || 5}% annually.
             </div>
           </div>
         )}

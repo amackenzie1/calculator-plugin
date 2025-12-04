@@ -38,6 +38,7 @@ function simulateWithdrawal(
   let borrowed = 0
   
   // Calculate total available across all persons for proportional allocation
+  // Only count liquid assets (investments), not house - house borrowing is handled separately
   let totalAvailable = 0
   for (const person of modifiedInput.persons) {
     totalAvailable += person.nonRegisteredInvestmentValue || 0
@@ -46,9 +47,6 @@ function simulateWithdrawal(
         totalAvailable += account.currentValue || 0
       }
     }
-  }
-  if (modifiedInput.allowHomeBorrowing && modifiedInput.primaryResidenceValue) {
-    totalAvailable += modifiedInput.primaryResidenceValue
   }
   
   if (totalAvailable === 0) return modifiedInput

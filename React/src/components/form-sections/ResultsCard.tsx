@@ -121,10 +121,12 @@ const ResultsCard: React.FC<ResultsCardProps> = ({
       <CardContent className="space-y-6">
         {/* Surplus Capital Analysis - now includes the projection graph */}
         {calculatorInput && projectionData.length > 0 ? (
-          <SurplusCapitalCard 
-            surplusResult={surplusResult} 
+          <SurplusCapitalCard
+            surplusResult={surplusResult}
             isCalculating={isCalculatingSurplus}
             originalProjectionData={projectionData}
+            input={calculatorInput}
+            projectionStates={detailedProjectionStates}
           />
         ) : (
           <p className="text-center text-muted-foreground">No projection data available. Please complete the previous steps and calculate.</p>

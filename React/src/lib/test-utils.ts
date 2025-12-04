@@ -32,13 +32,17 @@ const DEFAULT_SCENARIO: CalculatorSchemaType = {
   expensesChangeForEachStageSpouse: null,
 }
 
-type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T
+type PersonOverride = Partial<CalculatorSchemaType['persons'][0]>
+
+interface ScenarioOverrides extends Omit<Partial<CalculatorSchemaType>, 'persons'> {
+  persons?: PersonOverride[]
+}
 
 /**
  * Creates a test scenario by merging overrides with defaults.
  * Supports nested overrides for persons array.
  */
-export function createTestScenario(overrides: DeepPartial<CalculatorSchemaType> = {}): CalculatorSchemaType {
+export function createTestScenario(overrides: ScenarioOverrides = {}): CalculatorSchemaType {
   const { persons, ...restOverrides } = overrides
 
   // Merge persons separately to handle array properly
@@ -47,14 +51,14 @@ export function createTestScenario(overrides: DeepPartial<CalculatorSchemaType> 
         ...initializePerson(personOverride?.personType || (i === 0 ? 'self' : 'spouse')),
         birthYear: currentYear - 40,
         lifeExpectancy: 90,
-        ...personOverride,
-      }))
+        ...(personOverride || {}),
+      })) as CalculatorSchemaType['persons']
     : DEFAULT_SCENARIO.persons
 
   return {
     ...DEFAULT_SCENARIO,
     ...restOverrides,
-    persons: mergedPersons as CalculatorSchemaType['persons'],
+    persons: mergedPersons,
   }
 }
 

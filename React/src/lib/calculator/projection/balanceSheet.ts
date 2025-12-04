@@ -40,6 +40,8 @@ export function calculateNetWorthValue(state: YearState, input: CalculatorSchema
 
 /**
  * Calculate liquid assets from raw input (non-registered + registered values only).
+ * NOTE: House is never included - it's not liquid even if you can borrow against it.
+ * Home equity borrowing is handled separately in the withdrawal/deficit logic.
  */
 export function calculateLiquidAssetsFromInput(input: CalculatorSchemaType): number {
   let liquidAssets = 0
@@ -52,10 +54,6 @@ export function calculateLiquidAssetsFromInput(input: CalculatorSchemaType): num
         liquidAssets += account.currentValue || 0
       }
     }
-  }
-
-  if (input.allowHomeBorrowing && input.primaryResidenceValue) {
-    liquidAssets += input.primaryResidenceValue
   }
 
   return liquidAssets
