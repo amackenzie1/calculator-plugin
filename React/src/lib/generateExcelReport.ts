@@ -340,6 +340,24 @@ export async function generateExcelReport(
       isCurrency: true,
       parentCategory: "Cash Uses",
     },
+    // Interest expense on reverse mortgage / home equity borrowing
+    ...(input.allowHomeBorrowing
+      ? [
+          {
+            label: "Debt Interest",
+            category: "Cash Uses",
+            getValue: () => null,
+            fill: cashUseFill,
+          } as ReportRow,
+          {
+            label: "Reverse Mortgage Interest",
+            subCategory: "Debt Interest",
+            getValue: (ys: YearState) => ys.liabilities?.interestExpense || 0,
+            isCurrency: true,
+            parentCategory: "Cash Uses",
+          } as ReportRow,
+        ]
+      : []),
     {
       label: "Total Cash Uses",
       isBold: true,
@@ -419,6 +437,38 @@ export async function generateExcelReport(
       isSubTotal: true,
       parentCategory: "Assets",
     }, // Calculated dynamically
+
+    // --- Liabilities (Reverse Mortgage) ---
+    ...(input.allowHomeBorrowing
+      ? [
+          {
+            label: "Liabilities",
+            isBold: true,
+            fill: sectionFill,
+            getValue: () => null,
+          } as ReportRow,
+          {
+            label: "Reverse Mortgage",
+            category: "Liabilities",
+            getValue: () => null,
+            fill: liabilityFill,
+          } as ReportRow,
+          {
+            label: "Cumulative Debt Balance",
+            subCategory: "Reverse Mortgage",
+            getValue: (ys: YearState) => ys.liabilities?.debtBalance || 0,
+            isCurrency: true,
+            parentCategory: "Liabilities",
+          } as ReportRow,
+          {
+            label: "Total Liabilities",
+            isBold: true,
+            getValue: (ys: YearState) => ys.liabilities?.debtBalance || 0,
+            isCurrency: true,
+            fill: totalFill,
+          } as ReportRow,
+        ]
+      : []),
 
     // --- Net Worth ---
     {

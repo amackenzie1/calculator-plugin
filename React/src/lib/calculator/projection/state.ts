@@ -62,7 +62,7 @@ export function createInitialState(input: CalculatorSchemaType): YearState {
     year: currentYear,
     persons: [createPersonState(self), ...(spouse ? [createPersonState(spouse)] : [])],
     primaryResidenceValue: input.primaryResidenceValue || undefined,
-    liabilities: { debtBalance: input.startingDebt || 0 },
+    liabilities: { debtBalance: input.startingDebt || 0, interestExpense: 0 },
   }
 
   return yearState
@@ -87,6 +87,9 @@ export function ageOneYear(currentState: YearState, input: CalculatorSchemaType)
   
   // Carry forward the home value (it will be grown in applyInvestmentReturns)
   newState.primaryResidenceValue = currentState.primaryResidenceValue
+
+  // Note: interestExpense is preserved - it was calculated in applyLiabilityGrowth during runAnnualCalculations
+  // and represents the interest incurred during the year that produced this state
 
   return newState
 }

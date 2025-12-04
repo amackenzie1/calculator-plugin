@@ -29,6 +29,7 @@ export interface CashflowSnapshot {
 
 export interface LiabilitiesState {
   debtBalance: number
+  interestExpense: number // Interest accrued on debt for the current year
 }
 
 export interface PersonState {

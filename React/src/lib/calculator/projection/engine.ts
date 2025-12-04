@@ -104,7 +104,14 @@ function runAnnualCalculations(
 function applyLiabilityGrowth(currentState: YearState, input: CalculatorSchemaType): YearState {
   const rate = getBorrowingRate(input) / 100
   const newState = deepClone(currentState)
-  newState.liabilities.debtBalance *= 1 + rate
+
+  // Calculate interest expense on existing debt
+  const interestExpense = newState.liabilities.debtBalance * rate
+
+  // Track interest separately and add to debt balance
+  newState.liabilities.interestExpense = interestExpense
+  newState.liabilities.debtBalance += interestExpense
+
   return newState
 }
 

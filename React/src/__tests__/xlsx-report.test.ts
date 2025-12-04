@@ -276,4 +276,216 @@ describe('XLSX Report Generation', () => {
     const firstYearCharity = charitableRow.getCell(2).value as number
     expect(firstYearCharity).toBe(0) // Should be $0 when no donations
   })
+
+  test('XLSX report includes reverse mortgage debt tracking when allowHomeBorrowing is enabled', async () => {
+    // Scenario: Person with limited investments but home equity borrowing enabled
+    // This tests the granddad's scenario - someone living on a reverse mortgage
+    const reverseMortgageScenario: CalculatorSchemaType = {
+      persons: [
+        {
+          ...initializePerson('self'),
+          birthYear: 1950, // Age 75 in 2025
+          lifeExpectancy: 100,
+          annualExpenses: 80000,
+          cppAmount: 19000,
+          cppStartYear: 2019, // Age 69
+          oasAmount: 9000,
+          oasStartYear: 2019, // Age 69
+          nonRegisteredInvestmentValue: 0, // Assume all investments given away
+          nonRegisteredInvestmentBookValue: 0,
+          registeredInvestments: [],
+        },
+      ],
+      calculateForSpouse: false,
+      investmentReturnRate: 5,
+      inflationRate: 2.5,
+      province: 'ON',
+      otherIncomes: [],
+      charitableDonations: [],
+      oneOffExpenses: [],
+      investorProfile: null,
+      specifyReturn: null,
+      primaryResidenceValue: 2000000,
+      primaryResidenceSell: true,
+      primaryResidenceSellYear: 2040, // Sell in 2040
+      homeOwnership: 'self',
+      desiredEstateValue: 10000,
+      incomeReturnRate: null,
+      growthReturnRate: null,
+      borrowingRate: 8, // 8% interest on reverse mortgage
+      startingDebt: 0,
+      allowHomeBorrowing: true, // Enable reverse mortgage
+      withdrawOnlyNeededFromInvestments: true,
+      nonRegisteredReturnBreakdown: {
+        interest: 0.2,
+        eligibleDividends: 0.3,
+        capitalGains: 0.5,
+      },
+      expensesChangeForEachStage: null,
+      expensesChangeForEachStageSpouse: null,
+    }
+
+    // Run the projection
+    const states = projectRetirement(reverseMortgageScenario)
+    expect(states.length).toBeGreaterThan(0)
+
+    // Verify that debt accumulates over time (deficit scenario)
+    // After the first year, there should be some debt if expenses > income
+    const firstYearState = states[0]
+    const laterYearState = states[5] // Check 5 years in
+
+    console.log('\n=== Reverse Mortgage Debt Tracking ===')
+    console.log(`Year ${firstYearState.year} debt: $${firstYearState.liabilities.debtBalance.toLocaleString()}`)
+    console.log(`Year ${firstYearState.year} interest expense: $${firstYearState.liabilities.interestExpense.toLocaleString()}`)
+    console.log(`Year ${laterYearState.year} debt: $${laterYearState.liabilities.debtBalance.toLocaleString()}`)
+    console.log(`Year ${laterYearState.year} interest expense: $${laterYearState.liabilities.interestExpense.toLocaleString()}`)
+
+    // Verify interest expense is being tracked
+    // If there's debt in earlier years, later years should have interest expense
+    if (states[1].liabilities.debtBalance > 0) {
+      // Interest expense should be calculated: debt * 8%
+      const expectedInterest = states[1].liabilities.debtBalance * 0.08
+      // Interest is applied to existing debt at start of year, but the states show end-of-year
+      // So we check that interest expense is greater than 0 when debt exists
+      expect(states[2].liabilities.interestExpense).toBeGreaterThan(0)
+    }
+
+    // Generate the XLSX workbook (in memory, without downloading)
+    const workbook = await generateExcelReport(
+      states,
+      reverseMortgageScenario,
+      'test.xlsx',
+      true // returnWorkbook = true
+    )
+
+    expect(workbook).toBeDefined()
+    const wb = workbook as ExcelJS.Workbook
+    const sheet = wb.getWorksheet('Financial Projection')
+    expect(sheet).toBeDefined()
+
+    // Extract all row labels from column A
+    const rowLabels: string[] = []
+    sheet!.eachRow((row: ExcelJS.Row, rowNumber: number) => {
+      const labelCell = row.getCell(1)
+      if (labelCell.value) {
+        rowLabels.push(labelCell.value.toString().trim())
+      }
+    })
+
+    console.log('\n=== XLSX Report Row Labels (Reverse Mortgage Scenario) ===')
+    rowLabels.forEach((label, index) => {
+      console.log(`${index + 1}. ${label}`)
+    })
+
+    // Verify the new Liabilities section exists when allowHomeBorrowing is enabled
+    expect(rowLabels).toContain('Liabilities')
+    expect(rowLabels).toContain('Reverse Mortgage')
+    expect(rowLabels).toContain('Cumulative Debt Balance')
+    expect(rowLabels).toContain('Total Liabilities')
+    expect(rowLabels).toContain('Reverse Mortgage Interest')
+
+    // Find the row numbers for key metrics
+    let debtBalanceRowNum = 0
+    let interestExpenseRowNum = 0
+    let netWorthRowNum = 0
+
+    sheet!.eachRow((row: ExcelJS.Row, rowNumber: number) => {
+      const label = row.getCell(1).value?.toString().trim() || ''
+      if (label === 'Cumulative Debt Balance') debtBalanceRowNum = rowNumber
+      if (label === 'Reverse Mortgage Interest') interestExpenseRowNum = rowNumber
+      if (label === 'Net Worth') netWorthRowNum = rowNumber
+    })
+
+    expect(debtBalanceRowNum).toBeGreaterThan(0)
+    expect(interestExpenseRowNum).toBeGreaterThan(0)
+    expect(netWorthRowNum).toBeGreaterThan(0)
+
+    // Verify debt balance values match the state data
+    const debtBalanceRow = sheet!.getRow(debtBalanceRowNum)
+    const firstYearDebt = debtBalanceRow.getCell(2).value as number
+    expect(firstYearDebt).toBeCloseTo(states[0].liabilities.debtBalance, 0)
+
+    // Verify interest expense values
+    const interestExpenseRow = sheet!.getRow(interestExpenseRowNum)
+    const firstYearInterest = interestExpenseRow.getCell(2).value as number
+    expect(firstYearInterest).toBeCloseTo(states[0].liabilities.interestExpense, 0)
+
+    console.log('\n=== Verification Summary (Reverse Mortgage) ===')
+    console.log('✅ Liabilities section exists')
+    console.log('✅ Cumulative Debt Balance row exists')
+    console.log('✅ Reverse Mortgage Interest row exists')
+    console.log(`✅ First year debt balance: $${firstYearDebt.toLocaleString()}`)
+    console.log(`✅ First year interest expense: $${firstYearInterest.toLocaleString()}`)
+  })
+
+  test('XLSX report does NOT include Liabilities section when allowHomeBorrowing is disabled', async () => {
+    const noReverseMortgageScenario: CalculatorSchemaType = {
+      persons: [
+        {
+          ...initializePerson('self'),
+          birthYear: currentYear - 40,
+          lifeExpectancy: 90,
+          annualExpenses: 50000,
+          nonRegisteredInvestmentValue: 500000,
+          nonRegisteredInvestmentBookValue: 500000,
+        },
+      ],
+      calculateForSpouse: false,
+      investmentReturnRate: 4,
+      inflationRate: 2,
+      province: 'ON',
+      otherIncomes: [],
+      charitableDonations: [],
+      oneOffExpenses: [],
+      investorProfile: null,
+      specifyReturn: null,
+      primaryResidenceValue: 1000000,
+      primaryResidenceSell: false,
+      primaryResidenceSellYear: null,
+      homeOwnership: 'self',
+      desiredEstateValue: null,
+      incomeReturnRate: null,
+      growthReturnRate: null,
+      borrowingRate: null,
+      startingDebt: 0,
+      allowHomeBorrowing: false, // Disabled
+      withdrawOnlyNeededFromInvestments: true,
+      nonRegisteredReturnBreakdown: {
+        interest: 0.2,
+        eligibleDividends: 0.3,
+        capitalGains: 0.5,
+      },
+      expensesChangeForEachStage: null,
+      expensesChangeForEachStageSpouse: null,
+    }
+
+    const states = projectRetirement(noReverseMortgageScenario)
+    const workbook = await generateExcelReport(
+      states,
+      noReverseMortgageScenario,
+      'test.xlsx',
+      true
+    )
+
+    const wb = workbook as ExcelJS.Workbook
+    const sheet = wb.getWorksheet('Financial Projection')
+
+    // Extract all row labels
+    const rowLabels: string[] = []
+    sheet!.eachRow((row: ExcelJS.Row, rowNumber: number) => {
+      const labelCell = row.getCell(1)
+      if (labelCell.value) {
+        rowLabels.push(labelCell.value.toString().trim())
+      }
+    })
+
+    // Verify the Liabilities section does NOT exist when allowHomeBorrowing is disabled
+    expect(rowLabels).not.toContain('Liabilities')
+    expect(rowLabels).not.toContain('Reverse Mortgage')
+    expect(rowLabels).not.toContain('Cumulative Debt Balance')
+    expect(rowLabels).not.toContain('Reverse Mortgage Interest')
+
+    console.log('\n=== Verification (No Reverse Mortgage) ===')
+    console.log('✅ Liabilities section correctly excluded when allowHomeBorrowing is disabled')
+  })
 })
