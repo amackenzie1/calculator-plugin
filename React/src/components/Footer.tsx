@@ -1,66 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loadSiteConfig, SiteConfig } from "@/lib/config/site";
-import { loadResources, Resource } from "@/lib/config/resources";
-import { ChevronRight } from "lucide-react";
 
 function Footer() {
   const [site, setSite] = useState<SiteConfig | null>(null);
-  const [recent, setRecent] = useState<Resource[]>([]);
 
   useEffect(() => {
     loadSiteConfig().then(setSite).catch(() => setSite(null));
-    loadResources()
-      .then(({ resources }) => {
-        const sorted = [...resources].sort((a, b) => (a.date < b.date ? 1 : -1));
-        setRecent(sorted.slice(0, 3));
-      })
-      .catch(() => setRecent([]));
   }, []);
 
-  return (
-    <footer className="mt-20 border-t border-border/40 bg-muted/30">
-      <div className="container mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            {site?.logo ? (
-              <img src={`/${site.logo}`} alt={site?.name} className="h-10 w-auto opacity-80" />
-            ) : null}
-          </div>
-          <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed mt-3">{site?.footer.about}</p>
-        </div>
+  const links = site?.footer.links ?? [
+    { label: "About", path: "/about" },
+    { label: "How It Works", path: "/how-it-works" },
+    { label: "Calculator", path: "/calculator" },
+    { label: "Resources", path: "/resources" },
+    { label: "Contact", path: "/contact" },
+  ];
 
-        <div>
-          <h3 className="font-medium text-foreground mb-4">Quick Links</h3>
-          <nav className="flex flex-col gap-3 text-sm">
-            {site?.footer.links.map((l) => (
-              <Link key={l.path} to={l.path} className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2">
-                <ChevronRight className="h-4 w-4 text-accent" aria-hidden="true" /> {l.label}
+  return (
+    <footer className="mt-16 border-t border-border/40 bg-muted/20">
+      <div className="container mx-auto px-6 py-8 max-w-6xl">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          {/* Logo + tagline */}
+          <div className="flex items-center gap-4">
+            {site?.logo ? (
+              <img src={`/${site.logo}`} alt={site?.name} className="h-9 w-auto opacity-90" />
+            ) : null}
+            <div className="h-6 w-px bg-border/50 hidden md:block" />
+            <p className="text-sm text-muted-foreground hidden md:block">
+              Helping Canadians plan their financial future.
+            </p>
+          </div>
+
+          {/* Nav links - horizontal */}
+          <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            {links.map((l) => (
+              <Link
+                key={l.path}
+                to={l.path}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {l.label}
               </Link>
             ))}
           </nav>
         </div>
 
-        <div>
-          <h3 className="font-medium text-foreground mb-4">Recent Resources</h3>
-          <div className="space-y-4">
-            {recent.map((r) => (
-              <Link key={r.id} to={`/resources/${r.id}`} className="flex items-center gap-3 group">
-                {r.coverPhoto ? (
-                  <img src={`/${r.coverPhoto}`} alt={r.title} className="h-12 w-16 object-cover rounded border border-border/50 group-hover:border-primary/30 transition-all" />
-                ) : null}
-                <div>
-                  <div className="text-xs text-muted-foreground">{new Date(r.date).toLocaleDateString()}</div>
-                  <div className="text-sm group-hover:text-foreground transition-colors">{r.title}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="border-t border-border/40 py-6">
-        <div className="container mx-auto px-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {site?.name ?? "Use It Wisely"}. All rights reserved.
+        {/* Bottom line */}
+        <div className="mt-6 pt-6 border-t border-border/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground/70">
+          <p>© {new Date().getFullYear()} {site?.name ?? "Use It Wisely"}. All rights reserved.</p>
+          <p>A non-profit helping retirees maximize their happiness.</p>
         </div>
       </div>
     </footer>
